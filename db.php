@@ -2,11 +2,15 @@
 $host = "localhost";
 $user = "root";
 $pass = "";
-$db = "fitness_system";
-$conn = mysqli_connect($host, $user,$pass,$db);
+$dbname = "fitness_db"; 
 
-if(!conn){
-    ("Database connection failed:" . mysqşi_connect_error());
 
+$conn = mysqli_connect($host, $user, $pass, $dbname);
+
+
+if (!$conn) {
+    die("Bağlantı hatası: " . mysqli_connect_error());
 }
+
+mysqli_set_charset($conn, "utf8");
 ?>
