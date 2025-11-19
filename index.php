@@ -1,6 +1,12 @@
 <?php
-// Veritabanı bağlantı dosyamızı çağırıyoruz
+session_start();
 include 'db.php';
+
+// Filtreleme Mantığı
+$filter_type = "";
+if (isset($_GET['category'])) {
+    $filter_type = $_GET['category'];
+}
 ?>
 
 <!DOCTYPE html>
@@ -9,14 +15,25 @@ include 'db.php';
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Fitness Rezervasyon Sistemi</title>
+    <link rel="stylesheet" href="style.css">
     <style>
-        /* Basit bir tasarım yapalım */
-        body { font-family: sans-serif; background-color: #f4f4f4; padding: 20px; }
-        .container { max-width: 800px; margin: 0 auto; }
-        .header { text-align: center; background: #333; color: white; padding: 20px; border-radius: 10px; }
-        .class-card { background: white; padding: 20px; margin-top: 20px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-        .btn { display: inline-block; padding: 10px 20px; background: #28a745; color: white; text-decoration: none; border-radius: 5px; }
-        .stok { font-weight: bold; color: #d9534f; }
+        /* Filtre Butonları İçin Stil */
+        .filter-container { text-align: center; margin: 20px 0; }
+        .filter-btn {
+            display: inline-block;
+            padding: 8px 15px;
+            margin: 5px;
+            border: 1px solid #2a5298;
+            border-radius: 20px;
+            text-decoration: none;
+            color: #2a5298;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        .filter-btn:hover, .filter-btn.active {
+            background-color: #2a5298;
+            color: white;
+        }
     </style>
 </head>
 <body>
@@ -24,20 +41,44 @@ include 'db.php';
 <div class="container">
     <div class="header">
         <h1>🏋️‍♂️ Online Fitness Dersleri</h1>
-        <p>Hoşgeldiniz! Hemen bir ders rezerve edin.</p>
-        <a href="login.php" style="color: yellow;">Giriş Yap</a> | 
-        <a href="register.php" style="color: yellow;">Kayıt Ol</a>
+        
+        <?php if(isset($_SESSION['user_id'])): ?>
+            <div class="user-info">Hoşgeldin, <?php echo $_SESSION['username']; ?>!</div>
+            <?php if($_SESSION['role'] == 'admin'): ?>
+                <a href="admin.php" style="color: #ff9f43; font-weight:bold; border: 1px solid #ff9f43; padding: 5px 10px; border-radius: 5px; text-decoration:none;"> Ders Ekle </a> | 
+            <?php endif; ?>
+            <a href="profile.php" style="color: white;">Profilim</a> | 
+            <a href="logout.php" style="color: #ff6b6b;">Çıkış Yap</a>
+        <?php else: ?>
+            <p>Ders almak için lütfen giriş yapınız.</p>
+            <a href="login.php" style="color: yellow;">Giriş Yap</a> | 
+            <a href="register.php" style="color: yellow;">Kayıt Ol</a>
+        <?php endif; ?>
     </div>
 
-    <h2>📅 Yaklaşan Dersler</h2>
+    <div class="filter-container">
+        <a href="index.php" class="filter-btn <?php if($filter_type == '') echo 'active'; ?>">Tümü</a>
+        <a href="index.php?category=Yoga" class="filter-btn <?php if($filter_type == 'Yoga') echo 'active'; ?>">🧘‍♀️ Yoga</a>
+        <a href="index.php?category=Pilates" class="filter-btn <?php if($filter_type == 'Pilates') echo 'active'; ?>">🤸‍♀️ Pilates</a>
+        <a href="index.php?category=HIIT" class="filter-btn <?php if($filter_type == 'HIIT') echo 'active'; ?>">🔥 HIIT</a>
+        <a href="index.php?category=Zumba" class="filter-btn <?php if($filter_type == 'Zumba') echo 'active'; ?>">💃 Zumba</a>
+    </div>
 
+    <h2>📅 <?php echo $filter_type ? "$filter_type Dersleri" : "Tüm Yaklaşan Dersler"; ?></h2>
+
+    <div class="class-list"> 
+    
     <?php
-    // Veritabanından dersleri çekme kodu
-    $sql = "SELECT * FROM classes";
+    // SQL Sorgusunu Filtreye Göre Değiştir
+    if ($filter_type != "") {
+        $sql = "SELECT * FROM classes WHERE class_type = '$filter_type' ORDER BY date_time ASC";
+    } else {
+        $sql = "SELECT * FROM classes ORDER BY date_time ASC";
+    }
+    
     $result = mysqli_query($conn, $sql);
 
     if (mysqli_num_rows($result) > 0) {
-        // Her bir ders için döngüye gir
         while($row = mysqli_fetch_assoc($result)) {
             echo '<div class="class-card">';
             echo '<h3>' . $row["title"] . ' <small>(' . $row["class_type"] . ')</small></h3>';
@@ -45,16 +86,28 @@ include 'db.php';
             echo '<p><strong>Tarih:</strong> ' . $row["date_time"] . '</p>';
             echo '<p>' . $row["description"] . '</p>';
             
-            // Stok Durumu (Hocanın İstediği Kritik Yer)
-            echo '<p class="stok">Kalan Kontenjan: ' . $row["capacity"] . ' Kişi</p>';
+            // Stok durumuna göre renk
+            $stok_class = ($row["capacity"] < 3) ? "color:red;" : "color:green;";
+            echo '<p class="stok" style="'.$stok_class.'">Kalan Kontenjan: ' . $row["capacity"] . ' Kişi</p>';
             
-            echo '<a href="#" class="btn">Rezerve Et</a>';
+            if(isset($_SESSION['user_id'])) {
+                if ($row["capacity"] > 0) {
+                    echo '<a href="book_class.php?id='.$row['id'].'" class="btn">Rezerve Et</a>';
+                } else {
+                    echo '<button class="btn btn-disabled" disabled>KONTENJAN DOLDU</button>';
+                }
+            } else {
+                echo '<a href="login.php" class="btn btn-disabled">Rezerve İçin Giriş Yap</a>';
+            }
+            
             echo '</div>';
         }
     } else {
-        echo "<p>Şu an aktif ders bulunmuyor.</p>";
+        echo "<p style='text-align:center; width:100%;'>😔 Aradığınız kategoride şu an aktif ders bulunmuyor.</p>";
     }
     ?>
+    
+    </div>
 
 </div>
 
