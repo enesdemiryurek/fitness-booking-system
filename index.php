@@ -1,12 +1,6 @@
 <?php
 session_start();
 include 'db.php';
-
-// Filtreleme Mantığı
-$filter_type = "";
-if (isset($_GET['category'])) {
-    $filter_type = $_GET['category'];
-}
 ?>
 
 <!DOCTYPE html>
@@ -14,102 +8,104 @@ if (isset($_GET['category'])) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fitness Rezervasyon Sistemi</title>
+    <title>Fitness Rezervasyon</title>
     <link rel="stylesheet" href="style.css">
-    <style>
-        /* Filtre Butonları İçin Stil */
-        .filter-container { text-align: center; margin: 20px 0; }
-        .filter-btn {
-            display: inline-block;
-            padding: 8px 15px;
-            margin: 5px;
-            border: 1px solid #2a5298;
-            border-radius: 20px;
-            text-decoration: none;
-            color: #2a5298;
-            font-weight: 600;
-            transition: all 0.3s;
-        }
-        .filter-btn:hover, .filter-btn.active {
-            background-color: #2a5298;
-            color: white;
-        }
-    </style>
 </head>
 <body>
 
-<div class="container">
-    <div class="header">
-        <h1>🏋️‍♂️ Online Fitness Dersleri</h1>
-        
-        <?php if(isset($_SESSION['user_id'])): ?>
-            <div class="user-info">Hoşgeldin, <?php echo $_SESSION['username']; ?>!</div>
-            <?php if($_SESSION['role'] == 'admin'): ?>
-                <a href="admin.php" style="color: #ff9f43; font-weight:bold; border: 1px solid #ff9f43; padding: 5px 10px; border-radius: 5px; text-decoration:none;"> Ders Ekle </a> | 
+    <nav class="navbar">
+        <a href="index.php" class="logo">
+            GYM
+        </a>
+
+        <div class="nav-center">
+            <a href="#dersler">Dersleri Keşfet</a>
+        </div>
+
+        <div class="nav-right">
+            <?php if(isset($_SESSION['user_id'])): ?>
+                <?php if($_SESSION['role'] == 'admin'): ?>
+                    <a href="admin.php" class="admin-badge"> Panel</a>
+                <?php endif; ?>
+
+                <a href="profile.php" class="btn-auth btn-login">👤 Profilim</a>
+                <a href="logout.php" class="btn-auth" style="color:red;">Çıkış</a>
+            <?php else: ?>
+                <a href="login.php" class="btn-auth btn-login">Giriş Yap</a>
+                <a href="register.php" class="btn-auth btn-register">Kayıt Ol</a>
             <?php endif; ?>
-            <a href="profile.php" style="color: white;">Profilim</a> | 
-            <a href="logout.php" style="color: #ff6b6b;">Çıkış Yap</a>
-        <?php else: ?>
-            <p>Ders almak için lütfen giriş yapınız.</p>
-            <a href="login.php" style="color: yellow;">Giriş Yap</a> | 
-            <a href="register.php" style="color: yellow;">Kayıt Ol</a>
-        <?php endif; ?>
+        </div>
+    </nav>
+
+    <div class="hero">
+        <h1>Sınırlarını Zorla</h1>
+        <p>En iyi eğitmenlerle potansiyelini keşfet. Hemen yerini ayırt.</p>
     </div>
 
-    <div class="filter-container">
-        <a href="index.php" class="filter-btn <?php if($filter_type == '') echo 'active'; ?>">Tümü</a>
-        <a href="index.php?category=Yoga" class="filter-btn <?php if($filter_type == 'Yoga') echo 'active'; ?>">🧘‍♀️ Yoga</a>
-        <a href="index.php?category=Pilates" class="filter-btn <?php if($filter_type == 'Pilates') echo 'active'; ?>">🤸‍♀️ Pilates</a>
-        <a href="index.php?category=HIIT" class="filter-btn <?php if($filter_type == 'HIIT') echo 'active'; ?>">🔥 HIIT</a>
-        <a href="index.php?category=Zumba" class="filter-btn <?php if($filter_type == 'Zumba') echo 'active'; ?>">💃 Zumba</a>
-    </div>
+    <div class="container" id="dersler">
+        <h2 class="section-title">📅 Yaklaşan Dersler</h2>
 
-    <h2>📅 <?php echo $filter_type ? "$filter_type Dersleri" : "Tüm Yaklaşan Dersler"; ?></h2>
+        <div class="class-list">
+            <?php
+            $sql = "SELECT * FROM classes ORDER BY date_time ASC";
+            $result = mysqli_query($conn, $sql);
 
-    <div class="class-list"> 
-    
-    <?php
-    // SQL Sorgusunu Filtreye Göre Değiştir
-    if ($filter_type != "") {
-        $sql = "SELECT * FROM classes WHERE class_type = '$filter_type' ORDER BY date_time ASC";
-    } else {
-        $sql = "SELECT * FROM classes ORDER BY date_time ASC";
-    }
-    
-    $result = mysqli_query($conn, $sql);
+            if (mysqli_num_rows($result) > 0) {
+                while($row = mysqli_fetch_assoc($result)) {
+                    
+                    // --- FOTOĞRAF AYARI (LOCAL) ---
+                    // Senin img klasöründeki resimleri eşleştiriyoruz
+                    $type = mb_strtolower($row['class_type']); // Harfleri küçült (yoga, pilates...)
+                    
+                    // Varsayılan resim (Klasörde yoksa bu çıkar)
+                    $img_url = "img/default.jpg"; 
 
-    if (mysqli_num_rows($result) > 0) {
-        while($row = mysqli_fetch_assoc($result)) {
-            echo '<div class="class-card">';
-            echo '<h3>' . $row["title"] . ' <small>(' . $row["class_type"] . ')</small></h3>';
-            echo '<p><strong>Eğitmen:</strong> ' . $row["trainer_name"] . '</p>';
-            echo '<p><strong>Tarih:</strong> ' . $row["date_time"] . '</p>';
-            echo '<p>' . $row["description"] . '</p>';
-            
-            // Stok durumuna göre renk
-            $stok_class = ($row["capacity"] < 3) ? "color:red;" : "color:green;";
-            echo '<p class="stok" style="'.$stok_class.'">Kalan Kontenjan: ' . $row["capacity"] . ' Kişi</p>';
-            
-            if(isset($_SESSION['user_id'])) {
-                if ($row["capacity"] > 0) {
-                    echo '<a href="book_class.php?id='.$row['id'].'" class="btn">Rezerve Et</a>';
-                } else {
-                    echo '<button class="btn btn-disabled" disabled>KONTENJAN DOLDU</button>';
+                    // İsim eşleşmesi yapıyoruz
+                    if(strpos($type, 'yoga') !== false) {
+                        $img_url = "img/yoga.jpg";
+                    } elseif(strpos($type, 'pilates') !== false) {
+                        $img_url = "img/pilates.jpg";
+                    } elseif(strpos($type, 'hiit') !== false) {
+                        $img_url = "img/hiit.jpg";
+                    } elseif(strpos($type, 'zumba') !== false) {
+                        $img_url = "img/zumba.jpg";
+                    } elseif(strpos($type, 'fitness') !== false) {
+                        $img_url = "img/default.jpg";
+                    }
+                    // -----------------------
+
+                    echo '<div class="class-card">';
+                    // KARTIN ÜSTÜNE RESİM 
+                    // (onerror kısmı: Eğer klasörde resim bulamazsa gri kutu gösterir, site bozulmaz)
+                    echo '<img src="'.$img_url.'" alt="Ders Resmi" class="card-image" onerror="this.src=\'https://placehold.co/600x400?text=Resim+Yok\'">';
+                    
+                    echo '<div class="card-content">';
+                        echo '<h3>' . $row["title"] . ' <span class="badge">' . $row["class_type"] . '</span></h3>';
+                        echo '<p style="color:#666; margin-top:5px;">🧘‍♂️ ' . $row["trainer_name"] . ' • 🕒 ' . date("d M H:i", strtotime($row["date_time"])) . '</p>';
+                        echo '<p style="margin-top:10px;">' . $row["description"] . '</p>';
+                        
+                        // Stok rengi
+                        $stok_color = ($row["capacity"] < 3) ? "#dc3545" : "#28a745";
+                        echo '<span class="stok" style="color:'.$stok_color.'">⚡ Kalan Yer: ' . $row["capacity"] . '</span>';
+                        
+                        if(isset($_SESSION['user_id'])) {
+                            if ($row["capacity"] > 0) {
+                                echo '<a href="book_class.php?id='.$row['id'].'" class="btn-card">Hemen Rezerve Et</a>';
+                            } else {
+                                echo '<button class="btn-card btn-disabled" disabled>DOLDU</button>';
+                            }
+                        } else {
+                            echo '<a href="login.php" class="btn-card" style="background:#666;">Giriş Yap & Rezerve Et</a>';
+                        }
+                    echo '</div>'; // card-content bitiş
+                    echo '</div>'; // class-card bitiş
                 }
             } else {
-                echo '<a href="login.php" class="btn btn-disabled">Rezerve İçin Giriş Yap</a>';
+                echo "<p style='text-align:center; width:100%;'>Henüz aktif ders bulunmuyor.</p>";
             }
-            
-            echo '</div>';
-        }
-    } else {
-        echo "<p style='text-align:center; width:100%;'>😔 Aradığınız kategoride şu an aktif ders bulunmuyor.</p>";
-    }
-    ?>
-    
+            ?>
+        </div>
     </div>
-
-</div>
 
 </body>
 </html>
