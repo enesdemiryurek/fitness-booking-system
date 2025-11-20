@@ -2,7 +2,7 @@
 session_start();
 include 'db.php';
 
-// Güvenlik: Giriş yapmayan giremez
+// Güvenlik
 if (!isset($_SESSION['user_id'])) {
     header("Location: login.php");
     exit;
@@ -25,8 +25,6 @@ if (isset($_POST['update_profile'])) {
     if (mysqli_query($conn, $update_sql)) {
         $message = "✅ Bilgiler güncellendi!";
         $_SESSION['username'] = $new_username;
-    } else {
-        $message = "❌ Hata: " . mysqli_error($conn);
     }
 }
 
@@ -35,7 +33,6 @@ if (isset($_POST['add_progress'])) {
     $weight = $_POST['weight'];
     $height = $_POST['height'];
     
-    // BMI Hesaplama
     if($height > 0) {
         $height_m = $height / 100; 
         $bmi = $weight / ($height_m * $height_m);
@@ -49,13 +46,12 @@ if (isset($_POST['add_progress'])) {
     }
 }
 
-// --- 3. YORUM VE PUANLAMA ---
+// --- 3. YORUM KAYDETME ---
 if (isset($_POST['submit_review'])) {
     $class_id_review = $_POST['class_id'];
     $rating = $_POST['rating'];
     $comment = $_POST['comment'];
 
-    // Daha önce yorum yapmış mı?
     $check_rev = mysqli_query($conn, "SELECT * FROM reviews WHERE user_id=$user_id AND class_id=$class_id_review");
     
     if(mysqli_num_rows($check_rev) > 0) {
@@ -70,6 +66,31 @@ if (isset($_POST['submit_review'])) {
 
 // Kullanıcı Bilgisi
 $user_row = mysqli_fetch_assoc(mysqli_query($conn, "SELECT * FROM users WHERE id = $user_id"));
+
+// --- DERSLERİ AYRIŞTIRMA MANTIĞI ---
+// Tüm dersleri çekip PHP tarafında 'Gelecek' ve 'Geçmiş' diye iki kutuya ayırıyoruz.
+$sql = "SELECT classes.*, bookings.booking_date, bookings.id as booking_id 
+        FROM bookings 
+        JOIN classes ON bookings.class_id = classes.id 
+        WHERE bookings.user_id = $user_id 
+        ORDER BY classes.date_time ASC"; // Yaklaşanlar üstte olsun diye ASC
+
+$result = mysqli_query($conn, $sql);
+
+$upcoming_classes = [];
+$past_classes = [];
+
+if(mysqli_num_rows($result) > 0) {
+    while($row = mysqli_fetch_assoc($result)) {
+        if(strtotime($row['date_time']) > time()) {
+            $upcoming_classes[] = $row; // Gelecek kutusuna at
+        } else {
+            $past_classes[] = $row; // Geçmiş kutusuna at
+        }
+    }
+}
+// Geçmiş dersleri en yeniden en eskiye sıralayalım (Tersine çevir)
+$past_classes = array_reverse($past_classes);
 ?>
 
 <!DOCTYPE html>
@@ -79,7 +100,7 @@ $user_row = mysqli_fetch_assoc(mysqli_query($conn, "SELECT * FROM users WHERE id
     <title>Profilim | GYM</title>
     <link rel="stylesheet" href="style.css">
     <style>
-        /* --- DASHBOARD STİLLERİ --- */
+        /* DASHBOARD STİLLERİ */
         body { background-color: #f0f2f5; font-family: 'Poppins', sans-serif; }
         .dashboard-container { max-width: 1200px; margin: 30px auto; padding: 0 20px; }
         
@@ -92,7 +113,6 @@ $user_row = mysqli_fetch_assoc(mysqli_query($conn, "SELECT * FROM users WHERE id
         .dash-title h1 { margin: 0; font-size: 1.8rem; }
         .dash-btn { background: rgba(255,255,255,0.2); color: white; text-decoration: none; padding: 10px 20px; border-radius: 8px; font-weight: 600; transition: 0.3s; margin-left: 10px; }
         .dash-btn:hover { background: white; color: #185ADB; }
-        .btn-logout { background: #ff4757; } .btn-logout:hover { background: #ff6b81; }
 
         /* Grid */
         .dash-grid { display: grid; grid-template-columns: 1fr 1.5fr 1fr; gap: 25px; }
@@ -127,7 +147,6 @@ $user_row = mysqli_fetch_assoc(mysqli_query($conn, "SELECT * FROM users WHERE id
         .btn-rate { background: #fbc02d; color: #333; border: none; padding: 5px 10px; border-radius: 5px; font-weight: bold; cursor: pointer; font-size: 0.8rem; }
         .rated-badge { background: #fff9c4; color: #f9a825; padding: 5px 10px; border-radius: 5px; font-weight: bold; font-size: 0.85rem; display: inline-block; }
 
-        /* Gelişim Listesi */
         .prog-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #f0f0f0; }
         .prog-bmi { background: #e0f2f1; color: #00695c; padding: 3px 8px; border-radius: 20px; font-size: 0.8rem; font-weight: bold; }
 
@@ -145,7 +164,7 @@ $user_row = mysqli_fetch_assoc(mysqli_query($conn, "SELECT * FROM users WHERE id
         </div>
         <div>
             <a href="index.php" class="dash-btn">🏠 Anasayfa</a>
-            <a href="logout.php" class="dash-btn btn-logout">Çıkış Yap</a>
+            <a href="logout.php" class="dash-btn" style="background:#ff4757;">Çıkış</a>
         </div>
     </div>
 
@@ -185,73 +204,71 @@ $user_row = mysqli_fetch_assoc(mysqli_query($conn, "SELECT * FROM users WHERE id
             </div>
         </div>
 
-        <!-- ORTA: DERS PROGRAMI -->
+        <!-- ORTA: DERSLER (İKİYE AYRILDI) -->
         <div class="mid-col">
-            <div class="dash-card">
-                <div class="card-head">📅 Ders Programım</div>
-                
-                <?php
-                $sql = "SELECT classes.*, bookings.booking_date, bookings.id as booking_id 
-                        FROM bookings 
-                        JOIN classes ON bookings.class_id = classes.id 
-                        WHERE bookings.user_id = $user_id 
-                        ORDER BY classes.date_time DESC";
-                
-                $result = mysqli_query($conn, $sql);
-                
-                if(mysqli_num_rows($result) > 0) {
-                    while($row = mysqli_fetch_assoc($result)) {
-                        $class_date = strtotime($row['date_time']);
-                        $now = time();
-                        
-                        if($class_date > $now) {
-                            // GELECEK DERS
-                            echo '<div class="lesson-item future">';
-                            echo '<h4>'. $row['title'] .' ('. $row['class_type'] .')</h4>';
-                            echo '<div class="lesson-meta">📅 '. date("d.m.Y H:i", $class_date) .' • 🧘‍♂️ '. $row['trainer_name'] .'</div>';
-                            echo '<div class="lesson-actions">';
-                            echo '<a href="'.$row['video_link'].'" target="_blank" class="link-btn">🎥 Yayına Git</a>';
-                            echo '<a href="cancel_booking.php?id='.$row['booking_id'].'" onclick="return confirm(\'İptal?\')" class="cancel-btn">❌ İptal</a>';
-                            echo '</div></div>';
-                        } else {
-                            // GEÇMİŞ DERS (PUANLAMA BURADA)
-                            echo '<div class="lesson-item past">';
-                            echo '<h4>'. $row['title'] .'</h4>';
-                            echo '<div class="lesson-meta">✅ Tamamlandı • '. date("d.m.Y H:i", $class_date) .'</div>';
+            
+            <!-- KUTU 1: YAKLAŞAN DERSLER -->
+            <div class="dash-card" style="border-top: 5px solid #185ADB;">
+                <div class="card-head" style="color:#185ADB;">🚀 Yaklaşan Dersler</div>
+                <?php if(count($upcoming_classes) > 0): ?>
+                    <?php foreach($upcoming_classes as $row): ?>
+                        <div class="lesson-item future">
+                            <h4><?php echo $row['title']; ?> (<?php echo $row['class_type']; ?>)</h4>
+                            <div class="lesson-meta">📅 <?php echo date("d.m.Y H:i", strtotime($row['date_time'])); ?> • 🧘‍♂️ <?php echo $row['trainer_name']; ?></div>
+                            <div class="lesson-actions">
+                                <a href="<?php echo $row['video_link']; ?>" target="_blank" class="link-btn">🎥 Yayına Git</a>
+                                <a href="cancel_booking.php?id=<?php echo $row['booking_id']; ?>" onclick="return confirm('İptal?')" class="cancel-btn">❌ İptal</a>
+                            </div>
+                        </div>
+                    <?php endforeach; ?>
+                <?php else: ?>
+                    <p style="color:#999; text-align:center;">Yaklaşan dersiniz yok.</p>
+                <?php endif; ?>
+            </div>
+
+            <!-- KUTU 2: GEÇMİŞ DERSLER (PUANLAMA BURADA) -->
+            <div class="dash-card" style="border-top: 5px solid #666;">
+                <div class="card-head" style="color:#555;">📜 Geçmiş Dersler</div>
+                <?php if(count($past_classes) > 0): ?>
+                    <?php foreach($past_classes as $row): ?>
+                        <div class="lesson-item past">
+                            <h4><?php echo $row['title']; ?></h4>
+                            <div class="lesson-meta">✅ Tamamlandı • <?php echo date("d.m.Y H:i", strtotime($row['date_time'])); ?></div>
                             
+                            <?php
                             // Puanlama Kontrolü
                             $c_id = $row['id'];
                             $check_rev = mysqli_query($conn, "SELECT * FROM reviews WHERE user_id=$user_id AND class_id=$c_id");
                             $rev_data = mysqli_fetch_assoc($check_rev);
+                            ?>
                             
-                            echo '<div class="review-area">';
-                            if($rev_data) {
-                                echo '<div class="rated-badge">⭐ Puanınız: ' . $rev_data['rating'] . '/5</div>';
-                            } else {
-                                echo '<form method="POST">';
-                                echo '<input type="hidden" name="class_id" value="'.$c_id.'">';
-                                echo '<div style="display:flex; gap:5px; margin-bottom:5px;">';
-                                echo '<select name="rating" required style="padding:5px; border-radius:5px;">
-                                        <option value="5">5 Yıldız</option>
-                                        <option value="4">4 Yıldız</option>
-                                        <option value="3">3 Yıldız</option>
-                                        <option value="2">2 Yıldız</option>
-                                        <option value="1">1 Yıldız</option>
-                                      </select>';
-                                echo '<button type="submit" name="submit_review" class="btn-rate">Puanla</button>';
-                                echo '</div>';
-                                echo '<textarea name="comment" rows="1" placeholder="Yorumunuz..." required></textarea>';
-                                echo '</form>';
-                            }
-                            echo '</div>'; // review-area
-                            echo '</div>'; // lesson-item
-                        }
-                    }
-                } else {
-                    echo "<div style='text-align:center; color:#999;'>Henüz ders kaydı yok.</div>";
-                }
-                ?>
+                            <div class="review-area">
+                                <?php if($rev_data): ?>
+                                    <div class="rated-badge">⭐ Puanınız: <?php echo $rev_data['rating']; ?>/5</div>
+                                <?php else: ?>
+                                    <form method="POST">
+                                        <input type="hidden" name="class_id" value="<?php echo $c_id; ?>">
+                                        <div style="display:flex; gap:5px; margin-bottom:5px;">
+                                            <select name="rating" required style="padding:5px; border-radius:5px;">
+                                                <option value="5">5 Yıldız</option>
+                                                <option value="4">4 Yıldız</option>
+                                                <option value="3">3 Yıldız</option>
+                                                <option value="2">2 Yıldız</option>
+                                                <option value="1">1 Yıldız</option>
+                                            </select>
+                                            <button type="submit" name="submit_review" class="btn-rate">Puanla</button>
+                                        </div>
+                                        <textarea name="comment" rows="1" placeholder="Yorumunuz..." required></textarea>
+                                    </form>
+                                <?php endif; ?>
+                            </div>
+                        </div>
+                    <?php endforeach; ?>
+                <?php else: ?>
+                    <p style="color:#999; text-align:center;">Geçmiş ders kaydı yok.</p>
+                <?php endif; ?>
             </div>
+
         </div>
 
         <!-- SAĞ: GELİŞİM GEÇMİŞİ -->

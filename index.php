@@ -100,25 +100,23 @@ include 'db.php';
                         $stok_color = ($row["capacity"] < 3) ? "#dc3545" : "#28a745";
                         echo '<span class="stok" style="color:'.$stok_color.'">⚡ Kalan Yer: ' . $row["capacity"] . '</span>';
                         
-                        // --- YENİ: PUANLAMA KONTROLÜ ---
-                        // Kullanıcı giriş yapmışsa puanına bakıyoruz
+                        // Puan Rozeti (Eğer varsa)
                         if(isset($_SESSION['user_id'])) {
                             $uid = $_SESSION['user_id'];
                             $cid = $row['id'];
                             $rating_sql = "SELECT rating FROM reviews WHERE user_id=$uid AND class_id=$cid";
                             $rating_res = mysqli_query($conn, $rating_sql);
-                            
                             if(mysqli_num_rows($rating_res) > 0) {
                                 $r_data = mysqli_fetch_assoc($rating_res);
-                                $stars = str_repeat("⭐", $r_data['rating']);
-                                echo '<div class="my-rating-badge">Senin Puanın: ' . $stars . '</div>';
+                                echo '<div class="my-rating-badge">Senin Puanın: ' . str_repeat("⭐", $r_data['rating']) . '</div>';
                             }
                         }
-                        // ------------------------------
 
-                        // Butonlar
+                        // Detay Butonu
+                        echo '<a href="class_details.php?id='.$row['id'].'" style="display:block; text-align:center; color:#185ADB; font-weight:bold; margin:15px 0 10px 0; text-decoration:none;">🔍 İncele & Yorumlar</a>';
+
+                        // Rezerve Butonları
                         if(isset($_SESSION['user_id'])) {
-                            // Tarih Kontrolü (Geçmiş dersi rezerve edemesin)
                             $class_time = strtotime($row['date_time']);
                             $now = time();
 
