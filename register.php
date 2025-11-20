@@ -1,32 +1,35 @@
 <?php
-include 'db.php'; // Veritabanı bağlantısını çağır
+include 'db.php';
 
 $message = "";
 
-// Form gönderildi mi kontrol et
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $username = $_POST['username'];
+    // Formdan gelen ayrı ayrı veriler
+    $ad = $_POST['first_name'];
+    $soyad = $_POST['last_name'];
     $email = $_POST['email'];
+    $phone = $_POST['phone']; // Telefonu aldık
     $password = $_POST['password'];
-
-    // Şifreyi güvenli hale getir (Hash'le) - Güvenlik için şart!
-    // $hashed_password = password_hash($password, PASSWORD_DEFAULT); 
-    // Not: Şimdilik basit olsun diye düz kaydedelim, hoca isterse hash'i açarız.
     
-    // E-posta daha önce var mı kontrol et
+    // Veritabanı için Ad ve Soyadı birleştiriyoruz (Örn: Enes Demiryürek)
+    $full_username = $ad . " " . $soyad;
+
+    // E-posta kontrolü
     $check = "SELECT * FROM users WHERE email = '$email'";
     $result = mysqli_query($conn, $check);
 
     if (mysqli_num_rows($result) > 0) {
-        $message = "Bu e-posta adresi zaten kayıtlı!";
+        $message = "⚠️ Bu e-posta adresi zaten kayıtlı!";
     } else {
-        // Kayıt işlemini yap
-        $sql = "INSERT INTO users (username, email, password, role) VALUES ('$username', '$email', '$password', 'student')";
+        // NOT: Telefon numarasını veritabanında sütun olmadığı için şimdilik kaydetmiyoruz.
+        // Ama görsel olarak formda duruyor. İleride 'phone' sütunu açarsan buraya eklersin.
+        
+        $sql = "INSERT INTO users (username, email, phone, password, role) VALUES ('$full_username', '$email', '$phone', '$password', 'user')";
         
         if (mysqli_query($conn, $sql)) {
-            $message = "Kayıt başarılı! <a href='login.php'>Giriş yapabilirsin.</a>";
+            echo "<script>alert('✅ Kayıt Başarılı! Aramıza hoşgeldin.'); window.location.href='login.php';</script>";
         } else {
-            $message = "Hata oluştu: " . mysqli_error($conn);
+            $message = "Hata: " . mysqli_error($conn);
         }
     }
 }
@@ -36,32 +39,70 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
-    <title>Kayıt Ol</title>
-    <style>
-        body { font-family: sans-serif; background-color: #f4f4f4; display: flex; justify-content: center; align-items: center; height: 100vh; }
-        .form-container { background: white; padding: 30px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); width: 300px; }
-        input { width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box;}
-        button { width: 100%; padding: 10px; background: #28a745; color: white; border: none; border-radius: 5px; cursor: pointer; }
-        button:hover { background: #218838; }
-        .message { color: red; margin-bottom: 10px; text-align: center; }
-    </style>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ücretsiz Kayıt Ol | GYM</title>
+    <link rel="stylesheet" href="style.css">
 </head>
-<body>
+<body class="blue-register-body">
 
-<div class="form-container">
-    <h2 style="text-align:center;">Kayıt Ol</h2>
-    
-    <?php if($message != "") { echo "<div class='message'>$message</div>"; } ?>
+    <div class="split-card">
+        
+        <div class="form-side">
+            <div class="form-header">
+                <h2>Ücretsiz Başla</h2>
+                <p>Kredi kartı gerekmez, hemen spora başla.</p>
+            </div>
 
-    <form action="" method="POST">
-        <input type="text" name="username" placeholder="Kullanıcı Adı" required>
-        <input type="email" name="email" placeholder="E-posta Adresi" required>
-        <input type="password" name="password" placeholder="Şifre" required>
-        <button type="submit">Kayıt Ol</button>
-    </form>
-    <p style="text-align:center;">Zaten üye misin? <a href="login.php">Giriş Yap</a></p>
-    <p style="text-align:center;"><a href="index.php">Anasayfaya Dön</a></p>
-</div>
+            <?php if($message) echo "<p style='color:red; text-align:center; margin-bottom:10px;'>$message</p>"; ?>
+
+            <form action="" method="POST">
+                
+                <div class="split-inputs">
+                    <div class="input-group">
+                        <label>Adınız</label>
+                        <input type="text" name="first_name" class="blue-input" required>
+                    </div>
+                    <div class="input-group">
+                        <label>Soyadınız</label>
+                        <input type="text" name="last_name" class="blue-input" required>
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label>E-posta Adresi</label>
+                    <input type="email" name="email" class="blue-input" required>
+                </div>
+
+                <div class="input-group">
+                    <label>Telefon Numarası</label>
+                    <input type="text" name="phone" class="blue-input" placeholder="0555 555 55 55" required>
+                </div>
+
+                <div class="input-group">
+                    <label>Şifre</label>
+                    <input type="password" name="password" class="blue-input" required>
+                </div>
+
+                <button type="submit" class="btn-blue">Devam Et</button>
+            </form>
+
+            <div class="back-link">
+                Zaten hesabın var mı? <a href="login.php">Giriş Yap</a>
+            </div>
+            <div class="back-link" style="margin-top:10px;">
+                <a href="index.php" style="color:#999; font-weight:normal;">← Anasayfaya Dön</a>
+            </div>
+        </div>
+
+        <div class="image-side">
+            <div class="image-overlay">
+                <div class="testimonial-stars">★★★★★</div>
+                <p class="testimonial-text">"Bu uygulamayı kullanmaya başladığımdan beri antrenmanlarımı asla kaçırmıyorum. Hocalar çok ilgili ve sistem harika çalışıyor!"</p>
+                <p class="testimonial-author">Mert Yılmaz<br><small>Fitness Üyesi</small></p>
+            </div>
+        </div>
+
+    </div>
 
 </body>
 </html>

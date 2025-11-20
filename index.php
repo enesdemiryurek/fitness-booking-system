@@ -24,8 +24,9 @@ include 'db.php';
 
         <div class="nav-right">
             <?php if(isset($_SESSION['user_id'])): ?>
-                <?php if($_SESSION['role'] == 'admin'): ?>
-                    <a href="admin.php" class="admin-badge"> Panel</a>
+                
+                <?php if($_SESSION['role'] == 'admin' || $_SESSION['role'] == 'instructor'): ?>
+                    <a href="admin.php" class="admin-badge"> Yönetim Paneli</a>
                 <?php endif; ?>
 
                 <a href="profile.php" class="btn-auth btn-login">👤 Profilim</a>
@@ -41,7 +42,35 @@ include 'db.php';
         <h1>Sınırlarını Zorla</h1>
         <p>En iyi eğitmenlerle potansiyelini keşfet. Hemen yerini ayırt.</p>
     </div>
+<div class="info-section">
+        <div class="info-grid">
+            
+            <div class="info-box">
+                <span class="info-icon">🧘‍♀️</span>
+                <h3>Zihin ve Beden</h3>
+                <p>Yoga derslerimizle esnekliğini artır, stresini azalt ve iç huzurunu keşfet. Her seviyeye uygun akışlar.</p>
+            </div>
 
+            <div class="info-box">
+                <span class="info-icon">🔥</span>
+                <h3>Yüksek Yağ Yakımı</h3>
+                <p>HIIT antrenmanları ile kısa sürede maksimum kalori yak. Metabolizmanı hızlandır ve sınırlarını zorla.</p>
+            </div>
+
+            <div class="info-box">
+                <span class="info-icon">🤸‍♀️</span>
+                <h3>Güçlü Duruş</h3>
+                <p>Pilates ile merkez (core) bölgeni güçlendir, postürünü düzelt ve daha dik bir duruşa sahip ol.</p>
+            </div>
+
+            <div class="info-box">
+                <span class="info-icon">🏆</span>
+                <h3>Uzman Eğitmenler</h3>
+                <p>Alanında sertifikalı ve tecrübeli eğitmenlerimizle hedeflerine en güvenli yoldan ulaş.</p>
+            </div>
+
+        </div>
+    </div>
     <div class="container" id="dersler">
         <h2 class="section-title">📅 Yaklaşan Dersler</h2>
 
@@ -70,7 +99,7 @@ include 'db.php';
                     } elseif(strpos($type, 'zumba') !== false) {
                         $img_url = "img/zumba.jpg";
                     } elseif(strpos($type, 'fitness') !== false) {
-                        $img_url = "img/default.jpg";
+                        $img_url = "img/fitness.jpg";
                     }
                     // -----------------------
 
@@ -106,6 +135,6 @@ include 'db.php';
             ?>
         </div>
     </div>
-
+<script src="script.js"></script>
 </body>
 </html>

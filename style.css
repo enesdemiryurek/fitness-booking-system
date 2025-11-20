@@ -209,3 +209,180 @@ body {
     font-weight: bold;
     font-size: 0.9rem;
 }
+/* --- BİLGİ KUTULARI (FEATURES) --- */
+.info-section {
+    padding: 50px 20px;
+    background-color: white; /* Arka plan beyaz olsun */
+    margin-bottom: 40px;
+}
+
+.info-grid {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); /* Responsive Izgara */
+    gap: 30px;
+}
+
+.info-box {
+    background: #f8f9fa;
+    padding: 30px;
+    border-radius: 20px;
+    text-align: center;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    border: 1px solid #eee;
+}
+
+.info-box:hover {
+    transform: translateY(-10px); /* Havalanma efekti */
+    box-shadow: 0 15px 30px rgba(0,0,0,0.1);
+    background: white;
+    border-color: #2a5298;
+}
+
+.info-icon {
+    font-size: 3rem;
+    margin-bottom: 20px;
+    display: inline-block;
+    background: #e3f2fd;
+    width: 80px;
+    height: 80px;
+    line-height: 80px;
+    border-radius: 50%;
+}
+
+.info-box h3 {
+    font-size: 1.3rem;
+    margin-bottom: 15px;
+    color: #333;
+}
+
+.info-box p {
+    color: #666;
+    font-size: 0.95rem;
+    line-height: 1.6;
+}
+/* --- BLUE SPLIT REGISTER PAGE (Bokun Style) --- */
+.blue-register-body {
+    background-color: #185ADB; /* Orijinalindeki o canlı mavi */
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    font-family: 'Poppins', sans-serif;
+}
+
+.split-card {
+    background: white;
+    width: 100%;
+    max-width: 900px;
+    display: flex;
+    border-radius: 12px;
+    overflow: hidden; /* Köşelerin yuvarlak kalması için */
+    box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+    min-height: 600px;
+}
+
+/* --- SOL TARAF (FORM) --- */
+.form-side {
+    flex: 1; /* Yarısını kapla */
+    padding: 50px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.form-header {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.form-header h2 { font-size: 1.8rem; color: #111; margin-bottom: 5px; font-weight: 800; }
+.form-header p { color: #666; font-size: 0.9rem; }
+
+.input-group { margin-bottom: 15px; }
+.input-group label {
+    display: block;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 5px;
+}
+
+.split-inputs {
+    display: grid;
+    grid-template-columns: 1fr 1fr; /* Ad ve Soyad yan yana */
+    gap: 15px;
+}
+
+.blue-input {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 0.95rem;
+    transition: 0.3s;
+    outline: none;
+}
+
+.blue-input:focus {
+    border-color: #185ADB;
+    box-shadow: 0 0 0 3px rgba(24, 90, 219, 0.1);
+}
+
+.btn-blue {
+    width: 100%;
+    padding: 14px;
+    background-color: #185ADB;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    margin-top: 10px;
+    transition: background 0.3s;
+}
+
+.btn-blue:hover { background-color: #0d40a8; }
+
+.back-link {
+    display: block;
+    text-align: center;
+    margin-top: 20px;
+    font-size: 0.9rem;
+    color: #666;
+    text-decoration: none;
+}
+.back-link a { color: #185ADB; font-weight: bold; text-decoration: none; }
+
+/* --- SAĞ TARAF (RESİM & YORUM) --- */
+.image-side {
+    flex: 1; /* Diğer yarıyı kapla */
+    background: url('https://images.unsplash.com/photo-1517836357463-d25dfeac3438?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80');
+    background-size: cover;
+    background-position: center;
+    position: relative;
+    display: flex;
+    align-items: flex-end; /* Yazıyı alta it */
+}
+
+/* Resmin üzerindeki hafif karartı */
+.image-overlay {
+    background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);
+    width: 100%;
+    padding: 40px;
+    color: white;
+}
+
+.testimonial-stars { color: #FFD700; font-size: 1.2rem; margin-bottom: 10px; }
+.testimonial-text { font-size: 1.1rem; font-style: italic; margin-bottom: 15px; line-height: 1.5; }
+.testimonial-author { font-size: 0.9rem; font-weight: bold; opacity: 0.9; }
+
+/* MOBİL UYUMU */
+@media (max-width: 768px) {
+    .split-card { flex-direction: column; height: auto; }
+    .image-side { display: none; /* Mobilde resmi gizle, sadece form kalsın */ }
+    .form-side { padding: 30px; }
+}

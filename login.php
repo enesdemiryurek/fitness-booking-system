@@ -1,5 +1,5 @@
 <?php
-session_start(); // DİKKAT: Session işlemi için bu satır EN ÜSTTE olmalı.
+session_start(); // Session başlatma en üstte
 include 'db.php';
 
 $message = "";
@@ -8,7 +8,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $email = $_POST['email'];
     $password = $_POST['password'];
 
-    // Veritabanında bu email ve şifreye sahip biri var mı?
+    // Veritabanı kontrolü
     $sql = "SELECT * FROM users WHERE email = '$email' AND password = '$password'";
     $result = mysqli_query($conn, $sql);
 
@@ -16,12 +16,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         // Giriş Başarılı!
         $row = mysqli_fetch_assoc($result);
         
-        // SESSION'a bilgileri atıyoruz (Kimlik kartını veriyoruz)
+        // Kimlik kartını (Session) doldur
         $_SESSION['user_id'] = $row['id'];
         $_SESSION['username'] = $row['username'];
-        $_SESSION['role'] = $row['role']; // Öğrenci mi Admin mi?
+        $_SESSION['role'] = $row['role'];
 
-        // Anasayfaya yönlendir
+        // Anasayfaya yolla
         header("Location: index.php");
         exit;
     } else {
@@ -34,31 +34,54 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
-    <title>Giriş Yap</title>
-    <style>
-        body { font-family: sans-serif; background-color: #f4f4f4; display: flex; justify-content: center; align-items: center; height: 100vh; }
-        .form-container { background: white; padding: 30px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); width: 300px; }
-        input { width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box;}
-        button { width: 100%; padding: 10px; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer; }
-        button:hover { background: #0056b3; }
-        .message { color: red; margin-bottom: 10px; text-align: center; }
-    </style>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Giriş Yap | GYM</title>
+    <link rel="stylesheet" href="style.css">
 </head>
-<body>
+<body class="blue-register-body">
 
-<div class="form-container">
-    <h2 style="text-align:center;">Giriş Yap</h2>
-    
-    <?php if($message != "") { echo "<div class='message'>$message</div>"; } ?>
+    <div class="split-card">
+        
+        <div class="form-side">
+            <div class="form-header">
+                <h2>Tekrar Hoşgeldin!</h2>
+                <p>Hesabına giriş yap ve spora kaldığın yerden devam et.</p>
+            </div>
 
-    <form action="" method="POST">
-        <input type="email" name="email" placeholder="E-posta Adresi" required>
-        <input type="password" name="password" placeholder="Şifre" required>
-        <button type="submit">Giriş Yap</button>
-    </form>
-    <p style="text-align:center;">Hesabın yok mu? <a href="register.php">Kayıt Ol</a></p>
-    <p style="text-align:center;"><a href="index.php">Anasayfaya Dön</a></p>
-</div>
+            <?php if($message) echo "<p style='color:red; text-align:center; background:#ffebee; padding:10px; border-radius:5px; margin-bottom:15px;'>$message</p>"; ?>
+
+            <form action="" method="POST">
+                
+                <div class="input-group">
+                    <label>E-posta Adresi</label>
+                    <input type="email" name="email" class="blue-input" placeholder="ornek@mail.com" required>
+                </div>
+
+                <div class="input-group">
+                    <label>Şifre</label>
+                    <input type="password" name="password" class="blue-input" placeholder="******" required>
+                </div>
+
+                <button type="submit" class="btn-blue">Giriş Yap</button>
+            </form>
+
+            <div class="back-link">
+                Hesabın yok mu? <a href="register.php">Hemen Kayıt Ol</a>
+            </div>
+            <div class="back-link" style="margin-top:10px;">
+                <a href="index.php" style="color:#999; font-weight:normal;">← Anasayfaya Dön</a>
+            </div>
+        </div>
+
+        <div class="image-side" style="background-image: url('https://images.unsplash.com/photo-1599058945522-28d584b6f0ff?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80');">
+            <div class="image-overlay">
+                <div class="testimonial-stars">★★★★★</div>
+                <p class="testimonial-text">"Süreklilik, başarının anahtarıdır. Her gün %1 daha iyi olmak için buradayız."</p>
+                <p class="testimonial-author">GYM Ekibi</p>
+            </div>
+        </div>
+
+    </div>
 
 </body>
 </html>
