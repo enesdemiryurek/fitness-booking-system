@@ -3,17 +3,26 @@ session_start();
 include 'db.php';
 
 // 1. GÜVENLİK DUVARI: Admin VEYA Instructor girebilir
-// Eski kodda sadece 'admin' vardı, buraya 'instructor'ı da ekledik.
 if (!isset($_SESSION['user_id']) || ($_SESSION['role'] != 'admin' && $_SESSION['role'] != 'instructor')) {
     die("<div style='text-align:center; margin-top:50px; font-family:sans-serif;'><h1>⛔ Yetkisiz Giriş!</h1><p>Bu sayfaya sadece yöneticiler ve eğitmenler girebilir.</p><a href='index.php'>Anasayfaya Dön</a></div>");
 }
 
 $message = "";
 
-// --- YENİ DERS EKLEME (İKİSİ DE YAPABİLİR) ---
+// --- YENİ DERS EKLEME ---
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $title = $_POST['title'];
-    $trainer = $_POST['trainer'];
+    
+    // --- EĞİTMEN ADI BELİRLEME MANTIĞI ---
+    // Eğer giriş yapan kişi EĞİTMENSE: Formdan gelen veriyi yok say, Session'daki adını al.
+    // Eğer giriş yapan kişi ADMİNSE: Formdan gelen veriyi al.
+    if ($_SESSION['role'] == 'instructor') {
+        $trainer = $_SESSION['username'];
+    } else {
+        $trainer = $_POST['trainer'];
+    }
+    // -------------------------------------
+
     $description = $_POST['description'];
     $type = $_POST['class_type'];
     $date = $_POST['date_time'];
@@ -30,9 +39,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 }
 
-// --- SİLME İŞLEMİ (SADECE ADMIN YAPABİLİR!) ---
+// --- SİLME İŞLEMİ ---
 if (isset($_GET['delete_id'])) {
-    // Burası çok önemli: URL'den ?delete_id=5 yazıp silmeye çalışırlarsa diye kontrol koyuyoruz.
+    // Sadece ADMIN silebilir
     if ($_SESSION['role'] == 'admin') {
         $id = $_GET['delete_id'];
         mysqli_query($conn, "DELETE FROM classes WHERE id=$id");
@@ -50,66 +59,25 @@ if (isset($_GET['delete_id'])) {
     <title>Yönetim Paneli</title>
     <link rel="stylesheet" href="style.css">
     <style>
+        /* Admin paneli stilleri */
         body { background-color: #f4f6f8; }
-        
-        .admin-container {
-            max-width: 1100px;
-            margin: 40px auto;
-            padding: 0 20px;
-        }
-
-        /* HEADER */
-        .admin-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background: white;
-            padding: 20px 30px;
-            border-radius: 15px;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.05);
-            margin-bottom: 30px;
-        }
+        .admin-container { max-width: 1100px; margin: 40px auto; padding: 0 20px; }
+        .admin-header { display: flex; justify-content: space-between; align-items: center; background: white; padding: 20px 30px; border-radius: 15px; box-shadow: 0 5px 20px rgba(0,0,0,0.05); margin-bottom: 30px; }
         .admin-title h1 { font-size: 1.5rem; color: #333; margin-bottom: 5px; }
         
-        /* Butonlar */
-        .btn-site { background: #e2e6ea; color: #333; text-decoration: none; padding: 10px 20px; border-radius: 8px; font-weight: bold; }
-        .btn-logout { background: #ffebee; color: #c62828; text-decoration: none; padding: 10px 20px; border-radius: 8px; font-weight: bold; margin-left: 10px; }
-
-        /* FORM KARTI */
-        .form-card {
-            background: white;
-            padding: 30px;
-            border-radius: 15px;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.05);
-            margin-bottom: 40px;
-        }
-        
-        /* Grid Sistemi (Yan Yana Kutular) */
-        .form-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr; 
-            gap: 20px;
-        }
+        .form-card { background: white; padding: 30px; border-radius: 15px; box-shadow: 0 5px 20px rgba(0,0,0,0.05); margin-bottom: 40px; }
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
         .full-width { grid-column: span 2; }
+        
+        .form-group label { display: block; margin-bottom: 8px; font-weight: 600; font-size: 0.9rem; }
+        .form-group input, .form-group select { width: 100%; padding: 12px; border: 1px solid #e0e0e0; border-radius: 8px; }
+        
+        /* Readonly input stili (Eğitmenler için) */
+        input[readonly] { background-color: #e9ecef; cursor: not-allowed; color: #555; }
 
-        .form-group label {
-            display: block; margin-bottom: 8px; font-weight: 600; color: #444; font-size: 0.9rem;
-        }
-        .form-group input, .form-group select {
-            width: 100%; padding: 12px; border: 1px solid #e0e0e0; border-radius: 8px; font-size: 1rem; outline: none;
-        }
-        .form-group input:focus { border-color: #2a5298; }
-
-        .btn-submit {
-            width: 100%; padding: 15px;
-            background: linear-gradient(135deg, #2a5298 0%, #1e3c72 100%);
-            color: white; border: none; border-radius: 10px; font-weight: bold; cursor: pointer;
-        }
-
-        /* TABLO */
-        .table-card {
-            background: white; border-radius: 15px; overflow: hidden; box-shadow: 0 5px 20px rgba(0,0,0,0.05);
-        }
+        .btn-submit { width: 100%; padding: 15px; background: linear-gradient(135deg, #2a5298 0%, #1e3c72 100%); color: white; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; }
+        
+        .table-card { background: white; border-radius: 15px; overflow: hidden; box-shadow: 0 5px 20px rgba(0,0,0,0.05); }
         .admin-table { width: 100%; border-collapse: collapse; }
         .admin-table th { background: #333; color: white; padding: 15px; text-align: left; }
         .admin-table td { padding: 15px; border-bottom: 1px solid #eee; }
@@ -117,6 +85,8 @@ if (isset($_GET['delete_id'])) {
         .btn-delete { background: #c62828; color: white; text-decoration: none; padding: 6px 12px; border-radius: 6px; font-size: 0.85rem; }
         .btn-disabled-delete { background: #eee; color: #999; padding: 6px 12px; border-radius: 6px; font-size: 0.85rem; cursor: not-allowed; }
         
+        .btn-site { background: #e2e6ea; color: #333; text-decoration: none; padding: 10px 20px; border-radius: 8px; font-weight: bold; }
+        .btn-logout { background: #ffebee; color: #c62828; text-decoration: none; padding: 10px 20px; border-radius: 8px; font-weight: bold; margin-left: 10px; }
         .badge-stock { background: #e8f5e9; color: #2e7d32; padding: 5px 10px; border-radius: 20px; font-weight: bold; font-size: 0.85rem; }
     </style>
 </head>
@@ -126,6 +96,7 @@ if (isset($_GET['delete_id'])) {
     
     <div class="admin-header">
         <div class="admin-title">
+            <!-- Başlık role göre değişir -->
             <h1>🔧 <?php echo ($_SESSION['role'] == 'admin') ? "Yönetici Paneli" : "Eğitmen Paneli"; ?></h1>
             <p>Hoşgeldin, <strong><?php echo $_SESSION['username']; ?></strong></p>
         </div>
@@ -145,10 +116,20 @@ if (isset($_GET['delete_id'])) {
                     <label>Ders Başlığı</label>
                     <input type="text" name="title" placeholder="Örn: Sabah Yogası" required>
                 </div>
+                
                 <div class="form-group">
                     <label>Eğitmen Adı</label>
-                    <input type="text" name="trainer" placeholder="Örn: Ayşe Hoca" required>
+                    
+                    <?php if($_SESSION['role'] == 'instructor'): ?>
+                        <!-- EĞİTMEN GİRİŞİ: Kutu kilitli, kendi adı yazar -->
+                        <input type="text" value="<?php echo $_SESSION['username']; ?>" readonly>
+                        <!-- Not: Readonly inputlar POST edilmez ama biz zaten PHP kısmında Session'dan alıyoruz, o yüzden sorun yok. -->
+                    <?php else: ?>
+                        <!-- ADMİN GİRİŞİ: İstediğini yazar -->
+                        <input type="text" name="trainer" placeholder="Örn: Ayşe Hoca" required>
+                    <?php endif; ?>
                 </div>
+
                 <div class="form-group">
                     <label>Kategori</label>
                     <select name="class_type">
@@ -206,17 +187,15 @@ if (isset($_GET['delete_id'])) {
                     echo "<td>" . date("d.m.Y H:i", strtotime($row['date_time'])) . "</td>";
                     echo "<td><span class='badge-stock'>" . $row['capacity'] . "</span></td>";
                     
-                    // --- SİLME BUTONU MANTIĞI ---
                     echo "<td>";
                     if ($_SESSION['role'] == 'admin') {
-                        // Admin ise KIRMIZI SİL butonunu görsün
+                        // Admin KIRMIZI SİL butonunu görür
                         echo "<a href='admin.php?delete_id=" . $row['id'] . "' class='btn-delete' onclick='return confirm(\"Silmek istediğine emin misin?\")'>Sil</a>";
                     } else {
-                        // Eğitmen ise GRİ KİLİT işaretini görsün
+                        // Eğitmen KİLİT işaretini görür
                         echo "<span class='btn-disabled-delete'>🔒 Silinemez</span>";
                     }
                     echo "</td>";
-                    
                     echo "</tr>";
                 }
                 ?>

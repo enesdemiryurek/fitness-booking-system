@@ -4,14 +4,18 @@ include 'db.php';
 $message = "";
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    // Formdan gelen ayrı ayrı veriler
+    // Formdan gelen veriler
     $ad = $_POST['first_name'];
     $soyad = $_POST['last_name'];
     $email = $_POST['email'];
-    $phone = $_POST['phone']; // Telefonu aldık
+    $phone = $_POST['phone']; 
     $password = $_POST['password'];
     
-    // Veritabanı için Ad ve Soyadı birleştiriyoruz (Örn: Enes Demiryürek)
+    // YENİ EKLENENLER: Yaş ve Cinsiyet
+    $age = $_POST['age'];
+    $gender = $_POST['gender'];
+    
+    // Ad ve Soyadı birleştirip username yapıyoruz
     $full_username = $ad . " " . $soyad;
 
     // E-posta kontrolü
@@ -21,10 +25,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if (mysqli_num_rows($result) > 0) {
         $message = "⚠️ Bu e-posta adresi zaten kayıtlı!";
     } else {
-        // NOT: Telefon numarasını veritabanında sütun olmadığı için şimdilik kaydetmiyoruz.
-        // Ama görsel olarak formda duruyor. İleride 'phone' sütunu açarsan buraya eklersin.
-        
-        $sql = "INSERT INTO users (username, email, phone, password, role) VALUES ('$full_username', '$email', '$phone', '$password', 'user')";
+        // VERİTABANI KAYDI (Yaş ve Cinsiyet Sütunları Eklendi)
+        $sql = "INSERT INTO users (username, email, phone, age, gender, password, role) 
+                VALUES ('$full_username', '$email', '$phone', '$age', '$gender', '$password', 'user')";
         
         if (mysqli_query($conn, $sql)) {
             echo "<script>alert('✅ Kayıt Başarılı! Aramıza hoşgeldin.'); window.location.href='login.php';</script>";
@@ -47,6 +50,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     <div class="split-card">
         
+        <!-- SOL TARAF: FORM -->
         <div class="form-side">
             <div class="form-header">
                 <h2>Ücretsiz Başla</h2>
@@ -57,6 +61,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
             <form action="" method="POST">
                 
+                <!-- Ad ve Soyad (Yan Yana) -->
                 <div class="split-inputs">
                     <div class="input-group">
                         <label>Adınız</label>
@@ -68,16 +73,36 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     </div>
                 </div>
 
+                <!-- E-posta -->
                 <div class="input-group">
                     <label>E-posta Adresi</label>
                     <input type="email" name="email" class="blue-input" required>
                 </div>
 
+                <!-- Telefon -->
                 <div class="input-group">
                     <label>Telefon Numarası</label>
                     <input type="text" name="phone" class="blue-input" placeholder="0555 555 55 55" required>
                 </div>
 
+                <!-- YENİ: Yaş ve Cinsiyet (Yan Yana) -->
+                <div class="split-inputs">
+                    <div class="input-group">
+                        <label>Yaşınız</label>
+                        <input type="number" name="age" class="blue-input" placeholder="22" required>
+                    </div>
+                    <div class="input-group">
+                        <label>Cinsiyet</label>
+                        <select name="gender" class="blue-input" style="background-color:white;" required>
+                            <option value="" disabled selected>Seçiniz</option>
+                            <option value="Erkek">Erkek</option>
+                            <option value="Kadın">Kadın</option>
+                            <option value="Belirtmek İstemiyorum">Diğer</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Şifre -->
                 <div class="input-group">
                     <label>Şifre</label>
                     <input type="password" name="password" class="blue-input" required>
@@ -94,6 +119,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             </div>
         </div>
 
+        <!-- SAĞ TARAF: RESİM -->
         <div class="image-side">
             <div class="image-overlay">
                 <div class="testimonial-stars">★★★★★</div>
