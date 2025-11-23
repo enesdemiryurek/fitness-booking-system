@@ -24,6 +24,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         // Anasayfaya yolla
         header("Location: index.php");
         exit;
+        //elifim ben
     } else {
         $message = "Hatalı e-posta veya şifre!";
     }
