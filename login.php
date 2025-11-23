@@ -67,6 +67,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             </form>
 
             <div class="back-link">
+                <a href="forgot_password.php" style="color:#ff6b6b; font-weight:bold; font-size:14px;">Şifreni Unuttun Mu?</a>
+            </div>
+
+            <div class="back-link">
                 Hesabın yok mu? <a href="register.php">Hemen Kayıt Ol</a>
             </div>
             <div class="back-link" style="margin-top:10px;">
