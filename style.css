@@ -385,7 +385,9 @@ body {
     .split-card { flex-direction: column; height: auto; }
     .image-side { display: none; /* Mobilde resmi gizle, sadece form kalsın */ }
     .form-side { padding: 30px; }
-}/* Anasayfa Kart Puanı */
+}
+
+/* Anasayfa Kart Puanı */
 .my-rating-badge {
     background-color: #fffde7;
     color: #fbc02d;

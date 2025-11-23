@@ -72,7 +72,9 @@ include 'db.php';
 
         <div class="class-list">
             <?php
-            $sql = "SELECT * FROM classes ORDER BY date_time ASC";
+            // Sadece gelecekteki dersler
+            $current_time = date("Y-m-d H:i:s");
+            $sql = "SELECT * FROM classes WHERE date_time >= '$current_time' ORDER BY date_time ASC";
             $result = mysqli_query($conn, $sql);
 
             if (mysqli_num_rows($result) > 0) {
@@ -99,30 +101,13 @@ include 'db.php';
                         // Stok Durumu
                         $stok_color = ($row["capacity"] < 3) ? "#dc3545" : "#28a745";
                         echo '<span class="stok" style="color:'.$stok_color.'">⚡ Kalan Yer: ' . $row["capacity"] . '</span>';
-                        
-                        // Puan Rozeti (Eğer varsa)
-                        if(isset($_SESSION['user_id'])) {
-                            $uid = $_SESSION['user_id'];
-                            $cid = $row['id'];
-                            $rating_sql = "SELECT rating FROM reviews WHERE user_id=$uid AND class_id=$cid";
-                            $rating_res = mysqli_query($conn, $rating_sql);
-                            if(mysqli_num_rows($rating_res) > 0) {
-                                $r_data = mysqli_fetch_assoc($rating_res);
-                                echo '<div class="my-rating-badge">Senin Puanın: ' . str_repeat("⭐", $r_data['rating']) . '</div>';
-                            }
-                        }
 
                         // Detay Butonu
                         echo '<a href="class_details.php?id='.$row['id'].'" style="display:block; text-align:center; color:#185ADB; font-weight:bold; margin:15px 0 10px 0; text-decoration:none;">🔍 İncele & Yorumlar</a>';
 
                         // Rezerve Butonları
                         if(isset($_SESSION['user_id'])) {
-                            $class_time = strtotime($row['date_time']);
-                            $now = time();
-
-                            if ($class_time < $now) {
-                                echo '<button class="btn-card btn-disabled" disabled>GEÇMİŞ DERS</button>';
-                            } elseif ($row["capacity"] > 0) {
+                            if ($row["capacity"] > 0) {
                                 echo '<a href="book_class.php?id='.$row['id'].'" class="btn-card">Hemen Rezerve Et</a>';
                             } else {
                                 echo '<button class="btn-card btn-disabled" disabled>DOLDU</button>';
@@ -136,6 +121,56 @@ include 'db.php';
                 }
             } else {
                 echo "<p style='text-align:center; width:100%;'>Henüz aktif ders bulunmuyor.</p>";
+            }
+            ?>
+        </div>
+    </div>
+
+    <!-- GEÇMIŞ DERSLER BÖLÜMÜ -->
+    <div class="container" id="gecmis-dersler">
+        <h2 class="section-title"> Geçmiş Dersler </h2>
+
+        <div class="class-list">
+            <?php
+            // Son 24 saat içinde geçen dersler
+            $now = time();
+            $one_day_ago = date("Y-m-d H:i:s", $now - 86400); // 24 saat öncesi
+            $current_time = date("Y-m-d H:i:s");
+
+            $sql = "SELECT * FROM classes WHERE date_time < '$current_time' AND date_time >= '$one_day_ago' ORDER BY date_time DESC";
+            $result = mysqli_query($conn, $sql);
+
+            if (mysqli_num_rows($result) > 0) {
+                while($row = mysqli_fetch_assoc($result)) {
+                    
+                    // --- RESİM AYARLARI ---
+                    $type = mb_strtolower($row['class_type']);
+                    $img_url = "img/default.jpg"; 
+
+                    if(strpos($type, 'yoga') !== false) $img_url = "img/yoga.jpg";
+                    elseif(strpos($type, 'pilates') !== false) $img_url = "img/pilates.jpg";
+                    elseif(strpos($type, 'hiit') !== false) $img_url = "img/hiit.jpg";
+                    elseif(strpos($type, 'zumba') !== false) $img_url = "img/zumba.jpg";
+                    elseif(strpos($type, 'fitness') !== false) $img_url = "img/fitness.jpg";
+                    
+                    echo '<div class="class-card past-class">';
+                    echo '<img src="'.$img_url.'" alt="Ders Resmi" class="card-image past-image" onerror="this.src=\'https://placehold.co/600x400?text=Resim+Yok\'">';
+                    
+                    echo '<div class="card-content">';
+                        echo '<h3>' . $row["title"] . ' <span class="badge">Tamamlandı</span></h3>';
+                        echo '<p style="color:#666; margin-top:5px;">🧘‍♂️ ' . $row["trainer_name"] . ' • 🕒 ' . date("d.m.Y H:i", strtotime($row["date_time"])) . '</p>';
+                        echo '<p style="margin-top:10px;">' . $row["description"] . '</p>';
+                        
+                        // Detay Butonu
+                        echo '<a href="class_details.php?id='.$row['id'].'" style="display:block; text-align:center; color:#185ADB; font-weight:bold; margin:15px 0 10px 0; text-decoration:none;">🔍 İncele & Yorumlar</a>';
+
+                        echo '<button class="btn-card btn-disabled" disabled>TAMAMLANDI</button>';
+
+                    echo '</div>'; // card-content
+                    echo '</div>'; // class-card
+                }
+            } else {
+                echo "<p style='text-align:center; width:100%;'>Henüz geçmiş ders bulunmuyor.</p>";
             }
             ?>
         </div>
