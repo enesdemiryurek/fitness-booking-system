@@ -24,6 +24,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         // Anasayfaya yolla
         header("Location: index.php");
         exit;
+        //elifim ben
     } else {
         $message = "Hatalı e-posta veya şifre!";
     }
@@ -64,6 +65,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
                 <button type="submit" class="btn-blue">Giriş Yap</button>
             </form>
+
+            <div class="back-link">
+                <a href="forgot_password.php" style="color:#ff6b6b; font-weight:bold; font-size:14px;">Şifreni Unuttun Mu?</a>
+            </div>
 
             <div class="back-link">
                 Hesabın yok mu? <a href="register.php">Hemen Kayıt Ol</a>
