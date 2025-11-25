@@ -1,5 +1,7 @@
 <?php
+session_start();
 include 'db.php';
+$page_title = "Ücretsiz Kayıt Ol | GYM";
 
 $message = "";
 
@@ -36,19 +38,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         }
     }
 }
+
+include 'header.php';
 ?>
 
-<!DOCTYPE html>
-<html lang="tr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ücretsiz Kayıt Ol | GYM</title>
-    <link rel="stylesheet" href="style.css">
-</head>
-<body class="blue-register-body">
-
-    <div class="split-card">
+    <div class="split-card" style="margin: 40px auto; max-width: 900px;">
         
         <!-- SOL TARAF: FORM -->
         <div class="form-side">
@@ -130,5 +124,4 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     </div>
 
-</body>
-</html>
+    <?php include 'footer.php'; ?>

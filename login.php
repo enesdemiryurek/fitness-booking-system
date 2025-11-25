@@ -1,6 +1,7 @@
 <?php
-session_start(); // Session başlatma en üstte
+session_start();
 include 'db.php';
+$page_title = "Giriş Yap | GYM";
 
 $message = "";
 
@@ -24,24 +25,15 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         // Anasayfaya yolla
         header("Location: index.php");
         exit;
-        //elifim ben
     } else {
         $message = "Hatalı e-posta veya şifre!";
     }
 }
+
+include 'header.php';
 ?>
 
-<!DOCTYPE html>
-<html lang="tr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Giriş Yap | GYM</title>
-    <link rel="stylesheet" href="style.css">
-</head>
-<body class="blue-register-body">
-
-    <div class="split-card">
+    <div class="split-card" style=" margin: 40px auto; max-width: 900px;">
         
         <div class="form-side">
             <div class="form-header">
@@ -88,5 +80,4 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     </div>
 
-</body>
-</html>
+    <?php include 'footer.php'; ?>

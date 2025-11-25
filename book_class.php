@@ -1,6 +1,7 @@
 <?php
 session_start();
 include 'db.php';
+include 'notification_handler.php';
 
 // 1. GÜVENLİK KONTROLÜ: Kullanıcı giriş yapmış mı?
 if (!isset($_SESSION['user_id'])) {
@@ -28,7 +29,7 @@ if (isset($_GET['id'])) {
 
 
     // 3. STOK KONTROLÜ: Kontenjan var mı?
-    $check_sql = "SELECT capacity FROM classes WHERE id = $class_id";
+    $check_sql = "SELECT capacity, title, date_time FROM classes WHERE id = $class_id";
     $result = mysqli_query($conn, $check_sql);
     $row = mysqli_fetch_assoc($result);
 
@@ -42,6 +43,9 @@ if (isset($_GET['id'])) {
             // B. Stoktan 1 düş
             $update_sql = "UPDATE classes SET capacity = capacity - 1 WHERE id = $class_id";
             mysqli_query($conn, $update_sql);
+
+            // C. BİLDİRİM GÖNDER: Ders hatırlatması için sistem hazır
+            // (Hatırlatmalar index.php tarafından otomatik gönderilecek)
 
             echo "<script>
                 alert('✅ Tebrikler! Ders başarıyla rezerve edildi.');

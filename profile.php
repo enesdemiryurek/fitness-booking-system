@@ -1,6 +1,7 @@
 <?php
 session_start();
 include 'db.php';
+$page_title = "Profilim | GYM";
 
 // Güvenlik: Giriş yapmayan giremez
 if (!isset($_SESSION['user_id'])) {
@@ -10,9 +11,37 @@ if (!isset($_SESSION['user_id'])) {
 
 $user_id = $_SESSION['user_id'];
 $message = "";
+$message_type = "";
 $progress_message = "";
+$progress_type = "";
 
-// --- 1. PROFİL GÜNCELLEME ---
+// --- 1. INSTRUCTOR PROFIL RESMİ YÜKLEME ---
+if (isset($_POST['upload_profile_photo']) && $_FILES['profile_photo']['size'] > 0) {
+    $file_type = mime_content_type($_FILES['profile_photo']['tmp_name']);
+    $allowed_types = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+    
+    if (!in_array($file_type, $allowed_types)) {
+        $message = "❌ Yalnızca resim dosyaları yüklenebilir!";
+        $message_type = "error";
+    } elseif ($_FILES['profile_photo']['size'] > 5 * 1024 * 1024) { // 5MB limit
+        $message = "❌ Dosya boyutu 5MB'dan büyük olamaz!";
+        $message_type = "error";
+    } else {
+        $photo_data = file_get_contents($_FILES['profile_photo']['tmp_name']);
+        $photo_data = mysqli_real_escape_string($conn, $photo_data);
+        
+        $update_photo = "UPDATE users SET profile_photo='$photo_data' WHERE id=$user_id";
+        if (mysqli_query($conn, $update_photo)) {
+            $message = "✅ Profil resmi başarıyla yüklendi!";
+            $message_type = "success";
+        } else {
+            $message = "❌ Hata: " . mysqli_error($conn);
+            $message_type = "error";
+        }
+    }
+}
+
+// --- 2. PROFİL GÜNCELLEME ---
 if (isset($_POST['update_profile'])) {
     $new_username = $_POST['username'];
     $new_email    = $_POST['email'];
@@ -23,14 +52,16 @@ if (isset($_POST['update_profile'])) {
     $update_sql = "UPDATE users SET username='$new_username', email='$new_email', phone='$new_phone', age='$new_age', gender='$new_gender' WHERE id=$user_id";
     
     if (mysqli_query($conn, $update_sql)) {
-        $message = "✅ Bilgiler güncellendi!";
+        $message = "✅ Bilgiler başarıyla güncellendi!";
+        $message_type = "success";
         $_SESSION['username'] = $new_username;
     } else {
         $message = "❌ Hata: " . mysqli_error($conn);
+        $message_type = "error";
     }
 }
 
-// --- 2. GELİŞİM VERİSİ EKLEME ---
+// --- 3. GELİŞİM VERİSİ EKLEME ---
 if (isset($_POST['add_progress'])) {
     $weight = $_POST['weight'];
     $height = $_POST['height'];
@@ -46,235 +77,275 @@ if (isset($_POST['add_progress'])) {
     
     if(mysqli_query($conn, $prog_sql)){
         $progress_message = "✅ Gelişim kaydedildi! BMI: $bmi";
-    }
-}
-
-// --- 3. YORUM VE PUANLAMA ---
-if (isset($_POST['submit_review'])) {
-    $class_id_review = $_POST['class_id'];
-    $rating = $_POST['rating'];
-    $comment = $_POST['comment'];
-
-    // Daha önce yorum yapmış mı?
-    $check_rev = mysqli_query($conn, "SELECT * FROM reviews WHERE user_id=$user_id AND class_id=$class_id_review");
-    
-    if(mysqli_num_rows($check_rev) > 0) {
-        echo "<script>alert('Bu derse zaten puan verdiniz!');</script>";
+        $progress_type = "success";
     } else {
-        $ins_rev = "INSERT INTO reviews (user_id, class_id, rating, comment) VALUES ($user_id, $class_id_review, '$rating', '$comment')";
-        if(mysqli_query($conn, $ins_rev)) {
-            echo "<script>alert('✅ Yorumunuz kaydedildi!'); window.location.href='profile.php';</script>";
-        }
+        $progress_message = "❌ Hata: " . mysqli_error($conn);
+        $progress_type = "error";
     }
 }
 
 // Kullanıcı Bilgisi
 $user_row = mysqli_fetch_assoc(mysqli_query($conn, "SELECT * FROM users WHERE id = $user_id"));
+
+include 'header.php';
 ?>
 
-<!DOCTYPE html>
-<html lang="tr">
-<head>
-    <meta charset="UTF-8">
-    <title>Profilim | GYM</title>
-    <link rel="stylesheet" href="style.css">
-    <style>
-        /* --- DASHBOARD STİLLERİ --- */
-        body { background-color: #f0f2f5; font-family: 'Poppins', sans-serif; }
-        .dashboard-container { max-width: 1200px; margin: 30px auto; padding: 0 20px; }
-        
-        /* Header */
-        .dash-header {
-            background: #185ADB; color: white; padding: 30px; border-radius: 15px;
-            display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;
-            box-shadow: 0 10px 20px rgba(24, 90, 219, 0.2);
-        }
-        .dash-title h1 { margin: 0; font-size: 1.8rem; }
-        .dash-btn { background: rgba(255,255,255,0.2); color: white; text-decoration: none; padding: 10px 20px; border-radius: 8px; font-weight: 600; transition: 0.3s; margin-left: 10px; }
-        .dash-btn:hover { background: white; color: #185ADB; }
-        .btn-logout { background: #ff4757; } .btn-logout:hover { background: #ff6b81; }
-
-        /* Grid */
-        .dash-grid { display: grid; grid-template-columns: 1fr 1.5fr 1fr; gap: 25px; }
-        .dash-card { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 5px 15px rgba(0,0,0,0.05); height: fit-content; margin-bottom: 20px; }
-        .card-head { border-bottom: 2px solid #f0f2f5; padding-bottom: 15px; margin-bottom: 20px; font-size: 1.1rem; font-weight: 800; color: #333; }
-
-        /* Form */
-        .form-group { margin-bottom: 15px; }
-        .form-group label { display: block; font-size: 0.85rem; font-weight: 600; color: #666; margin-bottom: 5px; }
-        .dash-input { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; outline: none; transition: 0.3s; }
-        .dash-input:focus { border-color: #185ADB; }
-        .btn-submit { width: 100%; padding: 12px; background: #185ADB; color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.3s; }
-        .input-row { display: flex; gap: 10px; } .input-row .form-group { flex: 1; }
-
-        /* Ders Kartları */
-        .lesson-item { padding: 15px; border-radius: 10px; margin-bottom: 15px; border: 1px solid transparent; position: relative; }
-        
-        .lesson-item.future { background: #eef2ff; border-color: #c7d2fe; }
-        .lesson-item.future h4 { color: #185ADB; margin: 0 0 5px; }
-        
-        .lesson-item.past { background: #f8f9fa; border-color: #e9ecef; }
-        .lesson-item.past h4 { color: #555; margin: 0 0 5px; }
-        .lesson-meta { font-size: 0.85rem; color: #666; margin-bottom: 10px; }
-
-        .lesson-actions { display: flex; gap: 10px; }
-        .link-btn { font-size: 0.8rem; font-weight: bold; text-decoration: none; color: #185ADB; }
-        .cancel-btn { font-size: 0.8rem; font-weight: bold; text-decoration: none; color: #dc3545; }
-
-        /* Yorum Alanı */
-        .review-area { margin-top: 15px; padding-top: 10px; border-top: 1px solid #eee; }
-        .review-form textarea { width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 5px; font-family: inherit; margin-bottom: 5px; }
-        .btn-rate { background: #fbc02d; color: #333; border: none; padding: 5px 10px; border-radius: 5px; font-weight: bold; cursor: pointer; font-size: 0.8rem; }
-        .rated-badge { background: #fff9c4; color: #f9a825; padding: 5px 10px; border-radius: 5px; font-weight: bold; font-size: 0.85rem; display: inline-block; }
-
-        /* Gelişim Listesi */
-        .prog-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #f0f0f0; }
-        .prog-bmi { background: #e0f2f1; color: #00695c; padding: 3px 8px; border-radius: 20px; font-size: 0.8rem; font-weight: bold; }
-
-        @media (max-width: 1024px) { .dash-grid { grid-template-columns: 1fr; } }
-    </style>
-</head>
-<body>
-
-<div class="dashboard-container">
-
-    <div class="dash-header">
-        <div class="dash-title">
-            <h1>👋 Hoşgeldin, <?php echo $user_row['username']; ?></h1>
-            <p>Antrenmanlarını takip et ve sınırlarını zorla!</p>
-        </div>
-        <div>
-            <a href="index.php" class="dash-btn">🏠 Anasayfa</a>
-            <a href="logout.php" class="dash-btn btn-logout">Çıkış Yap</a>
-        </div>
+<div class="profile-page">
+    
+    <!-- PROFILE HERO BÖLÜMÜ -->
+    <div class="profile-hero-simple">
+        <h1>👤 Profilim</h1>
     </div>
 
-    <div class="dash-grid">
+    <div class="profile-container">
         
-        <!-- SOL: BİLGİLER -->
-        <div class="left-col">
-            <div class="dash-card">
-                <div class="card-head">👤 Hesap Bilgileri</div>
-                <?php if($message) echo "<p style='color:green; font-size:0.9rem;'>$message</p>"; ?>
-                <form method="POST">
-                    <div class="form-group"><label>Ad Soyad</label><input type="text" name="username" class="dash-input" value="<?php echo $user_row['username']; ?>" required></div>
-                    <div class="form-group"><label>E-posta</label><input type="email" name="email" class="dash-input" value="<?php echo $user_row['email']; ?>" required></div>
-                    <div class="form-group"><label>Telefon</label><input type="text" name="phone" class="dash-input" value="<?php echo $user_row['phone']; ?>"></div>
-                    <div class="input-row">
-                        <div class="form-group"><label>Yaş</label><input type="number" name="age" class="dash-input" value="<?php echo $user_row['age']; ?>"></div>
-                        <div class="form-group"><label>Cinsiyet</label>
-                            <select name="gender" class="dash-input">
-                                <option value="">Seçiniz</option>
+        <!-- SOL KOLON: HESAP BİLGİLERİ & GELİŞİM -->
+        <div class="profile-left">
+            
+            <!-- HESAP BİLGİLERİ -->
+            <div class="profile-card">
+                <div class="card-header">
+                    <h2>👤 Hesap Bilgileri</h2>
+                    <p>Kişisel bilgilerinizi güncelleyin</p>
+                </div>
+
+                <?php if($message): ?>
+                    <div class="message-box message-<?php echo $message_type; ?>">
+                        <?php echo $message; ?>
+                    </div>
+                <?php endif; ?>
+
+                <form method="POST" class="profile-form">
+                    <div class="form-group">
+                        <label for="username">Ad Soyad</label>
+                        <input type="text" id="username" name="username" value="<?php echo htmlspecialchars($user_row['username']); ?>" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="email">E-posta</label>
+                        <input type="email" id="email" name="email" value="<?php echo htmlspecialchars($user_row['email']); ?>" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="phone">Telefon</label>
+                        <input type="text" id="phone" name="phone" value="<?php echo htmlspecialchars($user_row['phone']); ?>">
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="age">Yaş</label>
+                            <input type="number" id="age" name="age" value="<?php echo htmlspecialchars($user_row['age']); ?>" min="1" max="120">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="gender">Cinsiyet</label>
+                            <select id="gender" name="gender">
+                                <option value="">-- Seçiniz --</option>
                                 <option value="Erkek" <?php if($user_row['gender']=='Erkek') echo 'selected'; ?>>Erkek</option>
                                 <option value="Kadın" <?php if($user_row['gender']=='Kadın') echo 'selected'; ?>>Kadın</option>
                             </select>
                         </div>
                     </div>
-                    <button type="submit" name="update_profile" class="btn-submit">Güncelle</button>
+
+                    <button type="submit" name="update_profile" class="btn-submit-large">💾 Bilgileri Güncelle</button>
+                </form>
+
+                <!-- INSTRUCTOR PROFIL RESMİ UPLOAD -->
+                <?php if($user_row['role'] == 'instructor'): ?>
+                <div style="margin-top: 30px; padding-top: 30px; border-top: 1px solid #eee;">
+                    <h3 style="font-size: 1.1rem; margin-bottom: 15px;">📸 Profil Resmi (Eğitmenler İçin)</h3>
+                    <form method="POST" enctype="multipart/form-data">
+                        <div class="form-group">
+                            <label for="profile_photo">Profil Fotoğrafı Yükle</label>
+                            <input type="file" id="profile_photo" name="profile_photo" accept="image/*" required>
+                            <small style="color: #666; display: block; margin-top: 5px;">PNG, JPG, GIF (Max 5MB)</small>
+                        </div>
+                        <button type="submit" name="upload_profile_photo" class="btn-submit-large" style="background: #28a745;">📤 Resmi Yükle</button>
+                    </form>
+                </div>
+                <?php endif; ?>
+            </div>
+
+            <!-- GELİŞİM EKLE -->
+            <div class="profile-card">
+                <div class="card-header">
+                    <h2>📈 Gelişim Kaydı</h2>
+                    <p>Ağırlık ve boy bilgisini ekleyerek ilerlemenizi takip edin</p>
+                </div>
+
+                <?php if($progress_message): ?>
+                    <div class="message-box message-<?php echo $progress_type; ?>">
+                        <?php echo $progress_message; ?>
+                    </div>
+                <?php endif; ?>
+
+                <form method="POST" class="profile-form">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="weight">Kilo (kg)</label>
+                            <input type="number" id="weight" name="weight" step="0.1" min="0" placeholder="Örn: 75.5" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="height">Boy (cm)</label>
+                            <input type="number" id="height" name="height" min="0" placeholder="Örn: 180" required>
+                        </div>
+                    </div>
+
+                    <button type="submit" name="add_progress" class="btn-submit-large btn-success">➕ Kaydı Ekle</button>
                 </form>
             </div>
-            
-            <div class="dash-card">
-                <div class="card-head">📈 Gelişim Ekle</div>
-                <?php if($progress_message) echo "<p style='color:green; font-size:0.9rem;'>$progress_message</p>"; ?>
-                <form method="POST">
-                    <div class="form-group"><label>Kilo (kg)</label><input type="number" step="0.1" name="weight" class="dash-input" required></div>
-                    <div class="form-group"><label>Boy (cm)</label><input type="number" name="height" class="dash-input" required></div>
-                    <button type="submit" name="add_progress" class="btn-submit" style="background:#28a745;">Kaydet</button>
-                </form>
-            </div>
+
         </div>
 
-        <!-- ORTA: DERS PROGRAMI -->
-        <div class="mid-col">
-            <div class="dash-card">
-                <div class="card-head">📅 Ders Programım</div>
-                
-                <?php
-                $sql = "SELECT classes.*, bookings.booking_date, bookings.id as booking_id 
-                        FROM bookings 
-                        JOIN classes ON bookings.class_id = classes.id 
-                        WHERE bookings.user_id = $user_id 
-                        ORDER BY classes.date_time DESC";
-                
-                $result = mysqli_query($conn, $sql);
-                
-                if(mysqli_num_rows($result) > 0) {
-                    while($row = mysqli_fetch_assoc($result)) {
-                        $class_date = strtotime($row['date_time']);
-                        $now = time();
-                        
-                        if($class_date > $now) {
-                            // GELECEK DERS
-                            echo '<div class="lesson-item future">';
-                            echo '<h4>'. $row['title'] .' ('. $row['class_type'] .')</h4>';
-                            echo '<div class="lesson-meta">📅 '. date("d.m.Y H:i", $class_date) .' • 🧘‍♂️ '. $row['trainer_name'] .'</div>';
+        <!-- ORTA KOLON: DERS PROGRAMI -->
+        <div class="profile-middle">
+            
+            <!-- YAKLAŞAN DERSLER -->
+            <div class="profile-card">
+                <div class="card-header">
+                    <h2>📅 Yaklaşan Derslerim</h2>
+                    <p>Planlanan antrenmanlarınız</p>
+                </div>
+
+                <div class="lessons-list">
+                    <?php
+                    $upcoming_sql = "SELECT classes.*, bookings.booking_date, bookings.id as booking_id 
+                                    FROM bookings 
+                                    JOIN classes ON bookings.class_id = classes.id 
+                                    WHERE bookings.user_id = $user_id AND classes.date_time >= NOW()
+                                    ORDER BY classes.date_time ASC";
+                    
+                    $upcoming_result = mysqli_query($conn, $upcoming_sql);
+                    
+                    if(mysqli_num_rows($upcoming_result) > 0) {
+                        while($row = mysqli_fetch_assoc($upcoming_result)) {
+                            $class_date = new DateTime($row['date_time']);
+                            echo '<div class="lesson-card upcoming">';
+                            echo '<div class="lesson-header">';
+                            echo '<h3>' . htmlspecialchars($row['title']) . '</h3>';
+                            echo '<span class="lesson-type-badge">' . $row['class_type'] . '</span>';
+                            echo '</div>';
+                            echo '<div class="lesson-meta">';
+                            echo '<div class="meta-item">📅 ' . $class_date->format("d.m.Y") . '</div>';
+                            echo '<div class="meta-item">⏰ ' . $class_date->format("H:i") . '</div>';
+                            echo '<div class="meta-item">🧘‍♂️ ' . htmlspecialchars($row['trainer_name']) . '</div>';
+                            echo '</div>';
                             echo '<div class="lesson-actions">';
-                            echo '<a href="'.$row['video_link'].'" target="_blank" class="link-btn">🎥 Yayına Git</a>';
-                            echo '<a href="cancel_booking.php?id='.$row['booking_id'].'" onclick="return confirm(\'İptal?\')" class="cancel-btn">❌ İptal</a>';
-                            echo '</div></div>';
-                        } else {
-                            // GEÇMİŞ DERS (PUANLAMA BURADA)
-                            echo '<div class="lesson-item past">';
-                            echo '<h4>'. $row['title'] .'</h4>';
-                            echo '<div class="lesson-meta">✅ Tamamlandı • '. date("d.m.Y H:i", $class_date) .'</div>';
-                            
-                            // Puanlama Kontrolü
+                            echo '<a href="' . htmlspecialchars($row['video_link']) . '" target="_blank" class="btn-action-small btn-watch">🎥 Yayına Git</a>';
+                            echo '<a href="cancel_booking.php?id=' . $row['booking_id'] . '" onclick="return confirm(\'Bu dersi iptal etmek istediğine emin misin?\')" class="btn-action-small btn-cancel">❌ İptal</a>';
+                            echo '</div>';
+                            echo '</div>';
+                        }
+                    } else {
+                        echo '<div class="empty-state">📭 Yaklaşan ders bulunmuyor</div>';
+                    }
+                    ?>
+                </div>
+            </div>
+
+            <!-- GEÇMİŞ DERSLER -->
+            <div class="profile-card past-section">
+                <div class="card-header">
+                    <h2>✅ Tamamlanan Dersler</h2>
+                    <p>Bitirdiğiniz antrenmanları puanlayın</p>
+                </div>
+
+                <div class="lessons-list">
+                    <?php
+                    $past_sql = "SELECT classes.*, bookings.booking_date, bookings.id as booking_id 
+                                FROM bookings 
+                                JOIN classes ON bookings.class_id = classes.id 
+                                WHERE bookings.user_id = $user_id AND classes.date_time < NOW()
+                                ORDER BY classes.date_time DESC";
+                    
+                    $past_result = mysqli_query($conn, $past_sql);
+                    
+                    if(mysqli_num_rows($past_result) > 0) {
+                        while($row = mysqli_fetch_assoc($past_result)) {
+                            $class_date = new DateTime($row['date_time']);
                             $c_id = $row['id'];
+                            
+                            // Puanlama kontrolü
                             $check_rev = mysqli_query($conn, "SELECT * FROM reviews WHERE user_id=$user_id AND class_id=$c_id");
                             $rev_data = mysqli_fetch_assoc($check_rev);
                             
-                            echo '<div class="review-area">';
+                            echo '<div class="lesson-card past">';
+                            echo '<div class="lesson-header">';
+                            echo '<h3>' . htmlspecialchars($row['title']) . '</h3>';
+                            echo '<span class="lesson-type-badge past-badge">' . $row['class_type'] . '</span>';
+                            echo '</div>';
+                            echo '<div class="lesson-meta">';
+                            echo '<div class="meta-item">📅 ' . $class_date->format("d.m.Y H:i") . '</div>';
+                            echo '<div class="meta-item">👨‍🏫 ' . htmlspecialchars($row['trainer_name']) . '</div>';
+                            echo '</div>';
+                            
                             if($rev_data) {
-                                echo '<div class="rated-badge">⭐ Puanınız: ' . $rev_data['rating'] . '/5</div>';
-                            } else {
-                                echo '<form method="POST">';
-                                echo '<input type="hidden" name="class_id" value="'.$c_id.'">';
-                                echo '<div style="display:flex; gap:5px; margin-bottom:5px;">';
-                                echo '<select name="rating" required style="padding:5px; border-radius:5px;">
-                                        <option value="5">5 Yıldız</option>
-                                        <option value="4">4 Yıldız</option>
-                                        <option value="3">3 Yıldız</option>
-                                        <option value="2">2 Yıldız</option>
-                                        <option value="1">1 Yıldız</option>
-                                      </select>';
-                                echo '<button type="submit" name="submit_review" class="btn-rate">Puanla</button>';
+                                echo '<div class="review-badge">';
+                                echo '<div class="star-rating">';
+                                for($i = 0; $i < $rev_data['rating']; $i++) {
+                                    echo '⭐';
+                                }
+                                echo ' ' . $rev_data['rating'] . '/5';
                                 echo '</div>';
-                                echo '<textarea name="comment" rows="1" placeholder="Yorumunuz..." required></textarea>';
-                                echo '</form>';
+                                if(!empty($rev_data['comment'])) {
+                                    echo '<p class="review-comment">"' . htmlspecialchars($rev_data['comment']) . '"</p>';
+                                }
+                                echo '</div>';
+                            } else {
+                                echo '<div class="no-review-badge">💬 Henüz yorum yapılmamış</div>';
                             }
-                            echo '</div>'; // review-area
-                            echo '</div>'; // lesson-item
+                            
+                            echo '</div>';
                         }
+                    } else {
+                        echo '<div class="empty-state">📭 Tamamlanan ders bulunmuyor</div>';
                     }
-                } else {
-                    echo "<div style='text-align:center; color:#999;'>Henüz ders kaydı yok.</div>";
-                }
-                ?>
+                    ?>
+                </div>
             </div>
+
         </div>
 
-        <!-- SAĞ: GELİŞİM GEÇMİŞİ -->
-        <div class="right-col">
-            <div class="dash-card">
-                <div class="card-head">📊 Gelişim Geçmişi</div>
-                <?php
-                $prog_res = mysqli_query($conn, "SELECT * FROM user_progress WHERE user_id = $user_id ORDER BY record_date DESC LIMIT 5");
-                if(mysqli_num_rows($prog_res) > 0) {
-                    while($p = mysqli_fetch_assoc($prog_res)) {
-                        echo '<div class="prog-row">';
-                        echo '<div><strong>'. $p['weight'] .' kg</strong></div>';
-                        echo '<div class="prog-bmi">BMI: '. $p['bmi'] .'</div>';
-                        echo '<div style="font-size:0.75rem; color:#999;">'. date("d.m.Y", strtotime($p['record_date'])) .'</div>';
-                        echo '</div>';
+        <!-- SAĞ KOLON: GELİŞİM GEÇMİŞİ -->
+        <div class="profile-right">
+            
+            <div class="profile-card">
+                <div class="card-header">
+                    <h2>📊 Gelişim Geçmişi</h2>
+                    <p>Son 10 kaydınız</p>
+                </div>
+
+                <div class="progress-timeline">
+                    <?php
+                    $prog_res = mysqli_query($conn, "SELECT * FROM user_progress WHERE user_id = $user_id ORDER BY record_date DESC LIMIT 10");
+                    if(mysqli_num_rows($prog_res) > 0) {
+                        $counter = 0;
+                        while($p = mysqli_fetch_assoc($prog_res)) {
+                            $counter++;
+                            $record_date = new DateTime($p['record_date']);
+                            echo '<div class="progress-item">';
+                            echo '<div class="progress-number">#' . $counter . '</div>';
+                            echo '<div class="progress-content">';
+                            echo '<div class="progress-date">' . $record_date->format("d.m.Y H:i") . '</div>';
+                            echo '<div class="progress-stats">';
+                            echo '<span class="stat weight">⚖️ ' . number_format($p['weight'], 1, ',', '.') . ' kg</span>';
+                            echo '<span class="stat bmi">📈 BMI: ' . number_format($p['bmi'], 1, ',', '.') . '</span>';
+                            echo '</div>';
+                            echo '</div>';
+                            echo '</div>';
+                        }
+                    } else {
+                        echo '<div class="empty-state">📭 Gelişim kaydı bulunmuyor. İlk kaydınızı ekleyin!</div>';
                     }
-                } else { echo "<div style='text-align:center; color:#999;'>Veri yok.</div>"; }
-                ?>
+                    ?>
+                </div>
             </div>
+
         </div>
 
     </div>
+
 </div>
 
-</body>
-</html>
+<?php include 'footer.php'; ?>
