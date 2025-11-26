@@ -204,6 +204,7 @@ include 'header.php';
                                 echo "<td><span class='badge-capacity'>" . $row['capacity'] . "</span></td>";
                                 
                                 echo "<td class='td-actions'>";
+                                echo "<a href='class_edit.php?id=" . $row['id'] . "' class='btn-action-small btn-edit'>✏️ Düzenle</a>";
                                 if ($_SESSION['role'] == 'admin') {
                                     echo "<a href='admin.php?delete_id=" . $row['id'] . "' class='btn-action-small btn-delete' onclick='return confirm(\"Bu dersi silmek istediğine emin misin?\")'>🗑️ Sil</a>";
                                 } else {

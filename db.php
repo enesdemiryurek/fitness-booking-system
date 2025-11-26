@@ -25,7 +25,7 @@ if(mysqli_num_rows($check_table) == 0) {
         id INT PRIMARY KEY AUTO_INCREMENT,
         user_id INT NOT NULL,
         class_id INT,
-        type ENUM('new_class', 'class_reminder_1h', 'class_reminder_30m', 'class_reminder_10m', 'class_cancelled') NOT NULL,
+        type ENUM('new_class', 'class_reminder_1h', 'class_reminder_30m', 'class_reminder_10m', 'class_cancelled', 'class_time_updated') NOT NULL,
         title VARCHAR(255) NOT NULL,
         message TEXT NOT NULL,
         is_read BOOLEAN DEFAULT FALSE,
@@ -38,6 +38,15 @@ if(mysqli_num_rows($check_table) == 0) {
     // İndeks oluştur
     mysqli_query($conn, "CREATE INDEX idx_user_notifications ON notifications(user_id, is_read, created_at)");
     mysqli_query($conn, "CREATE INDEX idx_class_notifications ON notifications(class_id)");
+} else {
+    // Varsa sütun tipini güncelle
+    $check_enum = mysqli_query($conn, "SELECT COLUMN_TYPE FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='notifications' AND COLUMN_NAME='type'");
+    if($check_enum && mysqli_num_rows($check_enum) > 0) {
+        $enum_row = mysqli_fetch_assoc($check_enum);
+        if(strpos($enum_row['COLUMN_TYPE'], 'class_time_updated') === false) {
+            mysqli_query($conn, "ALTER TABLE notifications MODIFY COLUMN type ENUM('new_class', 'class_reminder_1h', 'class_reminder_30m', 'class_reminder_10m', 'class_cancelled', 'class_time_updated') NOT NULL");
+        }
+    }
 }
 
 // Users tablosuna profile_photo sütunu ekle (varsa geç)

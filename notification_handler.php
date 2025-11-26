@@ -65,6 +65,25 @@ class NotificationHandler {
     }
     
     /**
+     * Ders saati güncellendi - rezerve etmiş kullanıcılara bildir
+     */
+    public function notifyClassTimeUpdate($class_id, $class_title, $old_time, $new_time) {
+        $old_datetime = date("d.m.Y H:i", strtotime($old_time));
+        $new_datetime = date("d.m.Y H:i", strtotime($new_time));
+        
+        $title = "⏱️ Ders Saati Güncellendi: $class_title";
+        $message = "Ders saati değiştirildi.\n\nEski saat: $old_datetime\nYeni saat: $new_datetime";
+        
+        // Bu dersi rezerve etmiş kullanıcıları bul
+        $sql = "SELECT DISTINCT user_id FROM bookings WHERE class_id = $class_id";
+        $result = mysqli_query($this->conn, $sql);
+        
+        while($booking = mysqli_fetch_assoc($result)) {
+            $this->createNotification($booking['user_id'], 'class_time_updated', $title, $message, $class_id);
+        }
+    }
+    
+    /**
      * Ders hatırlatması gönder (1 saat, 30 dakika, 10 dakika öncesi)
      */
     public function sendClassReminders() {
