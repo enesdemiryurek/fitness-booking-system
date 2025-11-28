@@ -50,6 +50,91 @@ body {
 .nav-right {
     display: flex;
     gap: 15px;
+    align-items: center;
+}
+
+/* Dil Seçimi Slider Toggle */
+.language-toggle {
+    position: relative;
+    width: 90px;
+    height: 40px;
+    background: #185ADB;
+    border-radius: 25px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    padding: 0 5px;
+    margin-right: 10px;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s;
+}
+
+.language-toggle:hover {
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.15), 0 2px 8px rgba(24, 90, 219, 0.3);
+}
+
+.language-toggle.tr {
+    justify-content: flex-start;
+}
+
+.language-toggle.en {
+    justify-content: flex-end;
+}
+
+/* Kaydırmalı Top */
+.slider-knob {
+    width: 32px;
+    height: 32px;
+    background: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 0.85rem;
+    color: #185ADB;
+    transition: all 0.3s;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+    user-select: none;
+}
+
+.language-toggle.en .slider-knob {
+    color: #185ADB;
+}
+
+.language-toggle.tr .slider-knob {
+    color: #185ADB;
+}
+
+/* Dil Etiketleri */
+.lang-label {
+    position: absolute;
+    font-weight: 700;
+    font-size: 0.8rem;
+    color: white;
+    user-select: none;
+    pointer-events: none;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.lang-label-tr {
+    left: 8px;
+    opacity: 1;
+    transition: opacity 0.3s;
+}
+
+.language-toggle.en .lang-label-tr {
+    opacity: 0.4;
+}
+
+.lang-label-en {
+    right: 8px;
+    opacity: 0.4;
+    transition: opacity 0.3s;
+}
+
+.language-toggle.en .lang-label-en {
+    opacity: 1;
 }
 
 .btn-auth {

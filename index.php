@@ -2,7 +2,8 @@
 session_start();
 include 'db.php';
 include 'notification_handler.php';
-$page_title = "Fitness Rezervasyon | GYM";
+include 'language.php';
+$page_title = "Fitness Booking | GYM";
 
 // HER SAYFAYA GİREŞTE BİLDİRİMLERİ KONTROL ET VE GÖNDER
 if(rand(1, 10) == 1) { // %10 oranında çalış (spam önleme)
@@ -13,8 +14,8 @@ include 'header.php';
 ?>
 
     <div class="hero">
-        <h1>Sınırlarını Zorla</h1>
-        <p>En iyi eğitmenlerle potansiyelini keşfet. Hemen yerini ayırt.</p>
+        <h1><?php echo $lang['hero_title']; ?></h1>
+        <p><?php echo $lang['hero_subtitle']; ?></p>
     </div>
 
     
@@ -22,8 +23,8 @@ include 'header.php';
     <div class="class-types-carousel">
         <div class="carousel-container">
             <div class="carousel-container-title">
-                <h2>✨ Ders Türlerimizi Keşfet</h2>
-                <p>Sağlığını geliştir, hedeflerine ulaş - Her gün yeni bir başlangıç</p>
+                <h2>✨ <?php echo $lang['carousel_title']; ?></h2>
+                <p><?php echo $lang['carousel_subtitle']; ?></p>
             </div>
 
             <div class="carousel-wrapper">
@@ -31,24 +32,24 @@ include 'header.php';
                 <div class="carousel-card" style="border-top: 4px solid #6366f1;">
                     <div class="card-image-wrapper" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
                         <img src="https://images.unsplash.com/photo-1506126613408-eca07ce68773?ixlib=rb-1.2.1&auto=format&fit=crop&w=600&h=400&q=80" alt="Yoga" class="carousel-image" onerror="this.src='https://placehold.co/600x400?text=Yoga'">
-                        <div class="card-badge">Sakinlik</div>
+                        <div class="card-badge"><?php echo $lang['course_yoga_badge']; ?></div>
                     </div>
                     <div class="carousel-content">
                         <div class="card-title-section">
                             <span class="card-icon">🧘‍♀️</span>
-                            <h3>Yoga</h3>
+                            <h3><?php echo $lang['course_yoga']; ?></h3>
                         </div>
-                        <p class="card-subtitle">Zihin ve beden dengesini bulun</p>
+                        <p class="card-subtitle"><?php echo $lang['course_yoga_subtitle']; ?></p>
                         <div class="card-details">
-                            <div class="detail-item"><span class="detail-label">Seviye:</span> Tüm Seviyelere Uygun</div>
-                            <div class="detail-item"><span class="detail-label">Süre:</span> 60 dakika</div>
-                            <div class="detail-item"><span class="detail-label">Yoğunluk:</span> <span class="intensity-low">▮ Düşük</span></div>
+                            <div class="detail-item"><span class="detail-label"><?php echo $lang['label_level']; ?></span> <?php echo $lang['course_yoga_level']; ?></div>
+                            <div class="detail-item"><span class="detail-label"><?php echo $lang['label_duration']; ?></span> <?php echo $lang['course_yoga_duration']; ?></div>
+                            <div class="detail-item"><span class="detail-label"><?php echo $lang['label_intensity']; ?></span> <span class="intensity-low">▮ <?php echo $lang['course_yoga_intensity']; ?></span></div>
                         </div>
-                        <p class="card-description">Esnetme, meditasyon ve nefes teknikleriyle esnekliğinizi artırın, stresinizi azaltın ve iç huzur bulun.</p>
+                        <p class="card-description"><?php echo $lang['course_yoga_desc']; ?></p>
                         <div class="benefits-section">
-                            <span class="benefit-tag">🌸 Stres Azalması</span>
-                            <span class="benefit-tag">🧘 Esneklik</span>
-                            <span class="benefit-tag">💆 Rahatlama</span>
+                            <span class="benefit-tag"><?php echo $lang['course_yoga_benefit1']; ?></span>
+                            <span class="benefit-tag"><?php echo $lang['course_yoga_benefit2']; ?></span>
+                            <span class="benefit-tag"><?php echo $lang['course_yoga_benefit3']; ?></span>
                         </div>
                     </div>
                 </div>
@@ -57,24 +58,24 @@ include 'header.php';
                 <div class="carousel-card" style="border-top: 4px solid #10b981;">
                     <div class="card-image-wrapper" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
                         <img src="https://images.unsplash.com/photo-1541692641-cfbc67269f43?ixlib=rb-1.2.1&auto=format&fit=crop&w=600&h=400&q=80" alt="Pilates" class="carousel-image" onerror="this.src='https://placehold.co/600x400?text=Pilates'">
-                        <div class="card-badge">Core Gücü</div>
+                        <div class="card-badge"><?php echo $lang['course_pilates_badge']; ?></div>
                     </div>
                     <div class="carousel-content">
                         <div class="card-title-section">
                             <span class="card-icon">🤸‍♀️</span>
-                            <h3>Pilates</h3>
+                            <h3><?php echo $lang['course_pilates']; ?></h3>
                         </div>
-                        <p class="card-subtitle">Merkez kaslarınızı güçlendirin</p>
+                        <p class="card-subtitle"><?php echo $lang['course_pilates_subtitle']; ?></p>
                         <div class="card-details">
-                            <div class="detail-item"><span class="detail-label">Seviye:</span> Tüm Seviyelere Uygun</div>
-                            <div class="detail-item"><span class="detail-label">Süre:</span> 50 dakika</div>
-                            <div class="detail-item"><span class="detail-label">Yoğunluk:</span> <span class="intensity-medium">▮▮ Orta</span></div>
+                            <div class="detail-item"><span class="detail-label"><?php echo $lang['label_level']; ?></span> <?php echo $lang['course_pilates_level']; ?></div>
+                            <div class="detail-item"><span class="detail-label"><?php echo $lang['label_duration']; ?></span> <?php echo $lang['course_pilates_duration']; ?></div>
+                            <div class="detail-item"><span class="detail-label"><?php echo $lang['label_intensity']; ?></span> <span class="intensity-medium">▮▮ <?php echo $lang['course_pilates_intensity']; ?></span></div>
                         </div>
-                        <p class="card-description">Kontrollü hareketlerle merkez kaslarınızı güçlendirin, vücut dengenizi düzeltin ve postürünüzü iyileştirin.</p>
+                        <p class="card-description"><?php echo $lang['course_pilates_desc']; ?></p>
                         <div class="benefits-section">
-                            <span class="benefit-tag">💪 Core Gücü</span>
-                            <span class="benefit-tag">🎯 Postür</span>
-                            <span class="benefit-tag">📏 Şekillendirme</span>
+                            <span class="benefit-tag"><?php echo $lang['course_pilates_benefit1']; ?></span>
+                            <span class="benefit-tag"><?php echo $lang['course_pilates_benefit2']; ?></span>
+                            <span class="benefit-tag"><?php echo $lang['course_pilates_benefit3']; ?></span>
                         </div>
                     </div>
                 </div>
@@ -83,24 +84,24 @@ include 'header.php';
                 <div class="carousel-card" style="border-top: 4px solid #f59e0b;">
                     <div class="card-image-wrapper" style="background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%);">
                         <img src="https://images.unsplash.com/photo-1534438327276-14e5300c3a48?ixlib=rb-1.2.1&auto=format&fit=crop&w=600&h=400&q=80" alt="HIIT" class="carousel-image" onerror="this.src='https://placehold.co/600x400?text=HIIT'">
-                        <div class="card-badge">Yüksek Enerji</div>
+                        <div class="card-badge"><?php echo $lang['course_hiit_badge']; ?></div>
                     </div>
                     <div class="carousel-content">
                         <div class="card-title-section">
                             <span class="card-icon">🔥</span>
-                            <h3>HIIT</h3>
+                            <h3><?php echo $lang['course_hiit']; ?></h3>
                         </div>
-                        <p class="card-subtitle">Maksimum kalori yakımı</p>
+                        <p class="card-subtitle"><?php echo $lang['course_hiit_subtitle']; ?></p>
                         <div class="card-details">
-                            <div class="detail-item"><span class="detail-label">Seviye:</span> Orta - İleri</div>
-                            <div class="detail-item"><span class="detail-label">Süre:</span> 45 dakika</div>
-                            <div class="detail-item"><span class="detail-label">Yoğunluk:</span> <span class="intensity-high">▮▮▮ Yüksek</span></div>
+                            <div class="detail-item"><span class="detail-label"><?php echo $lang['label_level']; ?></span> <?php echo $lang['course_hiit_level']; ?></div>
+                            <div class="detail-item"><span class="detail-label"><?php echo $lang['label_duration']; ?></span> <?php echo $lang['course_hiit_duration']; ?></div>
+                            <div class="detail-item"><span class="detail-label"><?php echo $lang['label_intensity']; ?></span> <span class="intensity-high">▮▮▮ <?php echo $lang['course_hiit_intensity']; ?></span></div>
                         </div>
-                        <p class="card-description">Yüksek yoğunluk egzersizler ve kısa dinlenme aralarından oluşan hızlı, etkili antrenman.</p>
+                        <p class="card-description"><?php echo $lang['course_hiit_desc']; ?></p>
                         <div class="benefits-section">
-                            <span class="benefit-tag">🔥 Kalori Yakımı</span>
-                            <span class="benefit-tag">⚡ Metabolizma</span>
-                            <span class="benefit-tag">🏃 Dayanıklılık</span>
+                            <span class="benefit-tag"><?php echo $lang['course_hiit_benefit1']; ?></span>
+                            <span class="benefit-tag"><?php echo $lang['course_hiit_benefit2']; ?></span>
+                            <span class="benefit-tag"><?php echo $lang['course_hiit_benefit3']; ?></span>
                         </div>
                     </div>
                 </div>
@@ -109,24 +110,24 @@ include 'header.php';
                 <div class="carousel-card" style="border-top: 4px solid #ec4899;">
                     <div class="card-image-wrapper" style="background: linear-gradient(135deg, #ffa500 0%, #ff69b4 100%);">
                         <img src="https://images.unsplash.com/photo-1470225620780-dba8ba36b745?ixlib=rb-1.2.1&auto=format&fit=crop&w=600&h=400&q=80" alt="Zumba" class="carousel-image" onerror="this.src='https://placehold.co/600x400?text=Zumba'">
-                        <div class="card-badge">Eğlence Paketi</div>
+                        <div class="card-badge"><?php echo $lang['course_zumba_badge']; ?></div>
                     </div>
                     <div class="carousel-content">
                         <div class="card-title-section">
                             <span class="card-icon">💃</span>
-                            <h3>Zumba</h3>
+                            <h3><?php echo $lang['course_zumba']; ?></h3>
                         </div>
-                        <p class="card-subtitle">Müzikle dans ederek egzersiz yapın</p>
+                        <p class="card-subtitle"><?php echo $lang['course_zumba_subtitle']; ?></p>
                         <div class="card-details">
-                            <div class="detail-item"><span class="detail-label">Seviye:</span> Tüm Seviyelere Uygun</div>
-                            <div class="detail-item"><span class="detail-label">Süre:</span> 60 dakika</div>
-                            <div class="detail-item"><span class="detail-label">Yoğunluk:</span> <span class="intensity-medium">▮▮ Orta</span></div>
+                            <div class="detail-item"><span class="detail-label"><?php echo $lang['label_level']; ?></span> <?php echo $lang['course_zumba_level']; ?></div>
+                            <div class="detail-item"><span class="detail-label"><?php echo $lang['label_duration']; ?></span> <?php echo $lang['course_zumba_duration']; ?></div>
+                            <div class="detail-item"><span class="detail-label"><?php echo $lang['label_intensity']; ?></span> <span class="intensity-medium">▮▮ <?php echo $lang['course_zumba_intensity']; ?></span></div>
                         </div>
-                        <p class="card-description">Latin ritimleriyle eğlenerek hareket ederek kardiyovasküler sisteminizi geliştirin.</p>
+                        <p class="card-description"><?php echo $lang['course_zumba_desc']; ?></p>
                         <div class="benefits-section">
-                            <span class="benefit-tag">😊 Eğlence</span>
-                            <span class="benefit-tag">🎵 Ritim</span>
-                            <span class="benefit-tag">👥 Sosyal</span>
+                            <span class="benefit-tag"><?php echo $lang['course_zumba_benefit1']; ?></span>
+                            <span class="benefit-tag"><?php echo $lang['course_zumba_benefit2']; ?></span>
+                            <span class="benefit-tag"><?php echo $lang['course_zumba_benefit3']; ?></span>
                         </div>
                     </div>
                 </div>
@@ -135,24 +136,24 @@ include 'header.php';
                 <div class="carousel-card" style="border-top: 4px solid #ef4444;">
                     <div class="card-image-wrapper" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
                         <img src="https://images.unsplash.com/photo-1517836357463-d25dfeac3438?ixlib=rb-1.2.1&auto=format&fit=crop&w=600&h=400&q=80" alt="Fitness" class="carousel-image" onerror="this.src='https://placehold.co/600x400?text=Fitness'">
-                        <div class="card-badge">Güç Eğitimi</div>
+                        <div class="card-badge"><?php echo $lang['course_fitness_badge']; ?></div>
                     </div>
                     <div class="carousel-content">
                         <div class="card-title-section">
                             <span class="card-icon">💪</span>
-                            <h3>Fitness</h3>
+                            <h3><?php echo $lang['course_fitness']; ?></h3>
                         </div>
-                        <p class="card-subtitle">Vücut geliştirme ve güçlenme</p>
+                        <p class="card-subtitle"><?php echo $lang['course_fitness_subtitle']; ?></p>
                         <div class="card-details">
-                            <div class="detail-item"><span class="detail-label">Seviye:</span> Tüm Seviyelere Uygun</div>
-                            <div class="detail-item"><span class="detail-label">Süre:</span> 55 dakika</div>
-                            <div class="detail-item"><span class="detail-label">Yoğunluk:</span> <span class="intensity-high">▮▮▮ Yüksek</span></div>
+                            <div class="detail-item"><span class="detail-label"><?php echo $lang['label_level']; ?></span> <?php echo $lang['course_fitness_level']; ?></div>
+                            <div class="detail-item"><span class="detail-label"><?php echo $lang['label_duration']; ?></span> <?php echo $lang['course_fitness_duration']; ?></div>
+                            <div class="detail-item"><span class="detail-label"><?php echo $lang['label_intensity']; ?></span> <span class="intensity-high">▮▮▮ <?php echo $lang['course_fitness_intensity']; ?></span></div>
                         </div>
-                        <p class="card-description">Ağırlık antrenmanları, direnç egzersizleri ve fonksiyonel hareketlerle vücut şekillendirin.</p>
+                        <p class="card-description"><?php echo $lang['course_fitness_desc']; ?></p>
                         <div class="benefits-section">
-                            <span class="benefit-tag">💪 Kas Gelişimi</span>
-                            <span class="benefit-tag">🏋️ Güç</span>
-                            <span class="benefit-tag">🔥 Şekillendirme</span>
+                            <span class="benefit-tag"><?php echo $lang['course_fitness_benefit1']; ?></span>
+                            <span class="benefit-tag"><?php echo $lang['course_fitness_benefit2']; ?></span>
+                            <span class="benefit-tag"><?php echo $lang['course_fitness_benefit3']; ?></span>
                         </div>
                     </div>
                 </div>
