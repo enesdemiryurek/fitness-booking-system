@@ -13,8 +13,8 @@ include 'header.php';
 ?>
 
     <div class="hero">
-        <h1>Sınırlarını Zorla</h1>
-        <p>En iyi eğitmenlerle potansiyelini keşfet. Hemen yerini ayırt.</p>
+        <h1>Push Your Limits</h1>
+        <p>Discover your potential with the best instructors. Book your place now.</p>
     </div>
 
     
@@ -29,7 +29,7 @@ include 'header.php';
                 <div id="zumba" class="group-item">
                     <img src="img/zumba.jpg" class="group-img" onerror="this.src='https://images.unsplash.com/photo-1524594152303-9fd13543fe6e?w=800'">
                     <h3>Zumba</h3>
-                    <p>Dans ve fitness'ın mükemmel uyumu! Latin müzikleri eşliğinde hem eğlen hem de kalori yak. Her seviyeye uygun koreografilerle stres atarken forma girin.</p>
+                    <p>The perfect blend of dance and fitness! Have fun and burn calories with Latin music. Get in shape while relieving stress with choreography suitable for all levels.</p>
                   
                 </div>
 
@@ -37,7 +37,7 @@ include 'header.php';
                 <div id="pilates" class="group-item">
                     <img src="img/pilates.jpg" class="group-img" onerror="this.src='https://images.unsplash.com/photo-1518611012118-696072aa579a?w=800'">
                     <h3>Pilates</h3>
-                    <p>Vücut esnekliğini artır, kaslarını uzat ve duruşunu düzelt. Mat üzerinde veya aletli pilates seçeneklerimizle merkez (core) gücünü keşfet.</p>
+                    <p>Increase your flexibility, lengthen your muscles, and improve your posture. Discover your core strength with our mat or equipment Pilates options.</p>
                    
                 </div>
 
@@ -45,7 +45,7 @@ include 'header.php';
                 <div id="hiit" class="group-item">
                     <img src="img/hiit.jpg" class="group-img" onerror="this.src='https://images.unsplash.com/photo-1601422407692-ec4eeec1d9b3?w=800'">
                     <h3>HIIT</h3>
-                    <p>Yüksek Yoğunluklu Aralıklı Antrenman ile sınırlarını zorla. Kısa sürede maksimum yağ yakımı sağlayan bu ders, kondisyonunu zirveye taşıyacak.</p>
+                    <p>Push your limits with High Intensity Interval Training. This class will maximize fat burning in a short time and take your fitness to the top.</p>
                    
                 </div>
 
@@ -53,7 +53,7 @@ include 'header.php';
                 <div id="fitness" class="group-item">
                     <img src="img/default.jpg" class="group-img" onerror="this.src='https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=800'">
                     <h3>Fitness</h3>
-                    <p>Modern ekipmanlarla donatılmış salonumuzda, kişisel hedeflerine yönelik antrenman programları. Kas kütleni artır veya sıkılaş.</p>
+                    <p>Our gym is equipped with modern equipment and offers training programs tailored to your personal goals. Increase your muscle mass or tone your body.</p>
                    
                 </div>
 
@@ -78,7 +78,7 @@ include 'header.php';
             
    
     <div class="container" id="dersler">
-        <h2 class="section-title">📅 Yaklaşan Dersler</h2>
+        <h2 class="section-title">Upcoming Lessons</h2>
 
         <div class="class-list">
             <?php
@@ -110,24 +110,24 @@ include 'header.php';
                         
                         // Stok Durumu
                         $stok_color = ($row["capacity"] < 3) ? "#dc3545" : "#28a745";
-                        echo '<span class="stok" style="color:'.$stok_color.'">⚡ Kalan Yer: ' . $row["capacity"] . '</span>';
+                        echo '<span class="stok" style="color:'.$stok_color.'"> Remaining Place: ' . $row["capacity"] . '</span>';
 
                         // Rezerve Butonları
                         if(isset($_SESSION['user_id'])) {
                             if ($row["capacity"] > 0) {
-                                echo '<a href="book_class.php?id='.$row['id'].'" class="btn-card">Hemen Rezerve Et</a>';
+                                echo '<a href="book_class.php?id='.$row['id'].'" class="btn-card">Book Now</a>';
                             } else {
-                                echo '<button class="btn-card btn-disabled" disabled>DOLDU</button>';
+                                echo '<button class="btn-card btn-disabled" disabled>FULL</button>';
                             }
                         } else {
-                            echo '<a href="login.php" class="btn-card" style="background:#666;">Giriş Yap & Rezerve Et</a>';
+                            echo '<a href="login.php" class="btn-card" style="background:#666;">Login & Book</a>';
                         }
 
                     echo '</div>'; // card-content
                     echo '</div>'; // class-card
                 }
             } else {
-                echo "<p style='text-align:center; width:100%;'>Henüz aktif ders bulunmuyor.</p>";
+                echo "<p style='text-align:center; width:100%;'>There are no active courses yet.</p>";
             }
             ?>
         </div>
@@ -135,13 +135,13 @@ include 'header.php';
 
     <!-- GEÇMIŞ DERSLER BÖLÜMÜ -->
     <div class="container" id="gecmis-dersler">
-        <h2 class="section-title"> Geçmiş Dersler </h2>
+        <h2 class="section-title"> Past Lessons </h2>
 
         <div class="class-list">
             <?php
             // Son 24 saat içinde geçen dersler
             $now = time();
-            $one_day_ago = date("Y-m-d H:i:s", $now - 86400); // 24 saat öncesi
+            $one_day_ago = date("Y-m-d H:i:s", $now - 604800); // 1 hafta zaman
             $current_time = date("Y-m-d H:i:s");
 
             $sql = "SELECT * FROM classes WHERE date_time < '$current_time' AND date_time >= '$one_day_ago' ORDER BY date_time DESC";
@@ -164,14 +164,12 @@ include 'header.php';
                     echo '<img src="'.$img_url.'" alt="Ders Resmi" class="card-image past-image" onerror="this.src=\'https://placehold.co/600x400?text=Resim+Yok\'">';
                     
                     echo '<div class="card-content">';
-                        echo '<h3>' . $row["title"] . ' <span class="badge">Tamamlandı</span></h3>';
+                        echo '<h3>' . $row["title"] . ' <span class="badge">Completed</span></h3>';
                         echo '<p style="color:#666; margin-top:5px;">🧘‍♂️ ' . $row["trainer_name"] . ' • 🕒 ' . date("d.m.Y H:i", strtotime($row["date_time"])) . '</p>';
                         echo '<p style="margin-top:10px;">' . $row["description"] . '</p>';
                         
-                        // Detay Butonu
-                        echo '<a href="class_details.php?id='.$row['id'].'" style="display:block; text-align:center; color:#185ADB; font-weight:bold; margin:15px 0 10px 0; text-decoration:none;">🔍 İncele & Yorumlar</a>';
-
-                        echo '<button class="btn-card btn-disabled" disabled>TAMAMLANDI</button>';
+                       
+                        echo '<button class="btn-card btn-disabled" disabled>Completed</button>';
 
                     echo '</div>'; // card-content
                     echo '</div>'; // class-card

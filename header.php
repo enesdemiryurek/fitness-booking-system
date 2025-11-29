@@ -19,7 +19,7 @@ include 'notification_handler.php';
         </a>
 
         <div class="nav-center">
-            <a href="index.php#dersler">Dersleri Keşfet</a>
+            <a href="index.php#dersler">Explore Lessons</a>
         </div>
 
         <div class="nav-right">
@@ -53,14 +53,14 @@ include 'notification_handler.php';
                 </div>
 
                 <?php if($_SESSION['role'] == 'admin' || $_SESSION['role'] == 'instructor'): ?>
-                    <a href="admin.php" class="admin-badge">Yönetim Paneli</a>
+                    <a href="admin.php" class="admin-badge">Administration Panel</a>
                 <?php endif; ?>
 
-                <a href="profile.php" class="btn-auth btn-login">Profilim</a>
-                <a href="logout.php" class="btn-auth" style="color:red;">Çıkış Yap</a>
+                <a href="profile.php" class="btn-auth btn-login">My Profile</a>
+                <a href="logout.php" class="btn-auth" style="color:red;">Log Out</a>
             <?php else: ?>
-                <a href="login.php" class="btn-auth btn-login">Giriş Yap</a>
-                <a href="register.php" class="btn-auth btn-register">Kayıt Ol</a>
+                <a href="login.php" class="btn-auth btn-login">Login</a>
+                <a href="register.php" class="btn-auth btn-register">Sign Up</a>
             <?php endif; ?>
         </div>
     </nav>

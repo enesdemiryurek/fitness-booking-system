@@ -26,7 +26,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         header("Location: index.php");
         exit;
     } else {
-        $message = "Hatalı e-posta veya şifre!";
+        $message = "Incorrect email or password!";
     }
 }
 
@@ -37,8 +37,8 @@ include 'header.php';
         
         <div class="form-side">
             <div class="form-header">
-                <h2>Tekrar Hoşgeldin!</h2>
-                <p>Hesabına giriş yap ve spora kaldığın yerden devam et.</p>
+                <h2>Welcome Back!</h2>
+                <p>Log in to your account and continue your sports where you left off.</p>
             </div>
 
             <?php if($message) echo "<p style='color:red; text-align:center; background:#ffebee; padding:10px; border-radius:5px; margin-bottom:15px;'>$message</p>"; ?>
@@ -51,30 +51,30 @@ include 'header.php';
                 </div>
 
                 <div class="input-group">
-                    <label>Şifre</label>
+                    <label>Password</label>
                     <input type="password" name="password" class="blue-input" placeholder="******" required>
                 </div>
 
-                <button type="submit" class="btn-blue">Giriş Yap</button>
+                <button type="submit" class="btn-blue">Login</button>
             </form>
 
             <div class="back-link">
-                <a href="forgot_password.php" style="color:#ff6b6b; font-weight:bold; font-size:14px;">Şifreni Unuttun Mu?</a>
+                <a href="forgot_password.php" style="color:#ff6b6b; font-weight:bold; font-size:14px;">Forgot Your Password?</a>
             </div>
 
             <div class="back-link">
-                Hesabın yok mu? <a href="register.php">Hemen Kayıt Ol</a>
+                Don't have an account? <a href="register.php">Register Now</a>
             </div>
             <div class="back-link" style="margin-top:10px;">
-                <a href="index.php" style="color:#999; font-weight:normal;">← Anasayfaya Dön</a>
+                <a href="index.php" style="color:#999; font-weight:normal;">← Return to Home</a>
             </div>
         </div>
 
         <div class="image-side" style="background-image: url('https://images.unsplash.com/photo-1599058945522-28d584b6f0ff?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80');">
             <div class="image-overlay">
                 <div class="testimonial-stars">★★★★★</div>
-                <p class="testimonial-text">"Süreklilik, başarının anahtarıdır. Her gün %1 daha iyi olmak için buradayız."</p>
-                <p class="testimonial-author">GYM Ekibi</p>
+                <p class="testimonial-text">"Consistency is the key to success. We're here to be 1% better every day."</p>
+                <p class="testimonial-author">BABA PRO GYM TEAM</p>
             </div>
         </div>
 

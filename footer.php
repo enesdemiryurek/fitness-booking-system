@@ -1,27 +1,27 @@
     <footer class="footer">
         <div class="footer-container">
             <div class="footer-section">
-                <h3>GYM</h3>
-                <p>En iyi fitness deneyimi için seni bekliyoruz. Sınırlarını zorla, hedefine ulaş!</p>
+                <h3>BABA PRO GYM</h3>
+                <p>We're waiting for you for the best fitness experience. Push your limits, reach your goals!</p>
             </div>
 
             <div class="footer-section">
-                <h4>Hızlı Linkler</h4>
+                <h4>Quick Links</h4>
                 <ul>
-                    <li><a href="index.php">Anasayfa</a></li>
-                    <li><a href="index.php#dersler">Dersler</a></li>
+                    <li><a href="index.php">Home</a></li>
+                    <li><a href="index.php#dersler">Lessons</a></li>
                     <?php if(isset($_SESSION['user_id'])): ?>
-                        <li><a href="profile.php">Profilim</a></li>
-                        <li><a href="logout.php">Çıkış</a></li>
+                        <li><a href="profile.php">My Profile</a></li>
+                        <li><a href="logout.php">Log out</a></li>
                     <?php else: ?>
-                        <li><a href="login.php">Giriş Yap</a></li>
-                        <li><a href="register.php">Kayıt Ol</a></li>
+                        <li><a href="login.php">Login</a></li>
+                        <li><a href="register.php">Sign Up</a></li>
                     <?php endif; ?>
                 </ul>
             </div>
 
             <div class="footer-section">
-                <h4>Dersler</h4>
+                <h4>Our Lessons</h4>
                 <ul>
                     <li><a href="index.php#dersler">Yoga</a></li>
                     <li><a href="index.php#dersler">Pilates</a></li>
@@ -32,7 +32,7 @@
             </div>
 
             <div class="footer-section">
-                <h4>İletişim</h4>
+                <h4>Communication</h4>
                 <p>📧 info@gym.com</p>
                 <p>📱 +90 (555) 123-4567</p>
                 <p>📍 Ankara, Türkiye</p>
@@ -40,7 +40,7 @@
         </div>
 
         <div class="footer-bottom">
-            <p>&copy; 2025 GYM Fitness Center. Tüm hakları saklıdır.</p>
+            <p>&copy; 2025 GYM Fitness Center. </p>
         </div>
     </footer>
 
