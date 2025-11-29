@@ -27,6 +27,7 @@
                     <li><a href="index.php#dersler">Pilates</a></li>
                     <li><a href="index.php#dersler">HIIT</a></li>
                     <li><a href="index.php#dersler">Zumba</a></li>
+                    <li><a href="index.php#dersler">Fitness</a></li>
                 </ul>
             </div>
 

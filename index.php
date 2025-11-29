@@ -2,7 +2,6 @@
 session_start();
 include 'db.php';
 include 'notification_handler.php';
-include 'language.php';
 $page_title = "Fitness Booking | GYM";
 
 // HER SAYFAYA GİREŞTE BİLDİRİMLERİ KONTROL ET VE GÖNDER
@@ -14,166 +13,69 @@ include 'header.php';
 ?>
 
     <div class="hero">
-        <h1><?php echo $lang['hero_title']; ?></h1>
-        <p><?php echo $lang['hero_subtitle']; ?></p>
+        <h1>Sınırlarını Zorla</h1>
+        <p>En iyi eğitmenlerle potansiyelini keşfet. Hemen yerini ayırt.</p>
     </div>
 
     
-    <!-- DERS TÜRLERİ KAROUSEL - PREMIUM DİZAYN -->
-    <div class="class-types-carousel">
-        <div class="carousel-container">
-            <div class="carousel-container-title">
-                <h2>✨ <?php echo $lang['carousel_title']; ?></h2>
-                <p><?php echo $lang['carousel_subtitle']; ?></p>
+   <!-- GRUP DERSLERİ (STICKY BÖLÜM) BAŞLANGIÇ -->
+    <div class="group-classes-section">
+        <div class="group-wrapper">
+            
+            <!-- SOL TARAF: İÇERİK -->
+            <div class="group-content">
+                
+                <!-- ZUMBA -->
+                <div id="zumba" class="group-item">
+                    <img src="img/zumba.jpg" class="group-img" onerror="this.src='https://images.unsplash.com/photo-1524594152303-9fd13543fe6e?w=800'">
+                    <h3>Zumba</h3>
+                    <p>Dans ve fitness'ın mükemmel uyumu! Latin müzikleri eşliğinde hem eğlen hem de kalori yak. Her seviyeye uygun koreografilerle stres atarken forma girin.</p>
+                  
+                </div>
+
+                <!-- PILATES -->
+                <div id="pilates" class="group-item">
+                    <img src="img/pilates.jpg" class="group-img" onerror="this.src='https://images.unsplash.com/photo-1518611012118-696072aa579a?w=800'">
+                    <h3>Pilates</h3>
+                    <p>Vücut esnekliğini artır, kaslarını uzat ve duruşunu düzelt. Mat üzerinde veya aletli pilates seçeneklerimizle merkez (core) gücünü keşfet.</p>
+                   
+                </div>
+
+                <!-- HIIT -->
+                <div id="hiit" class="group-item">
+                    <img src="img/hiit.jpg" class="group-img" onerror="this.src='https://images.unsplash.com/photo-1601422407692-ec4eeec1d9b3?w=800'">
+                    <h3>HIIT</h3>
+                    <p>Yüksek Yoğunluklu Aralıklı Antrenman ile sınırlarını zorla. Kısa sürede maksimum yağ yakımı sağlayan bu ders, kondisyonunu zirveye taşıyacak.</p>
+                   
+                </div>
+
+                <!-- FITNESS -->
+                <div id="fitness" class="group-item">
+                    <img src="img/default.jpg" class="group-img" onerror="this.src='https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=800'">
+                    <h3>Fitness</h3>
+                    <p>Modern ekipmanlarla donatılmış salonumuzda, kişisel hedeflerine yönelik antrenman programları. Kas kütleni artır veya sıkılaş.</p>
+                   
+                </div>
+
             </div>
 
-            <div class="carousel-wrapper">
-                <!-- YOGA KARTI -->
-                <div class="carousel-card" style="border-top: 4px solid #6366f1;">
-                    <div class="card-image-wrapper" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
-                        <img src="https://images.unsplash.com/photo-1506126613408-eca07ce68773?ixlib=rb-1.2.1&auto=format&fit=crop&w=600&h=400&q=80" alt="Yoga" class="carousel-image" onerror="this.src='https://placehold.co/600x400?text=Yoga'">
-                        <div class="card-badge"><?php echo $lang['course_yoga_badge']; ?></div>
-                    </div>
-                    <div class="carousel-content">
-                        <div class="card-title-section">
-                            <span class="card-icon">🧘‍♀️</span>
-                            <h3><?php echo $lang['course_yoga']; ?></h3>
-                        </div>
-                        <p class="card-subtitle"><?php echo $lang['course_yoga_subtitle']; ?></p>
-                        <div class="card-details">
-                            <div class="detail-item"><span class="detail-label"><?php echo $lang['label_level']; ?></span> <?php echo $lang['course_yoga_level']; ?></div>
-                            <div class="detail-item"><span class="detail-label"><?php echo $lang['label_duration']; ?></span> <?php echo $lang['course_yoga_duration']; ?></div>
-                            <div class="detail-item"><span class="detail-label"><?php echo $lang['label_intensity']; ?></span> <span class="intensity-low">▮ <?php echo $lang['course_yoga_intensity']; ?></span></div>
-                        </div>
-                        <p class="card-description"><?php echo $lang['course_yoga_desc']; ?></p>
-                        <div class="benefits-section">
-                            <span class="benefit-tag"><?php echo $lang['course_yoga_benefit1']; ?></span>
-                            <span class="benefit-tag"><?php echo $lang['course_yoga_benefit2']; ?></span>
-                            <span class="benefit-tag"><?php echo $lang['course_yoga_benefit3']; ?></span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- PILATES KARTI -->
-                <div class="carousel-card" style="border-top: 4px solid #10b981;">
-                    <div class="card-image-wrapper" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
-                        <img src="https://images.unsplash.com/photo-1541692641-cfbc67269f43?ixlib=rb-1.2.1&auto=format&fit=crop&w=600&h=400&q=80" alt="Pilates" class="carousel-image" onerror="this.src='https://placehold.co/600x400?text=Pilates'">
-                        <div class="card-badge"><?php echo $lang['course_pilates_badge']; ?></div>
-                    </div>
-                    <div class="carousel-content">
-                        <div class="card-title-section">
-                            <span class="card-icon">🤸‍♀️</span>
-                            <h3><?php echo $lang['course_pilates']; ?></h3>
-                        </div>
-                        <p class="card-subtitle"><?php echo $lang['course_pilates_subtitle']; ?></p>
-                        <div class="card-details">
-                            <div class="detail-item"><span class="detail-label"><?php echo $lang['label_level']; ?></span> <?php echo $lang['course_pilates_level']; ?></div>
-                            <div class="detail-item"><span class="detail-label"><?php echo $lang['label_duration']; ?></span> <?php echo $lang['course_pilates_duration']; ?></div>
-                            <div class="detail-item"><span class="detail-label"><?php echo $lang['label_intensity']; ?></span> <span class="intensity-medium">▮▮ <?php echo $lang['course_pilates_intensity']; ?></span></div>
-                        </div>
-                        <p class="card-description"><?php echo $lang['course_pilates_desc']; ?></p>
-                        <div class="benefits-section">
-                            <span class="benefit-tag"><?php echo $lang['course_pilates_benefit1']; ?></span>
-                            <span class="benefit-tag"><?php echo $lang['course_pilates_benefit2']; ?></span>
-                            <span class="benefit-tag"><?php echo $lang['course_pilates_benefit3']; ?></span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- HIIT KARTI -->
-                <div class="carousel-card" style="border-top: 4px solid #f59e0b;">
-                    <div class="card-image-wrapper" style="background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%);">
-                        <img src="https://images.unsplash.com/photo-1534438327276-14e5300c3a48?ixlib=rb-1.2.1&auto=format&fit=crop&w=600&h=400&q=80" alt="HIIT" class="carousel-image" onerror="this.src='https://placehold.co/600x400?text=HIIT'">
-                        <div class="card-badge"><?php echo $lang['course_hiit_badge']; ?></div>
-                    </div>
-                    <div class="carousel-content">
-                        <div class="card-title-section">
-                            <span class="card-icon">🔥</span>
-                            <h3><?php echo $lang['course_hiit']; ?></h3>
-                        </div>
-                        <p class="card-subtitle"><?php echo $lang['course_hiit_subtitle']; ?></p>
-                        <div class="card-details">
-                            <div class="detail-item"><span class="detail-label"><?php echo $lang['label_level']; ?></span> <?php echo $lang['course_hiit_level']; ?></div>
-                            <div class="detail-item"><span class="detail-label"><?php echo $lang['label_duration']; ?></span> <?php echo $lang['course_hiit_duration']; ?></div>
-                            <div class="detail-item"><span class="detail-label"><?php echo $lang['label_intensity']; ?></span> <span class="intensity-high">▮▮▮ <?php echo $lang['course_hiit_intensity']; ?></span></div>
-                        </div>
-                        <p class="card-description"><?php echo $lang['course_hiit_desc']; ?></p>
-                        <div class="benefits-section">
-                            <span class="benefit-tag"><?php echo $lang['course_hiit_benefit1']; ?></span>
-                            <span class="benefit-tag"><?php echo $lang['course_hiit_benefit2']; ?></span>
-                            <span class="benefit-tag"><?php echo $lang['course_hiit_benefit3']; ?></span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- ZUMBA KARTI -->
-                <div class="carousel-card" style="border-top: 4px solid #ec4899;">
-                    <div class="card-image-wrapper" style="background: linear-gradient(135deg, #ffa500 0%, #ff69b4 100%);">
-                        <img src="https://images.unsplash.com/photo-1470225620780-dba8ba36b745?ixlib=rb-1.2.1&auto=format&fit=crop&w=600&h=400&q=80" alt="Zumba" class="carousel-image" onerror="this.src='https://placehold.co/600x400?text=Zumba'">
-                        <div class="card-badge"><?php echo $lang['course_zumba_badge']; ?></div>
-                    </div>
-                    <div class="carousel-content">
-                        <div class="card-title-section">
-                            <span class="card-icon">💃</span>
-                            <h3><?php echo $lang['course_zumba']; ?></h3>
-                        </div>
-                        <p class="card-subtitle"><?php echo $lang['course_zumba_subtitle']; ?></p>
-                        <div class="card-details">
-                            <div class="detail-item"><span class="detail-label"><?php echo $lang['label_level']; ?></span> <?php echo $lang['course_zumba_level']; ?></div>
-                            <div class="detail-item"><span class="detail-label"><?php echo $lang['label_duration']; ?></span> <?php echo $lang['course_zumba_duration']; ?></div>
-                            <div class="detail-item"><span class="detail-label"><?php echo $lang['label_intensity']; ?></span> <span class="intensity-medium">▮▮ <?php echo $lang['course_zumba_intensity']; ?></span></div>
-                        </div>
-                        <p class="card-description"><?php echo $lang['course_zumba_desc']; ?></p>
-                        <div class="benefits-section">
-                            <span class="benefit-tag"><?php echo $lang['course_zumba_benefit1']; ?></span>
-                            <span class="benefit-tag"><?php echo $lang['course_zumba_benefit2']; ?></span>
-                            <span class="benefit-tag"><?php echo $lang['course_zumba_benefit3']; ?></span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- FITNESS KARTI -->
-                <div class="carousel-card" style="border-top: 4px solid #ef4444;">
-                    <div class="card-image-wrapper" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
-                        <img src="https://images.unsplash.com/photo-1517836357463-d25dfeac3438?ixlib=rb-1.2.1&auto=format&fit=crop&w=600&h=400&q=80" alt="Fitness" class="carousel-image" onerror="this.src='https://placehold.co/600x400?text=Fitness'">
-                        <div class="card-badge"><?php echo $lang['course_fitness_badge']; ?></div>
-                    </div>
-                    <div class="carousel-content">
-                        <div class="card-title-section">
-                            <span class="card-icon">💪</span>
-                            <h3><?php echo $lang['course_fitness']; ?></h3>
-                        </div>
-                        <p class="card-subtitle"><?php echo $lang['course_fitness_subtitle']; ?></p>
-                        <div class="card-details">
-                            <div class="detail-item"><span class="detail-label"><?php echo $lang['label_level']; ?></span> <?php echo $lang['course_fitness_level']; ?></div>
-                            <div class="detail-item"><span class="detail-label"><?php echo $lang['label_duration']; ?></span> <?php echo $lang['course_fitness_duration']; ?></div>
-                            <div class="detail-item"><span class="detail-label"><?php echo $lang['label_intensity']; ?></span> <span class="intensity-high">▮▮▮ <?php echo $lang['course_fitness_intensity']; ?></span></div>
-                        </div>
-                        <p class="card-description"><?php echo $lang['course_fitness_desc']; ?></p>
-                        <div class="benefits-section">
-                            <span class="benefit-tag"><?php echo $lang['course_fitness_benefit1']; ?></span>
-                            <span class="benefit-tag"><?php echo $lang['course_fitness_benefit2']; ?></span>
-                            <span class="benefit-tag"><?php echo $lang['course_fitness_benefit3']; ?></span>
-                        </div>
-                    </div>
-                </div>
+            <!-- SAĞ TARAF: SABİT MENÜ -->
+            <div class="group-sidebar">
+                <span class="zigzag">Menu</span>
+                <h2 class="sidebar-title">Group<br>Lessons</h2>
+                
+                <ul class="sidebar-menu">
+                    <li><a href="#zumba">Zumba</a></li>
+                    <li><a href="#pilates">Pilates</a></li>
+                    <li><a href="#hiit">HIIT</a></li>
+                    <li><a href="#fitness">Fitness</a></li>
+                </ul>
             </div>
 
-            <!-- NAVİGASYON BUTONLARI -->
-            <button class="carousel-nav carousel-prev" onclick="scrollCarousel(-1)">❮</button>
-            <button class="carousel-nav carousel-next" onclick="scrollCarousel(1)">❯</button>
-
-            <!-- NOKTA İNDİKATÖRLERİ -->
-            <div class="carousel-dots">
-                <span class="dot active" onclick="goToCarouselSlide(0)"></span>
-                <span class="dot" onclick="goToCarouselSlide(1)"></span>
-                <span class="dot" onclick="goToCarouselSlide(2)"></span>
-                <span class="dot" onclick="goToCarouselSlide(3)"></span>
-                <span class="dot" onclick="goToCarouselSlide(4)"></span>
-            </div>
         </div>
     </div>
-
+    <!-- GRUP DERSLERİ BİTİŞ -->
+            
    
     <div class="container" id="dersler">
         <h2 class="section-title">📅 Yaklaşan Dersler</h2>

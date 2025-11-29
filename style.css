@@ -53,90 +53,6 @@ body {
     align-items: center;
 }
 
-/* Dil Seçimi Slider Toggle */
-.language-toggle {
-    position: relative;
-    width: 90px;
-    height: 40px;
-    background: #185ADB;
-    border-radius: 25px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    padding: 0 5px;
-    margin-right: 10px;
-    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
-    transition: all 0.3s;
-}
-
-.language-toggle:hover {
-    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.15), 0 2px 8px rgba(24, 90, 219, 0.3);
-}
-
-.language-toggle.tr {
-    justify-content: flex-start;
-}
-
-.language-toggle.en {
-    justify-content: flex-end;
-}
-
-/* Kaydırmalı Top */
-.slider-knob {
-    width: 32px;
-    height: 32px;
-    background: white;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: 700;
-    font-size: 0.85rem;
-    color: #185ADB;
-    transition: all 0.3s;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
-    user-select: none;
-}
-
-.language-toggle.en .slider-knob {
-    color: #185ADB;
-}
-
-.language-toggle.tr .slider-knob {
-    color: #185ADB;
-}
-
-/* Dil Etiketleri */
-.lang-label {
-    position: absolute;
-    font-weight: 700;
-    font-size: 0.8rem;
-    color: white;
-    user-select: none;
-    pointer-events: none;
-    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
-}
-
-.lang-label-tr {
-    left: 8px;
-    opacity: 1;
-    transition: opacity 0.3s;
-}
-
-.language-toggle.en .lang-label-tr {
-    opacity: 0.4;
-}
-
-.lang-label-en {
-    right: 8px;
-    opacity: 0.4;
-    transition: opacity 0.3s;
-}
-
-.language-toggle.en .lang-label-en {
-    opacity: 1;
-}
-
 .btn-auth {
     text-decoration: none;
     padding: 10px 20px;
@@ -2648,4 +2564,136 @@ body {
     .form-inline {
         flex-direction: column;
     }
+}
+/* --- GRUP DERSLERİ (STICKY SCROLL BÖLÜMÜ) --- */
+.group-classes-section {
+    background-color: rgb(37, 39, 44); /* Koyu arka plan */
+    color: white;
+    padding: 80px 20px;
+    position: relative;
+    margin: 10px 20px 50px 20px;
+}
+
+.group-wrapper {
+    max-width: 1200px;
+    margin: 0  auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start; /* Önemli: Sticky'nin çalışması için */
+    gap: 50px;
+}
+
+/* SOL: AKAN İÇERİK */
+.group-content {
+    flex: 1; /* Geniş alan */
+    display: flex;
+    flex-direction: column;
+    gap: 80px; /* Dersler arası boşluk */
+}
+
+.group-item {
+    scroll-margin-top: 120px; /* Tıklayınca başlık navbar'ın altında kalmasın diye */
+}
+
+.group-img {
+    width: 100%;
+    height: 400px;
+    object-fit: cover;
+    border-radius: 5px;
+    margin-bottom: 20px;
+    filter: brightness(0.8); /* Resmi hafif karart, yazı okunsun */
+    transition: 0.3s;
+}
+
+.group-item:hover .group-img {
+    filter: brightness(1);
+}
+
+.group-item h3 {
+    font-size: 2.5rem;
+    margin-bottom: 10px;
+    color: white;
+}
+
+.group-item p {
+    color: white;
+    line-height: 1.6;
+    font-size: 1.1rem;
+    margin-bottom: 20px;
+}
+
+
+
+/* SAĞ: SABİT MENÜ */
+.group-sidebar {
+    flex: 0 0 300px; /* Genişlik sabit */
+    position: sticky;
+    top: 120px; /* Ekranın tepesinden ne kadar aşağıda dursun */
+    height: fit-content;
+    border-left: 1px solid white;
+    padding-left: 30px;
+}
+
+.zigzag {
+    color: #ff4757;
+    font-size: 1.5rem;
+    letter-spacing: -3px;
+    margin-bottom: 10px;
+    display: block;
+    font-weight: bold;
+}
+
+.sidebar-title {
+    font-size: 2.5rem;
+    line-height: 1.1;
+    margin-bottom: 30px;
+    font-weight: 800;
+}
+
+.sidebar-menu {
+    list-style: none;
+    padding: 0;
+}
+
+.sidebar-menu li {
+    margin-bottom: 15px;
+}
+
+.sidebar-menu a {
+    text-decoration: none;
+    color: white;
+    font-size: 1.1rem;
+    font-weight: 600;
+    transition: 0.3s;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.sidebar-menu a::before {
+    content: '';
+    display: inline-block;
+    width: 15px;
+    height: 2px;
+    background-color: #ff4757; /* Kırmızı çizgi */
+    transition: 0.3s;
+    opacity: 0; /* Başta gizli */
+}
+
+.sidebar-menu a:hover {
+    color: red;
+}
+
+.sidebar-menu a:hover::before {
+    opacity: 1; /* Üzerine gelince çizgi çıksın */
+    width: 25px;
+}
+
+/* Sayfa Kaydırma Efekti */
+html { scroll-behavior: smooth; }
+
+/* Mobilde Yan Yana Değil Alt Alta Olsun */
+@media (max-width: 900px) {
+    .group-wrapper { flex-direction: column-reverse; } /* Menü üste gelsin */
+    .group-sidebar { position: relative; top: 0; width: 100%; border-left: none; border-bottom: 1px solid #333; padding-bottom: 30px; padding-left: 0; }
 }

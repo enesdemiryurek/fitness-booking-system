@@ -47,7 +47,7 @@ include 'header.php';
                 
                 <div class="input-group">
                     <label>E-posta Adresi</label>
-                    <input type="email" name="email" class="blue-input" placeholder="ornek@mail.com" required>
+                    <input type="email" name="email" class="blue-input" placeholder="example@mail.com" required>
                 </div>
 
                 <div class="input-group">

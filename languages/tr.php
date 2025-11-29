@@ -102,7 +102,64 @@ $lang = array(
     'notif_time_updated' => 'Ders Saati Güncellendi:',
     'notif_reminder' => 'Ders Hatırlatması:',
     
+    // Login Page
+    'login_title' => 'Tekrar Hoşgeldin!',
+    'login_subtitle' => 'Hesabına giriş yap ve spora kaldığın yerden devam et.',
+    'login_email' => 'E-posta Adresi',
+    'login_password' => 'Şifre',
+    'login_btn' => 'Giriş Yap',
+    'login_forgot' => 'Şifreni Unuttun Mu?',
+    'login_no_account' => 'Hesabın yok mu?',
+    'login_register_link' => 'Hemen Kayıt Ol',
+    'login_back' => '← Anasayfaya Dön',
+    'login_error' => 'Hatalı e-posta veya şifre!',
+    'login_testimonial' => '"Süreklilik, başarının anahtarıdır. Her gün %1 daha iyi olmak için buradayız."',
+    'login_testimonial_author' => 'GYM Ekibi',
+    
+    // Register Page
+    'register_title' => 'Yeni Bir Başlangıç!',
+    'register_subtitle' => 'Hemen kayıt ol ve dönüşüm yolculuğuna başla.',
+    'register_username' => 'Kullanıcı Adı',
+    'register_email' => 'E-posta Adresi',
+    'register_password' => 'Şifre',
+    'register_password_confirm' => 'Şifre Onayla',
+    'register_btn' => 'Kayıt Ol',
+    'register_have_account' => 'Zaten hesabın var mı?',
+    'register_login_link' => 'Giriş Yap',
+    
     // Footer
     'footer_rights' => 'Tüm hakları saklıdır.',
+    
+    // Profile Page
+    'profile_title' => 'Profilim',
+    'profile_personal_info' => 'Kişisel Bilgiler',
+    'profile_name' => 'Ad Soyad',
+    'profile_email' => 'E-posta',
+    'profile_phone' => 'Telefon',
+    'profile_age' => 'Yaş',
+    'profile_gender' => 'Cinsiyet',
+    'profile_role' => 'Rol',
+    'profile_edit' => 'Düzenle',
+    'profile_edit_info' => 'Bilgilerimi Düzenle',
+    'profile_my_classes' => 'Aldığım Dersler',
+    
+    // Class Details
+    'class_about' => 'Ders Hakkında',
+    'class_schedule' => 'Ders Takvimi',
+    'class_instructor' => 'Eğitmen',
+    'class_level' => 'Seviye',
+    'class_duration' => 'Süre',
+    'class_capacity' => 'Kapasite',
+    'class_available_spots' => 'Müsait Yer',
+    'class_book' => 'Hemen Rezerve Et',
+    'class_booked' => 'Rezerve Edildi',
+    'class_full' => 'DOLDU',
+    'class_past' => 'Geçmiş',
+    'class_reviews' => 'Yorumlar',
+    'class_write_review' => 'Yorum Yaz',
+    'class_no_reviews' => 'Henüz yorum yok',
+    'class_review_placeholder' => 'Deneyiminizi bize anlatın...',
+    'class_rate' => 'Puan Ver',
+    'class_submit_review' => 'Yorum Gönder',
 );
 ?>

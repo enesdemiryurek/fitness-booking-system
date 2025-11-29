@@ -102,7 +102,64 @@ $lang = array(
     'notif_time_updated' => 'Class Time Updated:',
     'notif_reminder' => 'Class Reminder:',
     
+    // Login Page
+    'login_title' => 'Welcome Back!',
+    'login_subtitle' => 'Sign in to your account and continue your fitness journey.',
+    'login_email' => 'Email Address',
+    'login_password' => 'Password',
+    'login_btn' => 'Sign In',
+    'login_forgot' => 'Forgot Your Password?',
+    'login_no_account' => 'Don\'t have an account?',
+    'login_register_link' => 'Sign Up Now',
+    'login_back' => '← Back to Home',
+    'login_error' => 'Invalid email or password!',
+    'login_testimonial' => '"Consistency is the key to success. We are here to be 1% better every day."',
+    'login_testimonial_author' => 'GYM Team',
+    
+    // Register Page
+    'register_title' => 'A Fresh Start!',
+    'register_subtitle' => 'Sign up now and begin your transformation journey.',
+    'register_username' => 'Username',
+    'register_email' => 'Email Address',
+    'register_password' => 'Password',
+    'register_password_confirm' => 'Confirm Password',
+    'register_btn' => 'Sign Up',
+    'register_have_account' => 'Already have an account?',
+    'register_login_link' => 'Sign In',
+    
     // Footer
     'footer_rights' => 'All rights reserved.',
+    
+    // Profile Page
+    'profile_title' => 'My Profile',
+    'profile_personal_info' => 'Personal Information',
+    'profile_name' => 'Full Name',
+    'profile_email' => 'Email',
+    'profile_phone' => 'Phone',
+    'profile_age' => 'Age',
+    'profile_gender' => 'Gender',
+    'profile_role' => 'Role',
+    'profile_edit' => 'Edit',
+    'profile_edit_info' => 'Edit My Information',
+    'profile_my_classes' => 'My Classes',
+    
+    // Class Details
+    'class_about' => 'About Class',
+    'class_schedule' => 'Class Schedule',
+    'class_instructor' => 'Instructor',
+    'class_level' => 'Level',
+    'class_duration' => 'Duration',
+    'class_capacity' => 'Capacity',
+    'class_available_spots' => 'Available Spots',
+    'class_book' => 'Book Now',
+    'class_booked' => 'Booked',
+    'class_full' => 'FULL',
+    'class_past' => 'Past',
+    'class_reviews' => 'Reviews',
+    'class_write_review' => 'Write a Review',
+    'class_no_reviews' => 'No reviews yet',
+    'class_review_placeholder' => 'Tell us about your experience...',
+    'class_rate' => 'Rate',
+    'class_submit_review' => 'Submit Review',
 );
 ?>
