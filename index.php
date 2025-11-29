@@ -27,7 +27,7 @@ include 'header.php';
                 
                 <!-- ZUMBA -->
                 <div id="zumba" class="group-item">
-                    <img src="img/zumba.jpg" class="group-img" onerror="this.src='https://images.unsplash.com/photo-1524594152303-9fd13543fe6e?w=800'">
+                    <img src="" class="group-img" onerror="this.src='https://plus.unsplash.com/premium_photo-1663054933667-fb307cea9aab?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'">
                     <h3>Zumba</h3>
                     <p>The perfect blend of dance and fitness! Have fun and burn calories with Latin music. Get in shape while relieving stress with choreography suitable for all levels.</p>
                   
@@ -35,7 +35,7 @@ include 'header.php';
 
                 <!-- PILATES -->
                 <div id="pilates" class="group-item">
-                    <img src="img/pilates.jpg" class="group-img" onerror="this.src='https://images.unsplash.com/photo-1518611012118-696072aa579a?w=800'">
+                    <img src="" class="group-img" onerror="this.src='https://images.unsplash.com/photo-1518611012118-696072aa579a?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'">
                     <h3>Pilates</h3>
                     <p>Increase your flexibility, lengthen your muscles, and improve your posture. Discover your core strength with our mat or equipment Pilates options.</p>
                    
@@ -43,7 +43,7 @@ include 'header.php';
 
                 <!-- HIIT -->
                 <div id="hiit" class="group-item">
-                    <img src="img/hiit.jpg" class="group-img" onerror="this.src='https://images.unsplash.com/photo-1601422407692-ec4eeec1d9b3?w=800'">
+                    <img src="" class="group-img" onerror="this.src='https://plus.unsplash.com/premium_photo-1664910207555-fac63513e7ad?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'">
                     <h3>HIIT</h3>
                     <p>Push your limits with High Intensity Interval Training. This class will maximize fat burning in a short time and take your fitness to the top.</p>
                    
@@ -51,7 +51,7 @@ include 'header.php';
 
                 <!-- FITNESS -->
                 <div id="fitness" class="group-item">
-                    <img src="img/default.jpg" class="group-img" onerror="this.src='https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=800'">
+                    <img src="img/default.jpg" class="group-img" onerror="this.src='https://images.unsplash.com/photo-1517836357463-d25dfeac3438?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'">
                     <h3>Fitness</h3>
                     <p>Our gym is equipped with modern equipment and offers training programs tailored to your personal goals. Increase your muscle mass or tone your body.</p>
                    

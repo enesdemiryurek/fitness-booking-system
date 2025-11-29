@@ -6,7 +6,7 @@ $page_title = "Yönetim Paneli | GYM";
 
 // 1. GÜVENLİK DUVARI: Admin VEYA Instructor girebilir
 if (!isset($_SESSION['user_id']) || ($_SESSION['role'] != 'admin' && $_SESSION['role'] != 'instructor')) {
-    die("<div style='text-align:center; margin-top:50px; font-family:sans-serif;'><h1>⛔ Yetkisiz Giriş!</h1><p>Bu sayfaya sadece yöneticiler ve eğitmenler girebilir.</p><a href='index.php'>Anasayfaya Dön</a></div>");
+    die("<div style='text-align:center; margin-top:50px; font-family:sans-serif;'><h1>Unauthorized Access!</h1><p>Only administrators and instructors can access this page.</p><a href='index.php'>Back Homepage</a></div>");
 }
 
 $message = "";
@@ -41,10 +41,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         // BİLDİRİM GÖNDER: Yeni ders eklendi
         $notificationHandler->notifyNewClass($class_id, $title, $type, $trainer, $date);
         
-        $message = "✅ Ders Başarıyla Eklendi!";
+        $message = " Course Added Successfully!";
         $message_type = "success";
     } else {
-        $message = "❌ Hata: " . mysqli_error($conn);
+        $message = "Error: " . mysqli_error($conn);
         $message_type = "error";
     }
 }
@@ -59,12 +59,12 @@ if (isset($_GET['delete_id'])) {
         $class_info = mysqli_fetch_assoc(mysqli_query($conn, "SELECT title FROM classes WHERE id=$id"));
         
         // BİLDİRİM GÖNDER: Ders iptal edildi
-        $notificationHandler->notifyCancelledClass($id, $class_info['title'], 'Yönetici tarafından iptal edilmiştir');
+        $notificationHandler->notifyCancelledClass($id, $class_info['title'], 'Canceled by administrator');
         
         mysqli_query($conn, "DELETE FROM classes WHERE id=$id");
         header("Location: admin.php");
     } else {
-        $message = "⛔ Hata: Ders silme yetkisi sadece Yöneticiye (Admin) aittir!";
+        $message = " Error: Only the Administrator has the authority to delete a course!";
         $message_type = "error";
     }
 }
@@ -76,7 +76,7 @@ include 'header.php';
     
     <!-- HERO BÖLÜMÜ -->
     <div class="admin-hero-simple">
-        <h1><?php echo ($_SESSION['role'] == 'admin') ? "🔧 Yönetici Paneli" : "👨‍🏫 Eğitmen Paneli"; ?></h1>
+        <h1><?php echo ($_SESSION['role'] == 'admin') ? " Admin Panel" : "Trainer Panel"; ?></h1>
     </div>
 
     <div class="admin-container">
@@ -93,14 +93,14 @@ include 'header.php';
         <!-- YENİ DERS FORMU -->
         <div class="form-section">
             <div class="section-header">
-                <h2>➕ Yeni Ders Oluştur</h2>
-                <p>Sisteme yeni bir ders ekleyerek öğrencilerin katılım göstermesini sağlayın</p>
+                <h2> Create New Lesson</h2>
+                <p>Get students involved by adding a new course to the system</p>
             </div>
 
             <form action="" method="POST" class="modern-form">
                 <div class="form-grid">
                     <div class="form-group">
-                        <label for="title">Ders Başlığı</label>
+                        <label for="title">Course Title</label>
                         <input type="text" id="title" name="title" placeholder="Örn: Sabah Yogası" required>
                         <small>Örnek: Pilates Temellerine Giriş</small>
                     </div>
@@ -129,11 +129,11 @@ include 'header.php';
                         <label for="class_type">Kategori</label>
                         <select id="class_type" name="class_type" required>
                             <option value="">-- Seçiniz --</option>
-                            <option value="Yoga">🧘‍♀️ Yoga</option>
-                            <option value="Pilates">🤸‍♀️ Pilates</option>
-                            <option value="HIIT">🔥 HIIT</option>
-                            <option value="Zumba">💃 Zumba</option>
-                            <option value="Fitness">💪 Fitness</option>
+                            <option value="Yoga"> Yoga</option>
+                            <option value="Pilates"> Pilates</option>
+                            <option value="HIIT"> HIIT</option>
+                            <option value="Zumba"> Zumba</option>
+                            <option value="Fitness"> Fitness</option>
                         </select>
                     </div>
 
@@ -161,7 +161,7 @@ include 'header.php';
                     </div>
 
                     <div class="form-group full-width">
-                        <button type="submit" class="btn-submit-large">📤 Dersi Yayınla</button>
+                        <button type="submit" class="btn-submit-large"> Dersi Yayınla</button>
                     </div>
                 </div>
             </form>
@@ -170,7 +170,7 @@ include 'header.php';
         <!-- DERS LİSTESİ -->
         <div class="table-section">
             <div class="section-header">
-                <h2>📋 Aktif Ders Listesi</h2>
+                <h2> Aktif Ders Listesi</h2>
                 <p>Sistemdeki tüm dersleri yönetin ve düzenleyin</p>
             </div>
 
@@ -225,7 +225,7 @@ include 'header.php';
         <!-- GEÇMİŞ DERS LİSTESİ -->
         <div class="table-section past-section">
             <div class="section-header">
-                <h2>📚 Geçmiş Dersler</h2>
+                <h2> Geçmiş Dersler</h2>
                 <p>Daha önce yapılan ve arşivlenmiş dersler</p>
             </div>
 

@@ -27,7 +27,7 @@ include 'notification_handler.php';
                 <!-- BİLDİRİM BUTONU -->
                 <div class="notification-container">
                     <button class="notification-btn" id="notificationBtn">
-                        Bell Icon
+                        🔔
                         <?php 
                         if(isset($notificationHandler)) {
                             $unread_count = $notificationHandler->getUnreadCount($_SESSION['user_id']);
@@ -43,8 +43,8 @@ include 'notification_handler.php';
                     <!-- BİLDİRİM DROPDOWN -->
                     <div class="notification-panel" id="notificationPanel">
                         <div class="notification-header">
-                            <h3>Bildirimler</h3>
-                            <small class="notif-auto-read">Açıldığında otomatik okunur</small>
+                            <h3>Notifications </h3>
+                            <small class="notif-auto-read">notifications read</small>
                         </div>
                         <div class="notification-list" id="notificationList">
                             <!-- Bildirimler JS ile yüklenecek -->
