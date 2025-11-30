@@ -1,7 +1,7 @@
 <?php
 session_start();
 include 'db.php';
-$page_title = "Giriş Yap | GYM";
+$page_title = "Login | GYM";
 
 $message = "";
 
@@ -46,7 +46,7 @@ include 'header.php';
             <form action="" method="POST">
                 
                 <div class="input-group">
-                    <label>E-posta Adresi</label>
+                    <label>Email Address</label>
                     <input type="email" name="email" class="blue-input" placeholder="example@mail.com" required>
                 </div>
 

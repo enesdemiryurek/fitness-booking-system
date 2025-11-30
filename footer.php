@@ -23,11 +23,11 @@
             <div class="footer-section">
                 <h4>Our Lessons</h4>
                 <ul>
-                    <li><a href="index.php#dersler">Yoga</a></li>
-                    <li><a href="index.php#dersler">Pilates</a></li>
-                    <li><a href="index.php#dersler">HIIT</a></li>
-                    <li><a href="index.php#dersler">Zumba</a></li>
-                    <li><a href="index.php#dersler">Fitness</a></li>
+                    <li><a href="index.php#yoga">Yoga</a></li>
+                    <li><a href="index.php#pilates">Pilates</a></li>
+                    <li><a href="index.php#hiit">HIIT</a></li>
+                    <li><a href="index.php#zumba">Zumba</a></li>
+                    <li><a href="index.php#fitness">Fitness</a></li>
                 </ul>
             </div>
 

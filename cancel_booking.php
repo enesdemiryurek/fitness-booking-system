@@ -31,11 +31,11 @@ if (isset($_GET['id'])) {
 
         // Başarılı, profile geri dön
         echo "<script>
-            alert('✅ Rezervasyonunuz başarıyla iptal edildi.');
+            alert('✅ Your reservation has been cancelled successfully.');
             window.location.href = 'profile.php';
         </script>";
     } else {
-        echo "Hata: Böyle bir rezervasyon bulunamadı veya size ait değil.";
+        echo "Error: Reservation not found or does not belong to you.";
     }
 } else {
     header("Location: profile.php");

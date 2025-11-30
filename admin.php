@@ -2,7 +2,7 @@
 session_start();
 include 'db.php';
 include 'notification_handler.php';
-$page_title = "Yönetim Paneli | GYM";
+$page_title = "Admin Panel | GYM";
 
 // 1. GÜVENLİK DUVARI: Admin VEYA Instructor girebilir
 if (!isset($_SESSION['user_id']) || ($_SESSION['role'] != 'admin' && $_SESSION['role'] != 'instructor')) {
@@ -101,18 +101,18 @@ include 'header.php';
                 <div class="form-grid">
                     <div class="form-group">
                         <label for="title">Course Title</label>
-                        <input type="text" id="title" name="title" placeholder="Örn: Sabah Yogası" required>
-                        <small>Örnek: Pilates Temellerine Giriş</small>
+                        <input type="text" id="title" name="title" placeholder="Ex: Morning Yoga" required>
+                        <small>Example: Introduction to Pilates Basics</small>
                     </div>
                     
                     <div class="form-group">
-                        <label for="trainer">Eğitmen Adı</label>
+                        <label for="trainer">Instructor Name</label>
                         <?php if($_SESSION['role'] == 'instructor'): ?>
                             <input type="text" id="trainer" value="<?php echo $_SESSION['username']; ?>" readonly class="input-readonly">
-                            <small>Sisteme kayıtlı adınız</small>
+                            <small>Your registered name in the system</small>
                         <?php else: ?>
                             <select id="trainer" name="trainer" required>
-                                <option value="">-- Eğitmen Seçiniz --</option>
+                                <option value="">-- Select Instructor --</option>
                                 <?php
                                 // Veritabanından instructor rolünde olan kişileri çek
                                 $trainers_result = mysqli_query($conn, "SELECT username FROM users WHERE role = 'instructor' ORDER BY username ASC");
@@ -121,14 +121,14 @@ include 'header.php';
                                 }
                                 ?>
                             </select>
-                            <small>Dersi yönetecek eğitmenin adını seçiniz</small>
+                            <small>Select the name of the instructor who will manage the class</small>
                         <?php endif; ?>
                     </div>
 
                     <div class="form-group">
-                        <label for="class_type">Kategori</label>
+                        <label for="class_type">Category</label>
                         <select id="class_type" name="class_type" required>
-                            <option value="">-- Seçiniz --</option>
+                            <option value="">-- Select --</option>
                             <option value="Yoga"> Yoga</option>
                             <option value="Pilates"> Pilates</option>
                             <option value="HIIT"> HIIT</option>
@@ -138,30 +138,30 @@ include 'header.php';
                     </div>
 
                     <div class="form-group">
-                        <label for="capacity">Kontenjan (Kişi)</label>
+                        <label for="capacity">Capacity (People)</label>
                         <input type="number" id="capacity" name="capacity" value="10" min="1" max="50" required>
-                        <small>Derse kaç kişi katılabilir</small>
+                        <small>How many people can attend the class</small>
                     </div>
 
                     <div class="form-group">
-                        <label for="date_time">Tarih ve Saat</label>
+                        <label for="date_time">Date & Time</label>
                         <input type="datetime-local" id="date_time" name="date_time" required>
                     </div>
 
                     <div class="form-group">
-                        <label for="video_link">Video Linki</label>
-                        <input type="url" id="video_link" name="video_link" placeholder="https://zoom.us/... veya https://youtube.com/..." required>
-                        <small>Zoom, Google Meet veya YouTube linki</small>
+                        <label for="video_link">Video Link</label>
+                        <input type="url" id="video_link" name="video_link" placeholder="https://zoom.us/... or https://youtube.com/..." required>
+                        <small>Zoom, Google Meet or YouTube link</small>
                     </div>
 
                     <div class="form-group full-width">
-                        <label for="description">Açıklama</label>
-                        <textarea id="description" name="description" placeholder="Ders hakkında detaylı bilgi verin..." rows="4" required></textarea>
-                        <small>Dersin amacı, içeriği, gereksinimler vs.</small>
+                        <label for="description">Description</label>
+                        <textarea id="description" name="description" placeholder="Provide detailed information about the class..." rows="4" required></textarea>
+                        <small>Class purpose, content, requirements, etc.</small>
                     </div>
 
                     <div class="form-group full-width">
-                        <button type="submit" class="btn-submit-large"> Dersi Yayınla</button>
+                        <button type="submit" class="btn-submit-large"> Publish Class</button>
                     </div>
                 </div>
             </form>
@@ -170,8 +170,8 @@ include 'header.php';
         <!-- DERS LİSTESİ -->
         <div class="table-section">
             <div class="section-header">
-                <h2> Aktif Ders Listesi</h2>
-                <p>Sistemdeki tüm dersleri yönetin ve düzenleyin</p>
+                <h2> Active Class List</h2>
+                <p>Manage and edit all classes in the system</p>
             </div>
 
             <div class="table-wrapper">
@@ -204,17 +204,17 @@ include 'header.php';
                                 echo "<td><span class='badge-capacity'>" . $row['capacity'] . "</span></td>";
                                 
                                 echo "<td class='td-actions'>";
-                                echo "<a href='class_edit.php?id=" . $row['id'] . "' class='btn-action-small btn-edit'>✏️ Düzenle</a>";
+                                echo "<a href='class_edit.php?id=" . $row['id'] . "' class='btn-action-small btn-edit'>✏️ Edit</a>";
                                 if ($_SESSION['role'] == 'admin') {
-                                    echo "<a href='admin.php?delete_id=" . $row['id'] . "' class='btn-action-small btn-delete' onclick='return confirm(\"Bu dersi silmek istediğine emin misin?\")'>🗑️ Sil</a>";
+                                    echo "<a href='admin.php?delete_id=" . $row['id'] . "' class='btn-action-small btn-delete' onclick='return confirm(\"Are you sure you want to delete this class?\")'>🗑️ Delete</a>";
                                 } else {
-                                    echo "<span class='btn-action-small btn-locked'>🔒 Kilitli</span>";
+                                    echo "<span class='btn-action-small btn-locked'>🔒 Locked</span>";
                                 }
                                 echo "</td>";
                                 echo "</tr>";
                             }
                         } else {
-                            echo "<tr><td colspan='6' style='text-align:center; padding:40px; color:#999;'>Yaklaşan ders bulunmuyor</td></tr>";
+                            echo "<tr><td colspan='6' style='text-align:center; padding:40px; color:#999;'>No upcoming classes</td></tr>";
                         }
                         ?>
                     </tbody>
@@ -225,8 +225,8 @@ include 'header.php';
         <!-- GEÇMİŞ DERS LİSTESİ -->
         <div class="table-section past-section">
             <div class="section-header">
-                <h2> Geçmiş Dersler</h2>
-                <p>Daha önce yapılan ve arşivlenmiş dersler</p>
+                <h2> Past Classes</h2>
+                <p>Previously held and archived classes</p>
             </div>
 
             <div class="table-wrapper">
@@ -234,11 +234,11 @@ include 'header.php';
                     <thead>
                         <tr>
                             <th>ID</th>
-                            <th>Ders Bilgisi</th>
-                            <th>Eğitmen</th>
-                            <th>Tarih & Saat</th>
-                            <th>Kontenjan</th>
-                            <th>İşlem</th>
+                            <th>Class Information</th>
+                            <th>Instructor</th>
+                            <th>Date & Time</th>
+                            <th>Capacity</th>
+                            <th>Action</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -260,15 +260,15 @@ include 'header.php';
                                 
                                 echo "<td class='td-actions'>";
                                 if ($_SESSION['role'] == 'admin') {
-                                    echo "<a href='admin.php?delete_id=" . $row['id'] . "' class='btn-action-small btn-delete' onclick='return confirm(\"Bu dersi silmek istediğine emin misin?\")'>🗑️ Sil</a>";
+                                    echo "<a href='admin.php?delete_id=" . $row['id'] . "' class='btn-action-small btn-delete' onclick='return confirm(\"Are you sure you want to delete this class?\")'>🗑️ Delete</a>";
                                 } else {
-                                    echo "<span class='btn-action-small btn-locked'>🔒 Kilitli</span>";
+                                    echo "<span class='btn-action-small btn-locked'>🔒 Locked</span>";
                                 }
                                 echo "</td>";
                                 echo "</tr>";
                             }
                         } else {
-                            echo "<tr><td colspan='6' style='text-align:center; padding:40px; color:#999;'>Geçmiş ders bulunmuyor</td></tr>";
+                            echo "<tr><td colspan='6' style='text-align:center; padding:40px; color:#999;'>No past classes</td></tr>";
                         }
                         ?>
                     </tbody>

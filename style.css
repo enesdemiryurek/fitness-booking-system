@@ -501,10 +501,182 @@ body {
     color: #111;
 }
 
+/* Filtreleme Bölümü - Booking Sitesi Tarzı */
+.filter-container {
+    background: #ffffff;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 30px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.filter-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 15px;
+    align-items: center;
+}
+
+.filter-btn {
+    padding: 10px 20px;
+    border: 2px solid #e0e0e0;
+    background: #ffffff;
+    color: #212121;
+    border-radius: 25px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    white-space: nowrap;
+}
+
+.filter-btn:hover {
+    border-color: #ff0000;
+    color: #ff0000;
+    background: #fff5f5;
+    transform: translateY(-2px);
+    box-shadow: 0 2px 8px rgba(255, 0, 0, 0.15);
+}
+
+.filter-btn.active {
+    background: #ff0000;
+    color: #ffffff;
+    border-color: #ff0000;
+    box-shadow: 0 4px 12px rgba(255, 0, 0, 0.3);
+}
+
+.filter-results {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    color: #666;
+    font-size: 0.9rem;
+    padding-top: 10px;
+    border-top: 1px solid #f0f0f0;
+}
+
+.filter-results span {
+    font-weight: 700;
+    color: #ff0000;
+    font-size: 1.1rem;
+}
+
+/* No Results Message */
+.no-results-message {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 60px 20px;
+    background: #f9f9f9;
+    border-radius: 12px;
+    border: 2px dashed #e0e0e0;
+    margin: 20px 0;
+}
+
+.no-results-message p {
+    color: #666;
+    font-size: 1.1rem;
+    margin: 0;
+}
+
+/* Instructor Avatar - Ders Kartlarında */
+.trainer-info-card {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    padding: 8px 0;
+}
+
+.trainer-avatar-small {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #ff0000;
+    flex-shrink: 0;
+}
+
+.trainer-avatar-placeholder-small {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: #ff0000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+    font-weight: 700;
+    color: #ffffff;
+    border: 2px solid #ff0000;
+    flex-shrink: 0;
+}
+
+.trainer-name-card {
+    font-weight: 600;
+    color: #212121;
+    font-size: 0.95rem;
+    flex: 1;
+}
+
+.trainer-time-card {
+    color: #666;
+    font-size: 0.9rem;
+    margin-left: auto;
+}
+
+/* Responsive - Profile Hero Photo */
+@media (max-width: 768px) {
+    .profile-hero-content-with-photo {
+        flex-direction: column;
+        text-align: center;
+        gap: 15px;
+    }
+
+    .profile-hero-photo,
+    .profile-hero-photo-placeholder {
+        width: 60px;
+        height: 60px;
+        font-size: 1.5rem;
+    }
+
+    .profile-hero-simple h1 {
+        font-size: 1.5rem;
+    }
+
+    .trainer-info-card {
+        flex-wrap: wrap;
+    }
+
+    .trainer-time-card {
+        width: 100%;
+        margin-left: 0;
+        margin-top: 5px;
+    }
+}
+
 .class-list {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    grid-template-columns: repeat(3, 1fr);
     gap: 30px;
+}
+
+/* Responsive - Tablet */
+@media (max-width: 1024px) {
+    .class-list {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 20px;
+    }
+}
+
+/* Responsive - Mobile */
+@media (max-width: 768px) {
+    .class-list {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
 }
 
 .class-card {
@@ -512,8 +684,10 @@ body {
     border-radius: 20px;
     overflow: hidden; /* Resim taşmasın diye */
     box-shadow: 0 10px 30px rgba(0,0,0,0.08);
-    transition: transform 0.3s ease;
+    transition: all 0.3s ease;
     border: none; /* Eski border'ı kaldırdık */
+    opacity: 1;
+    transform: translateY(0);
 }
 
 .class-card:hover {
@@ -578,13 +752,14 @@ body {
 
 /* Admin Paneli Linki */
 .admin-badge {
-    background-color: #ff9f43;
+    background-color: #ff0000;
     color: white;
     padding: 8px 15px;
-    border-radius: 20px;
+    border-radius: 15px;
     text-decoration: none;
     font-weight: bold;
     font-size: 0.9rem;
+    font-family:Cambria, Cochin, Georgia, Times, 'Times New Roman', serif
 }
 /* --- BİLGİ KUTULARI (FEATURES) --- */
 .info-section {
@@ -881,7 +1056,7 @@ body {
 }
 
 .admin-hero-simple {
-    background: linear-gradient(135deg, #185ADB 0%, #2a5298 100%);
+    background: linear-gradient(#212121, #484848);
     color: white;
     padding: 40px 30px;
     box-shadow: 0 5px 15px rgba(24, 90, 219, 0.15);
@@ -906,7 +1081,7 @@ body {
 
 .btn-primary {
     background: rgba(255, 255, 255, 0.95);
-    color: #185ADB;
+    color: #FF0000;
 }
 
 .btn-primary:hover {
@@ -1066,25 +1241,26 @@ body {
 /* Submit Button */
 .btn-submit-large {
     grid-column: 1 / -1;
-    padding: 16px 30px;
-    background: linear-gradient(135deg, #185ADB 0%, #2a5298 100%);
-    color: white;
+    padding: 12px 24px;
+    background: #ff0000;
+    color: #ffffff;
     border: none;
-    border-radius: 8px;
-    font-size: 1.05rem;
-    font-weight: 700;
+    border-radius: 3px;
+    font-size: 0.95rem;
+    font-weight: 600;
     cursor: pointer;
-    transition: all 0.3s;
-    box-shadow: 0 5px 15px rgba(24, 90, 219, 0.3);
+    transition: all 0.2s;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
 }
 
 .btn-submit-large:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 25px rgba(24, 90, 219, 0.4);
+    background: #cc0000;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
 }
 
 .btn-submit-large:active {
-    transform: translateY(0);
+    background: #990000;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
 }
 
 /* Form Actions */
@@ -1216,7 +1392,7 @@ body {
     padding: 15px;
     text-align: left;
     font-weight: 700;
-    color: #333;
+    color: #212121;
     font-size: 0.9rem;
     text-transform: uppercase;
     letter-spacing: 0.5px;
@@ -1225,7 +1401,7 @@ body {
 .admin-table td {
     padding: 15px;
     border-bottom: 1px solid #f0f0f0;
-    color: #555;
+    color: #212121;
 }
 
 .admin-table tbody tr {
@@ -1244,7 +1420,7 @@ body {
 /* Tablo İçeriği */
 .td-id {
     font-weight: 700;
-    color: #185ADB;
+    color: #FF0000;
 }
 
 .td-title {
@@ -1254,7 +1430,7 @@ body {
 .class-badge {
     display: inline-block;
     background: #e3f2fd;
-    color: #185ADB;
+    color: #ff0000;
     padding: 3px 10px;
     border-radius: 20px;
     font-size: 0.8rem;
@@ -1267,8 +1443,8 @@ body {
 
 .badge-capacity {
     display: inline-block;
-    background: #fff3cd;
-    color: #856404;
+    background: #ff0000;
+    color: white;
     padding: 5px 15px;
     border-radius: 20px;
     font-weight: 700;
@@ -1294,12 +1470,12 @@ body {
 }
 
 .btn-edit {
-    background: #2196F3;
+    background: #212121;
     color: white;
 }
 
 .btn-edit:hover {
-    background: #1976D2;
+    background: #ff0000;
     transform: scale(1.05);
 }
 
@@ -1322,16 +1498,16 @@ body {
 /* Geçmiş Dersler Bölümü */
 .past-section {
     opacity: 0.95;
-    border-left: 4px solid #ff9800;
+    border-left: 4px solid #ff0000;
     margin-top: 60px;
 }
 
 .past-section .section-header h2 {
-    color: #ff9800;
+    color: #212121;
 }
 
 .past-section .section-header p {
-    color: #ff9800;
+    color: #212121;
     opacity: 0.8;
 }
 
@@ -1378,29 +1554,59 @@ body {
     }
 }
 
-/* ========== PROFILE PAGESİ STİLLERİ ========== */
+/* ========== PROFILE PAGESİ STİLLERİ (AMAZON TARZI) ========== */
 
 .profile-page {
     min-height: 100vh;
-    background: #f5f7fa;
+    background: #ffffff;
 }
 
-/* Profile Hero */
+/* Profile Hero - Amazon Style */
 .profile-hero {
-    background: linear-gradient(135deg, #185ADB 0%, #2a5298 100%);
-    color: white;
+    background: #212121;
+    color: #ffffff;
     padding: 50px 30px;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    box-shadow: 0 10px 30px rgba(24, 90, 219, 0.2);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .profile-hero-simple {
-    background: linear-gradient(135deg, #185ADB 0%, #2a5298 100%);
-    color: white;
-    padding: 40px 30px;
-    box-shadow: 0 5px 15px rgba(24, 90, 219, 0.15);
+    background: linear-gradient(#212121, #484848);
+    color: #ffffff;
+    padding: 30px 30px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.profile-hero-content-with-photo {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.profile-hero-photo {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid #ffffff;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.profile-hero-photo-placeholder {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: #ff0000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+    font-weight: 700;
+    color: #ffffff;
+    border: 3px solid #ffffff;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
 .profile-hero-simple h1 {
@@ -1425,41 +1631,43 @@ body {
     gap: 15px;
 }
 
-/* Profile Container */
+/* Profile Container - Amazon Style */
 .profile-container {
     max-width: 1400px;
     margin: 0 auto;
-    padding: 40px 20px;
+    padding: 20px;
     display: grid;
     grid-template-columns: 1fr 2fr 1fr;
-    gap: 30px;
+    gap: 20px;
+    background: #ffffff;
 }
 
-/* Profile Card */
+/* Profile Card - Amazon Style */
 .profile-card {
-    background: white;
-    border-radius: 15px;
-    padding: 30px;
-    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
-    margin-bottom: 30px;
+    background: #ffffff;
+    border: 1px solid #e0e0e0;
+    border-radius: 4px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 .card-header {
-    margin-bottom: 25px;
-    border-bottom: 2px solid #f0f0f0;
-    padding-bottom: 15px;
+    margin-bottom: 20px;
+    border-bottom: 1px solid #e0e0e0;
+    padding-bottom: 12px;
 }
 
 .card-header h2 {
-    font-size: 1.5rem;
-    color: #111;
+    font-size: 1.3rem;
+    color: #212121;
     margin-bottom: 5px;
-    font-weight: 800;
+    font-weight: 700;
 }
 
 .card-header p {
     color: #666;
-    font-size: 0.9rem;
+    font-size: 0.85rem;
 }
 
 /* Profile Form */
@@ -1481,29 +1689,29 @@ body {
 }
 
 .profile-form .form-group label {
-    font-weight: 700;
-    color: #333;
-    margin-bottom: 8px;
-    font-size: 0.95rem;
+    font-weight: 600;
+    color: #212121;
+    margin-bottom: 6px;
+    font-size: 0.9rem;
 }
 
 .profile-form .form-group input,
 .profile-form .form-group select {
-    padding: 12px 15px;
-    border: 2px solid #e0e0e0;
-    border-radius: 8px;
-    font-size: 0.95rem;
+    padding: 10px 12px;
+    border: 1px solid #d0d0d0;
+    border-radius: 3px;
+    font-size: 0.9rem;
     font-family: 'Poppins', sans-serif;
-    transition: all 0.3s;
-    background: #fafafa;
+    transition: all 0.2s;
+    background: #ffffff;
+    color: #212121;
 }
 
 .profile-form .form-group input:focus,
 .profile-form .form-group select:focus {
     outline: none;
-    border-color: #185ADB;
-    background: white;
-    box-shadow: 0 0 0 3px rgba(24, 90, 219, 0.1);
+    border-color: #ff0000;
+    box-shadow: 0 0 0 2px rgba(255, 0, 0, 0.1);
 }
 
 .btn-success {
@@ -1512,6 +1720,17 @@ body {
 
 .btn-success:hover {
     background: linear-gradient(135deg, #20c997 0%, #17a2b8 100%);
+}
+
+.btn-red {
+    background: #ff0000;
+    color: #ffffff;
+    border: none;
+}
+
+.btn-red:hover {
+    background: #cc0000;
+    box-shadow: 0 2px 8px rgba(255, 0, 0, 0.3);
 }
 
 /* Lesson Cards */
@@ -1529,18 +1748,20 @@ body {
 }
 
 .lesson-card.upcoming {
-    border-left: 4px solid #185ADB;
-    background: #f8fbff;
+    border-left: 3px solid #ff0000;
+    background: #ffffff;
+    border: 1px solid #e0e0e0;
 }
 
 .lesson-card.upcoming:hover {
-    box-shadow: 0 5px 15px rgba(24, 90, 219, 0.15);
-    transform: translateX(5px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    border-color: #ff0000;
 }
 
 .lesson-card.past {
-    border-left: 4px solid #ffa726;
-    background: #fffbf0;
+    border-left: 3px solid #666;
+    background: #ffffff;
+    border: 1px solid #e0e0e0;
 }
 
 .lesson-header {
@@ -1558,17 +1779,17 @@ body {
 
 .lesson-type-badge {
     display: inline-block;
-    background: #e3f2fd;
-    color: #185ADB;
-    padding: 4px 12px;
-    border-radius: 20px;
-    font-size: 0.8rem;
+    background: #ff0000;
+    color: #ffffff;
+    padding: 4px 10px;
+    border-radius: 3px;
+    font-size: 0.75rem;
     font-weight: 600;
 }
 
 .lesson-type-badge.past-badge {
-    background: #fff3e0;
-    color: #ff9800;
+    background: #666;
+    color: #ffffff;
 }
 
 .lesson-meta {
@@ -1590,21 +1811,23 @@ body {
 }
 
 .btn-watch {
-    background: #185ADB;
-    color: white;
+    background: #ff0000;
+    color: #ffffff;
+    border-radius: 3px;
 }
 
 .btn-watch:hover {
-    background: #0d40a8;
+    background: #cc0000;
 }
 
 .btn-cancel {
-    background: #ff5252;
-    color: white;
+    background: #212121;
+    color: #ffffff;
+    border-radius: 3px;
 }
 
 .btn-cancel:hover {
-    background: #e53935;
+    background: #000000;
 }
 
 /* Review Section */
@@ -1732,28 +1955,29 @@ body {
     border: 1px solid #ffa726;
 }
 
-/* Empty State */
+/* Empty State - Amazon Style */
 .empty-state {
     text-align: center;
     padding: 30px;
-    color: #999;
-    background: #f9f9f9;
-    border-radius: 10px;
-    font-size: 0.95rem;
+    color: #666;
+    background: #ffffff;
+    border: 1px solid #e0e0e0;
+    border-radius: 3px;
+    font-size: 0.9rem;
 }
 
 /* Past Section */
 .past-section {
     margin-top: 40px;
-    border-left: 4px solid #ff9800;
+    border-left: 3px solid #666;
 }
 
 .past-section .card-header {
-    border-bottom-color: #fff3e0;
+    border-bottom-color: #e0e0e0;
 }
 
 .past-section .card-header h2 {
-    color: #ff9800;
+    color: #212121;
 }
 
 /* Responsive Profile */
@@ -2696,4 +2920,187 @@ html { scroll-behavior: smooth; }
 @media (max-width: 900px) {
     .group-wrapper { flex-direction: column-reverse; } /* Menü üste gelsin */
     .group-sidebar { position: relative; top: 0; width: 100%; border-left: none; border-bottom: 1px solid #333; padding-bottom: 30px; padding-left: 0; }
+}
+
+/* ========== ÖDEME BİLGİLERİ BÖLÜMÜ STİLLERİ ========== */
+.payments-list {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.payment-item {
+    background: #ffffff;
+    border: 1px solid #e0e0e0;
+    border-radius: 3px;
+    padding: 15px;
+    transition: all 0.2s;
+    margin-bottom: 10px;
+}
+
+.payment-item:hover {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    border-color: #ff0000;
+}
+
+.payment-header-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.payment-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #111;
+    flex: 1;
+}
+
+.payment-status {
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.status-success {
+    background: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+}
+
+.status-pending {
+    background: #fff3cd;
+    color: #856404;
+}
+
+.status-failed {
+    background: #f8d7da;
+    color: #721c24;
+}
+
+.payment-details {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.payment-detail-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.payment-detail-row:last-child {
+    border-bottom: none;
+}
+
+.detail-label {
+    font-weight: 600;
+    color: #666;
+    font-size: 0.9rem;
+}
+
+.detail-value {
+    color: #333;
+    font-weight: 500;
+    font-size: 0.9rem;
+}
+
+.detail-value.amount {
+    color: #ff0000;
+    font-weight: 700;
+    font-size: 1.1rem;
+}
+
+.detail-value.transaction-id {
+    font-family: 'Courier New', monospace;
+    font-size: 0.85rem;
+    color: #666;
+    background: #f0f0f0;
+    padding: 4px 8px;
+    border-radius: 4px;
+}
+
+/* Saved Payment Methods */
+.saved-payment-method {
+    background: #ffffff;
+    border: 1px solid #e0e0e0;
+    border-radius: 3px;
+    padding: 15px;
+    margin-bottom: 10px;
+    transition: all 0.2s;
+}
+
+.saved-payment-method:hover {
+    border-color: #ff0000;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.saved-method-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.saved-method-detail {
+    font-size: 0.85rem;
+    color: #666;
+    margin-top: 5px;
+}
+
+.payment-input-field {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #d0d0d0;
+    border-radius: 3px;
+    font-size: 0.9rem;
+    font-family: 'Poppins', sans-serif;
+    transition: all 0.2s;
+    background: #ffffff;
+    color: #212121;
+}
+
+.payment-input-field:focus {
+    outline: none;
+    border-color: #ff0000;
+    box-shadow: 0 0 0 2px rgba(255, 0, 0, 0.1);
+}
+
+@media (max-width: 768px) {
+    .payment-header-item {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .payment-detail-row {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 5px;
+    }
+    
+    /* Filtreleme Mobil */
+    .filter-container {
+        padding: 15px;
+    }
+    
+    .filter-buttons {
+        gap: 8px;
+    }
+    
+    .filter-btn {
+        padding: 8px 16px;
+        font-size: 0.85rem;
+    }
+    
+    .filter-results {
+        font-size: 0.85rem;
+    }
 }

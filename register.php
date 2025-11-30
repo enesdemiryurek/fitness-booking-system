@@ -1,7 +1,7 @@
 <?php
 session_start();
 include 'db.php';
-$page_title = "Ücretsiz Kayıt Ol | GYM";
+$page_title = "Sign Up | GYM";
 
 $message = "";
 
@@ -25,16 +25,16 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $result = mysqli_query($conn, $check);
 
     if (mysqli_num_rows($result) > 0) {
-        $message = "⚠️ Bu e-posta adresi zaten kayıtlı!";
+        $message = "⚠️ This email address is already registered!";
     } else {
         // VERİTABANI KAYDI (Yaş ve Cinsiyet Sütunları Eklendi)
         $sql = "INSERT INTO users (username, email, phone, age, gender, password, role) 
                 VALUES ('$full_username', '$email', '$phone', '$age', '$gender', '$password', 'user')";
         
         if (mysqli_query($conn, $sql)) {
-            echo "<script>alert('✅ Kayıt Başarılı! Aramıza hoşgeldin.'); window.location.href='login.php';</script>";
+            echo "<script>alert('✅ Registration Successful! Welcome to our community.'); window.location.href='login.php';</script>";
         } else {
-            $message = "Hata: " . mysqli_error($conn);
+            $message = "Error: " . mysqli_error($conn);
         }
     }
 }
@@ -47,8 +47,8 @@ include 'header.php';
         <!-- SOL TARAF: FORM -->
         <div class="form-side">
             <div class="form-header">
-                <h2>Ücretsiz Başla</h2>
-                <p>Kredi kartı gerekmez, hemen spora başla.</p>
+                <h2>Start Free</h2>
+                <p>No credit card required, start your fitness journey now.</p>
             </div>
 
             <?php if($message) echo "<p style='color:red; text-align:center; margin-bottom:10px;'>$message</p>"; ?>
@@ -58,58 +58,58 @@ include 'header.php';
                 <!-- Ad ve Soyad (Yan Yana) -->
                 <div class="split-inputs">
                     <div class="input-group">
-                        <label>Adınız</label>
+                        <label>First Name</label>
                         <input type="text" name="first_name" class="blue-input" required>
                     </div>
                     <div class="input-group">
-                        <label>Soyadınız</label>
+                        <label>Last Name</label>
                         <input type="text" name="last_name" class="blue-input" required>
                     </div>
                 </div>
 
                 <!-- E-posta -->
                 <div class="input-group">
-                    <label>E-posta Adresi</label>
+                    <label>Email Address</label>
                     <input type="email" name="email" class="blue-input" required>
                 </div>
 
                 <!-- Telefon -->
                 <div class="input-group">
-                    <label>Telefon Numarası</label>
+                    <label>Phone Number</label>
                     <input type="text" name="phone" class="blue-input" placeholder="0555 555 55 55" required>
                 </div>
 
                 <!-- YENİ: Yaş ve Cinsiyet (Yan Yana) -->
                 <div class="split-inputs">
                     <div class="input-group">
-                        <label>Yaşınız</label>
+                        <label>Age</label>
                         <input type="number" name="age" class="blue-input" placeholder="22" required>
                     </div>
                     <div class="input-group">
-                        <label>Cinsiyet</label>
+                        <label>Gender</label>
                         <select name="gender" class="blue-input" style="background-color:white;" required>
-                            <option value="" disabled selected>Seçiniz</option>
-                            <option value="Erkek">Erkek</option>
-                            <option value="Kadın">Kadın</option>
-                            <option value="Belirtmek İstemiyorum">Diğer</option>
+                            <option value="" disabled selected>Select</option>
+                            <option value="Erkek">Male</option>
+                            <option value="Kadın">Female</option>
+                            <option value="Belirtmek İstemiyorum">Other</option>
                         </select>
                     </div>
                 </div>
 
                 <!-- Şifre -->
                 <div class="input-group">
-                    <label>Şifre</label>
+                    <label>Password</label>
                     <input type="password" name="password" class="blue-input" required>
                 </div>
 
-                <button type="submit" class="btn-blue">Devam Et</button>
+                <button type="submit" class="btn-blue">Continue</button>
             </form>
 
             <div class="back-link">
-                Zaten hesabın var mı? <a href="login.php">Giriş Yap</a>
+                Already have an account? <a href="login.php">Login</a>
             </div>
             <div class="back-link" style="margin-top:10px;">
-                <a href="index.php" style="color:#999; font-weight:normal;">← Anasayfaya Dön</a>
+                <a href="index.php" style="color:#999; font-weight:normal;">← Return to Home</a>
             </div>
         </div>
 
@@ -117,8 +117,8 @@ include 'header.php';
         <div class="image-side">
             <div class="image-overlay">
                 <div class="testimonial-stars">★★★★★</div>
-                <p class="testimonial-text">"Bu uygulamayı kullanmaya başladığımdan beri antrenmanlarımı asla kaçırmıyorum. Hocalar çok ilgili ve sistem harika çalışıyor!"</p>
-                <p class="testimonial-author">Mert Yılmaz<br><small>Fitness Üyesi</small></p>
+                <p class="testimonial-text">"Since I started using this app, I never miss my workouts. The instructors are very attentive and the system works great!"</p>
+                <p class="testimonial-author">Mert Yılmaz<br><small>Fitness Member</small></p>
             </div>
         </div>
 

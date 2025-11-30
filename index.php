@@ -25,6 +25,14 @@ include 'header.php';
             <!-- SOL TARAF: İÇERİK -->
             <div class="group-content">
                 
+                <!-- YOGA -->
+                <div id="yoga" class="group-item">
+                    <img src="" class="group-img" onerror="this.src='https://images.unsplash.com/photo-1506126613408-eca07ce68773?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'">
+                    <h3>Yoga</h3>
+                    <p>Find inner peace and strengthen your body with our yoga classes. Improve flexibility, reduce stress, and achieve mental clarity through ancient practices adapted for modern life.</p>
+                  
+                </div>
+
                 <!-- ZUMBA -->
                 <div id="zumba" class="group-item">
                     <img src="" class="group-img" onerror="this.src='https://plus.unsplash.com/premium_photo-1663054933667-fb307cea9aab?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'">
@@ -65,6 +73,7 @@ include 'header.php';
                 <h2 class="sidebar-title">Group<br>Lessons</h2>
                 
                 <ul class="sidebar-menu">
+                    <li><a href="#yoga">Yoga</a></li>
                     <li><a href="#zumba">Zumba</a></li>
                     <li><a href="#pilates">Pilates</a></li>
                     <li><a href="#hiit">HIIT</a></li>
@@ -80,7 +89,22 @@ include 'header.php';
     <div class="container" id="dersler">
         <h2 class="section-title">Upcoming Lessons</h2>
 
-        <div class="class-list">
+        <!-- Filtreleme Butonları -->
+        <div class="filter-container">
+            <div class="filter-buttons">
+                <button class="filter-btn active" data-filter="all">All Classes</button>
+                <button class="filter-btn" data-filter="Yoga">Yoga</button>
+                <button class="filter-btn" data-filter="Pilates">Pilates</button>
+                <button class="filter-btn" data-filter="HIIT">HIIT</button>
+                <button class="filter-btn" data-filter="Zumba">Zumba</button>
+                <button class="filter-btn" data-filter="Fitness">Fitness</button>
+            </div>
+            <div class="filter-results">
+                <span id="upcoming-count">0</span> classes found
+            </div>
+        </div>
+
+        <div class="class-list" id="upcoming-classes">
             <?php
             // Sadece gelecekteki dersler
             $current_time = date("Y-m-d H:i:s");
@@ -100,12 +124,27 @@ include 'header.php';
                     elseif(strpos($type, 'zumba') !== false) $img_url = "img/zumba.jpg";
                     elseif(strpos($type, 'fitness') !== false) $img_url = "img/fitness.jpg";
                     
-                    echo '<div class="class-card">';
-                    echo '<img src="'.$img_url.'" alt="Ders Resmi" class="card-image" onerror="this.src=\'https://placehold.co/600x400?text=Resim+Yok\'">';
+                    echo '<div class="class-card" data-class-type="' . htmlspecialchars($row["class_type"]) . '">';
+                    echo '<img src="'.$img_url.'" alt="Class Image" class="card-image" onerror="this.src=\'https://placehold.co/600x400?text=No+Image\'">';
                     
                     echo '<div class="card-content">';
                         echo '<h3>' . $row["title"] . ' <span class="badge">' . $row["class_type"] . '</span></h3>';
-                        echo '<p style="color:#666; margin-top:5px;">🧘‍♂️ ' . $row["trainer_name"] . ' • 🕒 ' . date("d.m.Y H:i", strtotime($row["date_time"])) . '</p>';
+                        
+                        // Instructor profil resmini çek
+                        $trainer_sql = "SELECT profile_photo, username FROM users WHERE username = '" . mysqli_real_escape_string($conn, $row["trainer_name"]) . "' LIMIT 1";
+                        $trainer_result = mysqli_query($conn, $trainer_sql);
+                        $trainer_data = mysqli_fetch_assoc($trainer_result);
+                        
+                        echo '<div class="trainer-info-card">';
+                        if($trainer_data && $trainer_data['profile_photo']) {
+                            echo '<img src="data:image/jpeg;base64,' . base64_encode($trainer_data['profile_photo']) . '" alt="Instructor" class="trainer-avatar-small">';
+                        } else {
+                            $initial = !empty($trainer_data['username']) ? strtoupper(substr($trainer_data['username'], 0, 1)) : strtoupper(substr($row["trainer_name"], 0, 1));
+                            echo '<div class="trainer-avatar-placeholder-small">' . $initial . '</div>';
+                        }
+                        echo '<span class="trainer-name-card">' . htmlspecialchars($row["trainer_name"]) . '</span>';
+                        echo '<span class="trainer-time-card">🕒 ' . date("d.m.Y H:i", strtotime($row["date_time"])) . '</span>';
+                        echo '</div>';
                         echo '<p style="margin-top:10px;">' . $row["description"] . '</p>';
                         
                         // Stok Durumu
@@ -127,7 +166,9 @@ include 'header.php';
                     echo '</div>'; // class-card
                 }
             } else {
-                echo "<p style='text-align:center; width:100%;'>There are no active courses yet.</p>";
+                echo '<div class="no-results-message">';
+                echo '<p>There are no active courses yet.</p>';
+                echo '</div>';
             }
             ?>
         </div>
@@ -137,7 +178,22 @@ include 'header.php';
     <div class="container" id="gecmis-dersler">
         <h2 class="section-title"> Past Lessons </h2>
 
-        <div class="class-list">
+        <!-- Filtreleme Butonları -->
+        <div class="filter-container">
+            <div class="filter-buttons">
+                <button class="filter-btn active" data-filter="all">All Classes</button>
+                <button class="filter-btn" data-filter="Yoga">Yoga</button>
+                <button class="filter-btn" data-filter="Pilates">Pilates</button>
+                <button class="filter-btn" data-filter="HIIT">HIIT</button>
+                <button class="filter-btn" data-filter="Zumba">Zumba</button>
+                <button class="filter-btn" data-filter="Fitness">Fitness</button>
+            </div>
+            <div class="filter-results">
+                <span id="past-count">0</span> classes found
+            </div>
+        </div>
+
+        <div class="class-list" id="past-classes">
             <?php
             // Son 24 saat içinde geçen dersler
             $now = time();
@@ -160,12 +216,27 @@ include 'header.php';
                     elseif(strpos($type, 'zumba') !== false) $img_url = "img/zumba.jpg";
                     elseif(strpos($type, 'fitness') !== false) $img_url = "img/fitness.jpg";
                     
-                    echo '<div class="class-card past-class">';
-                    echo '<img src="'.$img_url.'" alt="Ders Resmi" class="card-image past-image" onerror="this.src=\'https://placehold.co/600x400?text=Resim+Yok\'">';
+                    echo '<div class="class-card past-class" data-class-type="' . htmlspecialchars($row["class_type"]) . '">';
+                    echo '<img src="'.$img_url.'" alt="Class Image" class="card-image past-image" onerror="this.src=\'https://placehold.co/600x400?text=No+Image\'">';
                     
                     echo '<div class="card-content">';
                         echo '<h3>' . $row["title"] . ' <span class="badge">Completed</span></h3>';
-                        echo '<p style="color:#666; margin-top:5px;">🧘‍♂️ ' . $row["trainer_name"] . ' • 🕒 ' . date("d.m.Y H:i", strtotime($row["date_time"])) . '</p>';
+                        
+                        // Instructor profil resmini çek
+                        $trainer_sql = "SELECT profile_photo, username FROM users WHERE username = '" . mysqli_real_escape_string($conn, $row["trainer_name"]) . "' LIMIT 1";
+                        $trainer_result = mysqli_query($conn, $trainer_sql);
+                        $trainer_data = mysqli_fetch_assoc($trainer_result);
+                        
+                        echo '<div class="trainer-info-card">';
+                        if($trainer_data && $trainer_data['profile_photo']) {
+                            echo '<img src="data:image/jpeg;base64,' . base64_encode($trainer_data['profile_photo']) . '" alt="Instructor" class="trainer-avatar-small">';
+                        } else {
+                            $initial = !empty($trainer_data['username']) ? strtoupper(substr($trainer_data['username'], 0, 1)) : strtoupper(substr($row["trainer_name"], 0, 1));
+                            echo '<div class="trainer-avatar-placeholder-small">' . $initial . '</div>';
+                        }
+                        echo '<span class="trainer-name-card">' . htmlspecialchars($row["trainer_name"]) . '</span>';
+                        echo '<span class="trainer-time-card">🕒 ' . date("d.m.Y H:i", strtotime($row["date_time"])) . '</span>';
+                        echo '</div>';
                         echo '<p style="margin-top:10px;">' . $row["description"] . '</p>';
                         
                        
@@ -175,10 +246,144 @@ include 'header.php';
                     echo '</div>'; // class-card
                 }
             } else {
-                echo "<p style='text-align:center; width:100%;'>Henüz geçmiş ders bulunmuyor.</p>";
+                echo '<div class="no-results-message">';
+                echo '<p>No past classes found yet.</p>';
+                echo '</div>';
             }
             ?>
         </div>
     </div>
+
+    <script>
+    // Filtreleme Fonksiyonu - Upcoming Lessons
+    function initFiltering() {
+        // Upcoming Lessons Filtreleme
+        const upcomingFilterBtns = document.querySelectorAll('#dersler .filter-btn');
+        const upcomingCards = document.querySelectorAll('#upcoming-classes .class-card');
+        
+        upcomingFilterBtns.forEach(btn => {
+            btn.addEventListener('click', function() {
+                const filter = this.getAttribute('data-filter');
+                
+                // Aktif buton stilini güncelle
+                upcomingFilterBtns.forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                
+                // Kartları filtrele
+                let visibleCount = 0;
+                upcomingCards.forEach((card, index) => {
+                    const cardType = card.getAttribute('data-class-type');
+                    if(filter === 'all' || cardType === filter) {
+                        card.style.opacity = '0';
+                        card.style.transform = 'translateY(20px)';
+                        setTimeout(() => {
+                            card.style.display = 'block';
+                            card.style.transition = 'all 0.3s ease';
+                            setTimeout(() => {
+                                card.style.opacity = '1';
+                                card.style.transform = 'translateY(0)';
+                            }, 10);
+                        }, index * 50);
+                        visibleCount++;
+                    } else {
+                        card.style.transition = 'all 0.3s ease';
+                        card.style.opacity = '0';
+                        card.style.transform = 'translateY(-20px)';
+                        setTimeout(() => {
+                            card.style.display = 'none';
+                        }, 300);
+                    }
+                });
+                
+                // Sonuç sayısını güncelle
+                document.getElementById('upcoming-count').textContent = visibleCount;
+                
+                // Eğer sonuç yoksa mesaj göster
+                const upcomingList = document.getElementById('upcoming-classes');
+                let noResultsMsg = upcomingList.querySelector('.no-results-filtered');
+                if(visibleCount === 0) {
+                    if(!noResultsMsg) {
+                        noResultsMsg = document.createElement('div');
+                        noResultsMsg.className = 'no-results-message no-results-filtered';
+                        noResultsMsg.innerHTML = '<p>No classes found for this filter. Try selecting a different category.</p>';
+                        upcomingList.appendChild(noResultsMsg);
+                    }
+                } else {
+                    if(noResultsMsg) {
+                        noResultsMsg.remove();
+                    }
+                }
+            });
+        });
+        
+        // İlk yüklemede sayıyı göster
+        document.getElementById('upcoming-count').textContent = upcomingCards.length;
+        
+        // Past Lessons Filtreleme
+        const pastFilterBtns = document.querySelectorAll('#gecmis-dersler .filter-btn');
+        const pastCards = document.querySelectorAll('#past-classes .class-card');
+        
+        pastFilterBtns.forEach(btn => {
+            btn.addEventListener('click', function() {
+                const filter = this.getAttribute('data-filter');
+                
+                // Aktif buton stilini güncelle
+                pastFilterBtns.forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                
+                // Kartları filtrele
+                let visibleCount = 0;
+                pastCards.forEach((card, index) => {
+                    const cardType = card.getAttribute('data-class-type');
+                    if(filter === 'all' || cardType === filter) {
+                        card.style.opacity = '0';
+                        card.style.transform = 'translateY(20px)';
+                        setTimeout(() => {
+                            card.style.display = 'block';
+                            card.style.transition = 'all 0.3s ease';
+                            setTimeout(() => {
+                                card.style.opacity = '1';
+                                card.style.transform = 'translateY(0)';
+                            }, 10);
+                        }, index * 50);
+                        visibleCount++;
+                    } else {
+                        card.style.transition = 'all 0.3s ease';
+                        card.style.opacity = '0';
+                        card.style.transform = 'translateY(-20px)';
+                        setTimeout(() => {
+                            card.style.display = 'none';
+                        }, 300);
+                    }
+                });
+                
+                // Sonuç sayısını güncelle
+                document.getElementById('past-count').textContent = visibleCount;
+                
+                // Eğer sonuç yoksa mesaj göster
+                const pastList = document.getElementById('past-classes');
+                let noResultsMsg = pastList.querySelector('.no-results-filtered');
+                if(visibleCount === 0) {
+                    if(!noResultsMsg) {
+                        noResultsMsg = document.createElement('div');
+                        noResultsMsg.className = 'no-results-message no-results-filtered';
+                        noResultsMsg.innerHTML = '<p>No classes found for this filter. Try selecting a different category.</p>';
+                        pastList.appendChild(noResultsMsg);
+                    }
+                } else {
+                    if(noResultsMsg) {
+                        noResultsMsg.remove();
+                    }
+                }
+            });
+        });
+        
+        // İlk yüklemede sayıyı göster
+        document.getElementById('past-count').textContent = pastCards.length;
+    }
+    
+    // Sayfa yüklendiğinde filtrelemeyi başlat
+    document.addEventListener('DOMContentLoaded', initFiltering);
+    </script>
 
     <?php include 'footer.php'; ?>

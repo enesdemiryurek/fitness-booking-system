@@ -72,4 +72,43 @@ if(mysqli_num_rows($check_reviews) == 0) {
     )";
     mysqli_query($conn, $create_reviews);
 }
+
+// Payments tablosu oluştur
+$check_payments = mysqli_query($conn, "SHOW TABLES LIKE 'payments'");
+if(mysqli_num_rows($check_payments) == 0) {
+    $create_payments = "CREATE TABLE IF NOT EXISTS payments (
+        id INT PRIMARY KEY AUTO_INCREMENT,
+        user_id INT NOT NULL,
+        class_id INT NOT NULL,
+        booking_id INT,
+        amount DECIMAL(10,2) NOT NULL,
+        payment_status ENUM('pending', 'completed', 'failed') DEFAULT 'pending',
+        payment_method VARCHAR(50) DEFAULT 'simulated',
+        transaction_id VARCHAR(255),
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+        FOREIGN KEY (class_id) REFERENCES classes(id) ON DELETE CASCADE,
+        INDEX idx_user_payments (user_id),
+        INDEX idx_class_payments (class_id)
+    )";
+    mysqli_query($conn, $create_payments);
+}
+
+// User Payment Methods tablosu oluştur (kaydedilen kartlar/ödeme yöntemleri)
+$check_payment_methods = mysqli_query($conn, "SHOW TABLES LIKE 'user_payment_methods'");
+if(mysqli_num_rows($check_payment_methods) == 0) {
+    $create_payment_methods = "CREATE TABLE IF NOT EXISTS user_payment_methods (
+        id INT PRIMARY KEY AUTO_INCREMENT,
+        user_id INT NOT NULL,
+        payment_type ENUM('Credit Card', 'Debit Card', 'PayPal', 'Bank Transfer') NOT NULL,
+        card_number VARCHAR(50),
+        cardholder_name VARCHAR(100),
+        expiry_date VARCHAR(10),
+        is_default BOOLEAN DEFAULT FALSE,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+        INDEX idx_user_payment_methods (user_id)
+    )";
+    mysqli_query($conn, $create_payment_methods);
+}
 ?>
