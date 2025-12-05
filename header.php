@@ -53,11 +53,11 @@ include 'notification_handler.php';
                 </div>
 
                 <?php if($_SESSION['role'] == 'admin' || $_SESSION['role'] == 'instructor'): ?>
-                    <a href="admin.php" class="admin-badge">Administration Panel</a>
+                    <a href="admin.php" class="admin-badge">Add Lessons</a>
                 <?php endif; ?>
 
                 <a href="profile.php" class="btn-auth btn-login">My Profile</a>
-                <a href="logout.php" class="btn-auth" style="color:red;">Log Out</a>
+                <a href="logout.php" class="btn-auth" style="color:#0A66C2;">Log Out</a>
             <?php else: ?>
                 <a href="login.php" class="btn-auth btn-login">Login</a>
                 <a href="register.php" class="btn-auth btn-register">Sign Up</a>

@@ -63,12 +63,12 @@ body {
 }
 
 .btn-login {
-    color: #333;
-    border: 2px solid #333;
+    color: #212121;
+    border: 2px solid #212121;
 }
 
 .btn-login:hover {
-    background: #333;
+    background: #00B7EB;
     color: white;
 }
 
@@ -533,18 +533,17 @@ body {
 }
 
 .filter-btn:hover {
-    border-color: #ff0000;
-    color: #ff0000;
+    border-color: #0A66C2;
     background: #fff5f5;
     transform: translateY(-2px);
-    box-shadow: 0 2px 8px rgba(255, 0, 0, 0.15);
+    box-shadow: 0 2px 8px rgba(39, 102, 239, 0.986);
 }
 
 .filter-btn.active {
-    background: #ff0000;
+    background: #0A66C2;
     color: #ffffff;
-    border-color: #ff0000;
-    box-shadow: 0 4px 12px rgba(255, 0, 0, 0.3);
+    border-color: #0A66C2;
+    box-shadow: 0 4px 12px rgba(39, 102, 239, 0.986);
 }
 
 .filter-results {
@@ -559,7 +558,7 @@ body {
 
 .filter-results span {
     font-weight: 700;
-    color: #ff0000;
+    color: #0A66C2;
     font-size: 1.1rem;
 }
 
@@ -752,14 +751,15 @@ body {
 
 /* Admin Paneli Linki */
 .admin-badge {
-    background-color: #ff0000;
+    background-color: #0A66C2;
     color: white;
-    padding: 8px 15px;
-    border-radius: 15px;
+     padding: 10px 20px;
+    border-radius: 30px;
     text-decoration: none;
     font-weight: bold;
     font-size: 0.9rem;
-    font-family:Cambria, Cochin, Georgia, Times, 'Times New Roman', serif
+    font-weight: 1px;
+    transition: background 0.3s;
 }
 /* --- BİLGİ KUTULARI (FEATURES) --- */
 .info-section {
@@ -1056,7 +1056,7 @@ body {
 }
 
 .admin-hero-simple {
-    background: linear-gradient(#212121, #484848);
+    background: linear-gradient(#0A66C2,#00B7EB );
     color: white;
     padding: 40px 30px;
     box-shadow: 0 5px 15px rgba(24, 90, 219, 0.15);
@@ -1242,7 +1242,7 @@ body {
 .btn-submit-large {
     grid-column: 1 / -1;
     padding: 12px 24px;
-    background: #ff0000;
+    background: #0A66C2;
     color: #ffffff;
     border: none;
     border-radius: 3px;
@@ -1254,12 +1254,12 @@ body {
 }
 
 .btn-submit-large:hover {
-    background: #cc0000;
+    background: #00B7EB;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
 }
 
 .btn-submit-large:active {
-    background: #990000;
+    background: #0A66C2;
     box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
 }
 
@@ -1573,7 +1573,7 @@ body {
 }
 
 .profile-hero-simple {
-    background: linear-gradient(#212121, #484848);
+    background: linear-gradient(#0A66C2,#00B7EB );
     color: #ffffff;
     padding: 30px 30px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
@@ -1715,11 +1715,11 @@ body {
 }
 
 .btn-success {
-    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+    background: #0A66C2;
 }
 
 .btn-success:hover {
-    background: linear-gradient(135deg, #20c997 0%, #17a2b8 100%);
+    background: #00B7EB;
 }
 
 .btn-red {
@@ -1877,7 +1877,7 @@ body {
 .review-select:focus,
 .review-textarea:focus {
     outline: none;
-    border-color: #185ADB;
+    border-color: #0A66C2;
     box-shadow: 0 0 0 3px rgba(24, 90, 219, 0.1);
 }
 
@@ -2856,15 +2856,17 @@ body {
     height: fit-content;
     border-left: 1px solid white;
     padding-left: 30px;
+    font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
 }
 
 .zigzag {
-    color: #ff4757;
-    font-size: 1.5rem;
-    letter-spacing: -3px;
+    color: #0A66C2;
+    font-size: 2em;
+    letter-spacing: 2px;
     margin-bottom: 10px;
     display: block;
     font-weight: bold;
+    
 }
 
 .sidebar-title {
@@ -2877,6 +2879,8 @@ body {
 .sidebar-menu {
     list-style: none;
     padding: 0;
+    font-size: 1em;
+    font-family: Georgia, 'Times New Roman', Times, serif;
 }
 
 .sidebar-menu li {
@@ -2899,13 +2903,13 @@ body {
     display: inline-block;
     width: 15px;
     height: 2px;
-    background-color: #ff4757; /* Kırmızı çizgi */
+    background-color: #0A66C2; /* Kırmızı çizgi */
     transition: 0.3s;
     opacity: 0; /* Başta gizli */
 }
 
 .sidebar-menu a:hover {
-    color: red;
+    color: #0A66C2;
 }
 
 .sidebar-menu a:hover::before {
