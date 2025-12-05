@@ -1745,23 +1745,27 @@ body {
     border-radius: 12px;
     padding: 20px;
     transition: all 0.3s;
+    background: white;
 }
 
 .lesson-card.upcoming {
-    border-left: 3px solid #ff0000;
-    background: #ffffff;
-    border: 1px solid #e0e0e0;
+    border-left: 5px solid #4CAF50;
+    background: linear-gradient(135deg, #ffffff 0%, #f1f8f4 100%);
+    border: 1px solid #d4edda;
+    box-shadow: 0 2px 6px rgba(76, 175, 80, 0.1);
 }
 
 .lesson-card.upcoming:hover {
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    border-color: #ff0000;
+    box-shadow: 0 4px 12px rgba(76, 175, 80, 0.2);
+    border-color: #4CAF50;
+    transform: translateY(-2px);
 }
 
 .lesson-card.past {
-    border-left: 3px solid #666;
-    background: #ffffff;
-    border: 1px solid #e0e0e0;
+    border-left: 5px solid #999;
+    background: linear-gradient(135deg, #ffffff 0%, #f5f5f5 100%);
+    border: 1px solid #ddd;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
 }
 
 .lesson-header {
@@ -1772,23 +1776,24 @@ body {
 }
 
 .lesson-header h3 {
-    font-size: 1.1rem;
-    color: #111;
+    font-size: 1.15rem;
+    color: #1a1a1a;
     font-weight: 700;
 }
 
 .lesson-type-badge {
     display: inline-block;
-    background: #ff0000;
+    background: #4CAF50;
     color: #ffffff;
-    padding: 4px 10px;
-    border-radius: 3px;
-    font-size: 0.75rem;
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 0.8rem;
     font-weight: 600;
+    text-transform: uppercase;
 }
 
 .lesson-type-badge.past-badge {
-    background: #666;
+    background: #999;
     color: #ffffff;
 }
 
@@ -1801,7 +1806,10 @@ body {
 
 .meta-item {
     font-size: 0.9rem;
-    color: #666;
+    color: #555;
+    display: flex;
+    align-items: center;
+    gap: 5px;
 }
 
 .lesson-actions {
@@ -1811,29 +1819,47 @@ body {
 }
 
 .btn-watch {
-    background: #ff0000;
+    background: #4CAF50;
     color: #ffffff;
-    border-radius: 3px;
+    border-radius: 6px;
+    padding: 8px 16px;
+    border: none;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-block;
+    transition: all 0.3s;
 }
 
 .btn-watch:hover {
-    background: #cc0000;
+    background: #45a049;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 6px rgba(76, 175, 80, 0.3);
 }
 
 .btn-cancel {
-    background: #212121;
+    background: #f44336;
     color: #ffffff;
-    border-radius: 3px;
+    border-radius: 6px;
+    padding: 8px 16px;
+    border: none;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-block;
+    transition: all 0.3s;
 }
 
 .btn-cancel:hover {
-    background: #000000;
+    background: #da190b;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 6px rgba(244, 67, 54, 0.3);
 }
 
 /* Review Section */
 .review-badge {
     background: #f0f8ff;
-    border-left: 3px solid #4caf50;
+    border-left: 4px solid #4caf50;
     padding: 15px;
     border-radius: 8px;
     margin-top: 15px;
@@ -1851,6 +1877,16 @@ body {
     font-style: italic;
     font-size: 0.9rem;
     margin: 0;
+}
+
+.no-review-badge {
+    background: #fff3cd;
+    border-left: 4px solid #ffc107;
+    padding: 12px 15px;
+    border-radius: 6px;
+    margin-top: 15px;
+    color: #856404;
+    font-weight: 500;
 }
 
 .review-form {
@@ -1895,29 +1931,31 @@ body {
 .progress-timeline {
     display: flex;
     flex-direction: column;
-    gap: 15px;
+    gap: 12px;
 }
 
 .progress-item {
     display: flex;
     gap: 15px;
-    padding: 15px;
-    background: #f9fbff;
+    padding: 15px 16px;
+    background: linear-gradient(135deg, #f9fbff 0%, #f0f8ff 100%);
     border-radius: 10px;
-    border-left: 3px solid #185ADB;
+    border-left: 4px solid #2196F3;
     transition: all 0.3s;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
 .progress-item:hover {
-    background: #f0f8ff;
+    background: linear-gradient(135deg, #f0f8ff 0%, #e3f2fd 100%);
     transform: translateX(5px);
+    box-shadow: 0 2px 8px rgba(33, 150, 243, 0.15);
 }
 
 .progress-number {
     font-weight: 800;
-    color: #185ADB;
-    font-size: 1.2rem;
-    min-width: 40px;
+    color: #2196F3;
+    font-size: 1.3rem;
+    min-width: 45px;
     text-align: center;
 }
 
@@ -1933,26 +1971,35 @@ body {
 
 .progress-stats {
     display: flex;
-    gap: 15px;
+    gap: 12px;
     flex-wrap: wrap;
 }
 
 .stat {
     background: white;
-    padding: 5px 10px;
-    border-radius: 6px;
+    padding: 8px 14px;
+    border-radius: 8px;
     font-size: 0.9rem;
     font-weight: 600;
+    border: 2px solid #ddd;
 }
 
 .stat.weight {
-    color: #185ADB;
-    border: 1px solid #185ADB;
+    color: #2196F3;
+    border: 2px solid #2196F3;
+    background: #e3f2fd;
 }
 
 .stat.bmi {
     color: #ffa726;
-    border: 1px solid #ffa726;
+    border: 2px solid #ffa726;
+    background: #fff3e0;
+}
+
+.stat.body-fat {
+    color: #ef5350;
+    border: 2px solid #ef5350;
+    background: #ffebee;
 }
 
 /* Empty State - Amazon Style */

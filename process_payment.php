@@ -33,7 +33,7 @@ $duplicate_result = mysqli_query($conn, $duplicate_check);
 
 if (mysqli_num_rows($duplicate_result) > 0) {
     echo "<script>
-        alert('⚠️ You are already registered for this class!');
+        alert(' You are already registered for this class!');
         window.location.href = 'index.php';
     </script>";
     exit;
@@ -42,7 +42,7 @@ if (mysqli_num_rows($duplicate_result) > 0) {
 // Kontenjan kontrolü
 if ($class['capacity'] <= 0) {
     echo "<script>
-        alert('😔 Sorry, this class is full!');
+        alert(' Sorry, this class is full!');
         window.location.href = 'index.php';
     </script>";
     exit;
@@ -106,7 +106,7 @@ include 'header.php';
             <div class="payment-content">
                 <!-- Ders Bilgileri -->
                 <div class="class-info-box">
-                    <h3>📋 Reservation Details</h3>
+                    <h3> Reservation Details</h3>
                     <div class="info-row">
                         <span class="info-label">Class Name:</span>
                         <span class="info-value"><?php echo htmlspecialchars($class['title']); ?></span>
@@ -127,7 +127,7 @@ include 'header.php';
 
                 <!-- Ödeme Bilgileri -->
                 <div class="payment-info-box">
-                    <h3>💰 Payment Information</h3>
+                    <h3> Payment Information</h3>
                     <div class="amount-display">
                         <span class="amount-label">Total Amount:</span>
                         <span class="amount-value"><?php echo number_format($amount, 2); ?> TL</span>
@@ -135,7 +135,7 @@ include 'header.php';
                     
                     <div class="payment-method-box">
                         <p class="payment-note">
-                            <strong>ℹ️ Information:</strong> This is a simulated payment system. 
+                            <strong>Information:</strong> This is a simulated payment system. 
                             No real payment is processed. Your reservation will be automatically created when payment is confirmed.
                         </p>
                     </div>
@@ -180,8 +180,8 @@ include 'header.php';
                     </div>
 
                     <div class="payment-actions">
-                        <a href="index.php" class="btn-cancel">❌ Cancel</a>
-                        <button type="submit" name="confirm_payment" class="btn-pay">✅ Confirm Payment</button>
+                        <a href="index.php" class="btn-cancel"> Cancel</a>
+                        <button type="submit" name="confirm_payment" class="btn-pay"> Confirm Payment</button>
                     </div>
                 </form>
             </div>
