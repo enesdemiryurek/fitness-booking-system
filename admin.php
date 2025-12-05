@@ -31,9 +31,29 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $date = $_POST['date_time'];
     $capacity = $_POST['capacity'];
     $link = $_POST['video_link'];
+    
+    // Instructor fotoğrafı yükleme
+    $instructor_photo = NULL;
+    if (isset($_FILES['instructor_photo']) && $_FILES['instructor_photo']['size'] > 0) {
+        $file_type = mime_content_type($_FILES['instructor_photo']['tmp_name']);
+        $allowed_types = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+        
+        if (in_array($file_type, $allowed_types) && $_FILES['instructor_photo']['size'] <= 5 * 1024 * 1024) {
+            $instructor_photo = file_get_contents($_FILES['instructor_photo']['tmp_name']);
+            $instructor_photo = mysqli_real_escape_string($conn, $instructor_photo);
+        }
+    }
+    
+    // Eğer fotoğraf seçilmediyse, trainer'ın profil fotoğrafını kullan
+    if (!$instructor_photo) {
+        $trainer_photo = mysqli_fetch_assoc(mysqli_query($conn, "SELECT profile_photo FROM users WHERE username = '$trainer' LIMIT 1"));
+        if ($trainer_photo && !empty($trainer_photo['profile_photo'])) {
+            $instructor_photo = $trainer_photo['profile_photo'];
+        }
+    }
 
-    $sql = "INSERT INTO classes (title, trainer_name, description, class_type, date_time, capacity, video_link) 
-            VALUES ('$title', '$trainer', '$description', '$type', '$date', '$capacity', '$link')";
+    $sql = "INSERT INTO classes (title, trainer_name, description, class_type, date_time, capacity, video_link, instructor_photo) 
+            VALUES ('$title', '$trainer', '$description', '$type', '$date', '$capacity', '$link', " . ($instructor_photo ? "'$instructor_photo'" : "NULL") . ")";
 
     if (mysqli_query($conn, $sql)) {
         $class_id = mysqli_insert_id($conn);
@@ -97,7 +117,7 @@ include 'header.php';
                 <p>Get students involved by adding a new course to the system</p>
             </div>
 
-            <form action="" method="POST" class="modern-form">
+            <form action="" method="POST" enctype="multipart/form-data" class="modern-form">
                 <div class="form-grid">
                     <div class="form-group">
                         <label for="title">Course Title</label>
@@ -158,6 +178,12 @@ include 'header.php';
                         <label for="description">Description</label>
                         <textarea id="description" name="description" placeholder="Provide detailed information about the class..." rows="4" required></textarea>
                         <small>Class purpose, content, requirements, etc.</small>
+                    </div>
+
+                    <div class="form-group full-width">
+                        <label for="instructor_photo">Instructor Photo (Optional)</label>
+                        <input type="file" id="instructor_photo" name="instructor_photo" accept="image/*">
+                        <small>If not selected, instructor's profile photo will be used automatically</small>
                     </div>
 
                     <div class="form-group full-width">

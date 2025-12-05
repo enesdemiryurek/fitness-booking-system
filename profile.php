@@ -15,13 +15,13 @@ $message_type = "";
 $progress_message = "";
 $progress_type = "";
 
-// --- 1. INSTRUCTOR PROFIL RESMİ YÜKLEME ---
+// --- 1. PROFIL RESMİ YÜKLEME (TÜM KULLANICILAR) ---
 if (isset($_POST['upload_profile_photo']) && $_FILES['profile_photo']['size'] > 0) {
     $file_type = mime_content_type($_FILES['profile_photo']['tmp_name']);
     $allowed_types = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
     
     if (!in_array($file_type, $allowed_types)) {
-        $message = " Yalnızca resim dosyaları yüklenebilir!";
+        $message = "❌ Yalnızca resim dosyaları yüklenebilir!";
         $message_type = "error";
     } elseif ($_FILES['profile_photo']['size'] > 5 * 1024 * 1024) { // 5MB limit
         $message = "❌ Dosya boyutu 5MB'dan büyük olamaz!";
@@ -32,9 +32,10 @@ if (isset($_POST['upload_profile_photo']) && $_FILES['profile_photo']['size'] > 
         
         $update_photo = "UPDATE users SET profile_photo='$photo_data' WHERE id=$user_id";
         if (mysqli_query($conn, $update_photo)) {
+            $message = "✅ Profil fotoğrafı başarıyla yüklendi!";
             $message_type = "success";
         } else {
-          
+            $message = "❌ Fotoğraf yüklenirken hata oluştu!";
             $message_type = "error";
         }
     }
@@ -101,7 +102,34 @@ include 'header.php';
         <!-- SOL KOLON: HESAP BİLGİLERİ & GELİŞİM -->
         <div class="profile-left">
             
-            <!-- HESAP BİLGİLERİ -->
+            <!-- PROFIL FOTOĞRAFı -->
+            <div class="profile-card">
+                <div class="card-header">
+                    <h2>👤 Profil Fotoğrafı</h2>
+                </div>
+
+                <div style="text-align: center; margin-bottom: 20px;">
+                    <div class="profile-photo-display" style="width: 150px; height: 150px; margin: 0 auto 15px; border-radius: 50%; overflow: hidden; background: #f0f0f0; display: flex; align-items: center; justify-content: center; border: 3px solid #4CAF50;">
+                        <?php
+                        if(!empty($user_row['profile_photo'])) {
+                            echo '<img src="data:image/jpeg;base64,' . base64_encode($user_row['profile_photo']) . '" style="width: 100%; height: 100%; object-fit: cover;" alt="Profil Fotoğrafı">';
+                        } else {
+                            echo '<span style="font-size: 60px;">📷</span>';
+                        }
+                        ?>
+                    </div>
+                    <p style="color: #666; font-size: 14px;"><?php echo htmlspecialchars($user_row['username']); ?></p>
+                </div>
+
+                <form method="POST" enctype="multipart/form-data" class="profile-form">
+                    <div class="form-group">
+                        <label for="profile_photo">Fotoğraf Yükle</label>
+                        <input type="file" id="profile_photo" name="profile_photo" accept="image/*" required>
+                        <small style="color: #666; display: block; margin-top: 5px;">PNG, JPG, GIF, WebP (Max 5MB)</small>
+                    </div>
+                    <button type="submit" name="upload_profile_photo" class="btn-submit-large">📤 Fotoğrafı Yükle</button>
+                </form>
+            </div>
             <div class="profile-card">
                 <div class="card-header">
                     <h2> Hesap Bilgileri</h2>
