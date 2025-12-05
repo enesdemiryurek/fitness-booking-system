@@ -92,9 +92,33 @@ include 'header.php';
 
 <div class="profile-page">
     
-    <!-- PROFILE HERO BÖLÜMÜ -->
-    <div class="profile-hero-simple">
-        <h1>My Profile</h1>
+    <!-- PROFILE HERO BÖLÜMÜ - FOTOĞRAFLI -->
+    <div class="profile-hero-simple" style="background: linear-gradient(135deg, #185ADB 0%, #1245a8 100%); padding: 60px 20px; text-align: center; position: relative;">
+        <div style="max-width: 1200px; margin: 0 auto;">
+            <!-- Profil Fotoğrafı -->
+            <div style="margin-bottom: 20px;">
+                <div class="profile-photo-hero" style="width: 140px; height: 140px; margin: 0 auto; border-radius: 50%; overflow: hidden; background: white; display: flex; align-items: center; justify-content: center; border: 5px solid white; box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
+                    <?php
+                    if(!empty($user_row['profile_photo'])) {
+                        echo '<img src="data:image/jpeg;base64,' . base64_encode($user_row['profile_photo']) . '" style="width: 100%; height: 100%; object-fit: cover;" alt="Profil Fotoğrafı">';
+                    } else {
+                        echo '<span style="font-size: 80px;">👤</span>';
+                    }
+                    ?>
+                </div>
+            </div>
+            <h1 style="color: white; margin: 10px 0 5px 0; font-size: 28px;"><?php echo htmlspecialchars($user_row['username']); ?></h1>
+            <p style="color: rgba(255,255,255,0.9); margin: 0; font-size: 14px;">
+                <?php 
+                $role_text = [
+                    'user' => 'Öğrenci',
+                    'instructor' => 'Eğitmen',
+                    'admin' => 'Yönetici'
+                ];
+                echo $role_text[$user_row['role']] ?? 'Kullanıcı';
+                ?>
+            </p>
+        </div>
     </div>
 
     <div class="profile-container">
@@ -102,39 +126,7 @@ include 'header.php';
         <!-- SOL KOLON: HESAP BİLGİLERİ & GELİŞİM -->
         <div class="profile-left">
             
-            <!-- PROFIL FOTOĞRAFı -->
-            <div class="profile-card">
-                <div class="card-header">
-                    <h2>👤 Profil Fotoğrafı</h2>
-                </div>
-
-                <div style="text-align: center; margin-bottom: 20px;">
-                    <div class="profile-photo-display" style="width: 150px; height: 150px; margin: 0 auto 15px; border-radius: 50%; overflow: hidden; background: #f0f0f0; display: flex; align-items: center; justify-content: center; border: 3px solid #4CAF50;">
-                        <?php
-                        if(!empty($user_row['profile_photo'])) {
-                            echo '<img src="data:image/jpeg;base64,' . base64_encode($user_row['profile_photo']) . '" style="width: 100%; height: 100%; object-fit: cover;" alt="Profil Fotoğrafı">';
-                        } else {
-                            echo '<span style="font-size: 60px;">📷</span>';
-                        }
-                        ?>
-                    </div>
-                    <p style="color: #666; font-size: 14px;"><?php echo htmlspecialchars($user_row['username']); ?></p>
-                </div>
-
-                <form method="POST" enctype="multipart/form-data" class="profile-form">
-                    <div class="form-group">
-                        <label for="profile_photo">Fotoğraf Yükle</label>
-                        <input type="file" id="profile_photo" name="profile_photo" accept="image/*" required>
-                        <small style="color: #666; display: block; margin-top: 5px;">PNG, JPG, GIF, WebP (Max 5MB)</small>
-                    </div>
-                    <button type="submit" name="upload_profile_photo" class="btn-submit-large">📤 Fotoğrafı Yükle</button>
-                </form>
-            </div>
-            <div class="profile-card">
-                <div class="card-header">
-                    <h2> Hesap Bilgileri</h2>
-                    <p>Kişisel bilgilerinizi güncelleyin</p>
-                </div>
+            <!-- HESAP BİLGİLERİ -->
 
                 <?php if($message): ?>
                     <div class="message-box message-<?php echo $message_type; ?>">
@@ -177,20 +169,18 @@ include 'header.php';
                     <button type="submit" name="update_profile" class="btn-submit-large"> Bilgileri Güncelle</button>
                 </form>
 
-                <!-- INSTRUCTOR PROFIL RESMİ UPLOAD -->
-                <?php if($user_row['role'] == 'instructor'): ?>
+                <!-- PROFIL RESMİ UPLOAD (TÜM KULLANICILAR İÇİN) -->
                 <div style="margin-top: 30px; padding-top: 30px; border-top: 1px solid #eee;">
-                    <h3 style="font-size: 1.1rem; margin-bottom: 15px;"> Profil Resmi </h3>
+                    <h3 style="font-size: 1.1rem; margin-bottom: 15px;">📸 Profil Fotoğrafı Değiştir</h3>
                     <form method="POST" enctype="multipart/form-data">
                         <div class="form-group">
-                            <label for="profile_photo">Profil Fotoğrafı Yükle</label>
+                            <label for="profile_photo">Yeni Fotoğraf Seç</label>
                             <input type="file" id="profile_photo" name="profile_photo" accept="image/*" required>
-                            <small style="color: #666; display: block; margin-top: 5px;">PNG, JPG, GIF (Max 5MB)</small>
+                            <small style="color: #666; display: block; margin-top: 5px;">PNG, JPG, GIF, WebP (Max 5MB)</small>
                         </div>
-                        <button type="submit" name="upload_profile_photo" class="btn-submit-large" style=""> Resmi Yükle</button>
+                        <button type="submit" name="upload_profile_photo" class="btn-submit-large" style="background: #4CAF50;">📤 Fotoğrafı Güncelle</button>
                     </form>
                 </div>
-                <?php endif; ?>
             </div>
 
             <!-- GELİŞİM EKLE -->
