@@ -4,7 +4,7 @@ include 'notification_handler.php';
 ?>
 
 <!DOCTYPE html>
-<html lang="tr">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -43,8 +43,8 @@ include 'notification_handler.php';
                     <!-- BİLDİRİM DROPDOWN -->
                     <div class="notification-panel" id="notificationPanel">
                         <div class="notification-header">
-                            <h3>Notifications </h3>
-                            <small class="notif-auto-read">notifications read</small>
+                            <h3></h3>
+                            <small class="notif-auto-read">marked as read</small>
                         </div>
                         <div class="notification-list" id="notificationList">
                             <!-- Bildirimler JS ile yüklenecek -->
@@ -107,7 +107,7 @@ include 'notification_handler.php';
                                 <div class="notif-message">${notif.message}</div>
                                 <div class="notif-time">${notif.time_ago}</div>
                             </div>
-                            <button onclick="deleteNotification(${notif.id})" class="notif-delete">✕</button>
+                            <button onclick="deleteNotification(${notif.id})" class="notif-delete">X</button>
                         </div>
                     `).join('');
                 });

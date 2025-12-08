@@ -9,6 +9,62 @@ if(rand(1, 10) == 1) { // %10 oranında çalış (spam önleme)
     $notificationHandler->sendClassReminders();
 }
 
+if (!function_exists('buildReviewKey')) {
+    function buildReviewKey($trainerName, $classType) {
+        return mb_strtolower(trim($trainerName)) . '|' . mb_strtolower(trim($classType));
+    }
+}
+
+$trainerRatingSummary = [];
+$trainerReviewList = [];
+
+$ratingSummaryQuery = "
+    SELECT c.trainer_name, c.class_type, AVG(r.rating) AS avg_rating, COUNT(*) AS review_count
+    FROM reviews r
+    INNER JOIN classes c ON r.class_id = c.id
+    GROUP BY c.trainer_name, c.class_type
+";
+
+if ($ratingSummaryResult = mysqli_query($conn, $ratingSummaryQuery)) {
+    while ($summaryRow = mysqli_fetch_assoc($ratingSummaryResult)) {
+        $summaryKey = buildReviewKey($summaryRow['trainer_name'], $summaryRow['class_type']);
+        $trainerRatingSummary[$summaryKey] = [
+            'avg' => round((float) $summaryRow['avg_rating'], 1),
+            'count' => (int) $summaryRow['review_count']
+        ];
+    }
+    mysqli_free_result($ratingSummaryResult);
+}
+
+$ratingDetailsQuery = "
+    SELECT c.trainer_name, c.class_type, r.rating, r.comment, r.created_at, u.username
+    FROM reviews r
+    INNER JOIN classes c ON r.class_id = c.id
+    LEFT JOIN users u ON r.user_id = u.id
+    ORDER BY r.created_at DESC, r.id DESC
+";
+
+if ($ratingDetailsResult = mysqli_query($conn, $ratingDetailsQuery)) {
+    while ($detailRow = mysqli_fetch_assoc($ratingDetailsResult)) {
+        $detailKey = buildReviewKey($detailRow['trainer_name'], $detailRow['class_type']);
+        if (!isset($trainerReviewList[$detailKey])) {
+            $trainerReviewList[$detailKey] = [];
+        }
+
+        if (count($trainerReviewList[$detailKey]) >= 50) {
+            continue;
+        }
+
+        $trainerReviewList[$detailKey][] = [
+            'rating' => (int) $detailRow['rating'],
+            'comment' => $detailRow['comment'] ?? '',
+            'created_at' => $detailRow['created_at'],
+            'username' => $detailRow['username'] ?? 'Üye'
+        ];
+    }
+    mysqli_free_result($ratingDetailsResult);
+}
+
 include 'header.php';
 ?>
 
@@ -111,59 +167,77 @@ include 'header.php';
             $sql = "SELECT * FROM classes WHERE date_time >= '$current_time' ORDER BY date_time ASC";
             $result = mysqli_query($conn, $sql);
 
-            if (mysqli_num_rows($result) > 0) {
+            if ($result && mysqli_num_rows($result) > 0) {
                 while($row = mysqli_fetch_assoc($result)) {
-                    
-                    // --- RESİM AYARLARI ---
                     $type = mb_strtolower($row['class_type']);
-                    $img_url = "img/default.jpg"; 
+                    $img_url = "img/default.jpg";
 
                     if(strpos($type, 'yoga') !== false) $img_url = "img/yoga.jpg";
                     elseif(strpos($type, 'pilates') !== false) $img_url = "img/pilates.jpg";
                     elseif(strpos($type, 'hiit') !== false) $img_url = "img/hiit.jpg";
                     elseif(strpos($type, 'zumba') !== false) $img_url = "img/zumba.jpg";
                     elseif(strpos($type, 'fitness') !== false) $img_url = "img/fitness.jpg";
-                    
-                    echo '<div class="class-card" data-class-type="' . htmlspecialchars($row["class_type"]) . '">';
-                    echo '<img src="'.$img_url.'" alt="Class Image" class="card-image" onerror="this.src=\'https://placehold.co/600x400?text=No+Image\'">';
-                    
-                    echo '<div class="card-content">';
-                        echo '<h3>' . $row["title"] . ' <span class="badge">' . $row["class_type"] . '</span></h3>';
-                        
-                        // Instructor profil resmini çek
-                        $trainer_sql = "SELECT profile_photo, username FROM users WHERE username = '" . mysqli_real_escape_string($conn, $row["trainer_name"]) . "' LIMIT 1";
-                        $trainer_result = mysqli_query($conn, $trainer_sql);
-                        $trainer_data = mysqli_fetch_assoc($trainer_result);
-                        
-                        echo '<div class="trainer-info-card">';
-                        if($trainer_data && $trainer_data['profile_photo']) {
-                            echo '<img src="data:image/jpeg;base64,' . base64_encode($trainer_data['profile_photo']) . '" alt="Instructor" class="trainer-avatar-small">';
-                        } else {
-                            $initial = !empty($trainer_data['username']) ? strtoupper(substr($trainer_data['username'], 0, 1)) : strtoupper(substr($row["trainer_name"], 0, 1));
-                            echo '<div class="trainer-avatar-placeholder-small">' . $initial . '</div>';
-                        }
-                        echo '<span class="trainer-name-card">' . htmlspecialchars($row["trainer_name"]) . '</span>';
-                        echo '<span class="trainer-time-card">🕒 ' . date("d.m.Y H:i", strtotime($row["date_time"])) . '</span>';
-                        echo '</div>';
-                        echo '<p style="margin-top:10px;">' . $row["description"] . '</p>';
-                        
-                        // Stok Durumu
-                        $stok_color = ($row["capacity"] < 3) ? "#dc3545" : "#28a745";
-                        echo '<span class="stok" style="color:'.$stok_color.'"> Remaining Place: ' . $row["capacity"] . '</span>';
 
-                        // Rezerve Butonları
-                        if(isset($_SESSION['user_id'])) {
-                            if ($row["capacity"] > 0) {
-                                echo '<a href="book_class.php?id='.$row['id'].'" class="btn-card">Book Now</a>';
-                            } else {
-                                echo '<button class="btn-card btn-disabled" disabled>FULL</button>';
-                            }
-                        } else {
-                            echo '<a href="login.php" class="btn-card" style="background:#666;">Login & Book</a>';
-                        }
+                    $reviewKey = buildReviewKey($row['trainer_name'], $row['class_type']);
+                    $summary = $trainerRatingSummary[$reviewKey] ?? null;
+                    $hasReviews = $summary && ($summary['count'] > 0);
+                    $summaryWidth = $hasReviews ? max(0, min(100, ($summary['avg'] / 5) * 100)) : 0;
 
-                    echo '</div>'; // card-content
-                    echo '</div>'; // class-card
+                    $trainer_sql = "SELECT profile_photo, username FROM users WHERE username = '" . mysqli_real_escape_string($conn, $row['trainer_name']) . "' LIMIT 1";
+                    $trainer_result = mysqli_query($conn, $trainer_sql);
+                    $trainer_data = $trainer_result ? mysqli_fetch_assoc($trainer_result) : null;
+                    ?>
+                    <div class="class-card" data-class-type="<?php echo htmlspecialchars($row['class_type']); ?>">
+                        <img src="<?php echo $img_url; ?>" alt="Class Image" class="card-image" onerror="this.src='https://placehold.co/600x400?text=No+Image'">
+                        <div class="card-content">
+                            <h3><?php echo htmlspecialchars($row['title']); ?> <span class="badge"><?php echo htmlspecialchars($row['class_type']); ?></span></h3>
+                            <div class="trainer-info-card">
+                                <?php if($trainer_data && !empty($trainer_data['profile_photo'])): ?>
+                                    <img src="data:image/jpeg;base64,<?php echo base64_encode($trainer_data['profile_photo']); ?>" alt="Instructor" class="trainer-avatar-small">
+                                <?php else: ?>
+                                    <?php $initial = !empty($trainer_data['username']) ? strtoupper(substr($trainer_data['username'], 0, 1)) : strtoupper(substr($row['trainer_name'], 0, 1)); ?>
+                                    <div class="trainer-avatar-placeholder-small"><?php echo htmlspecialchars($initial); ?></div>
+                                <?php endif; ?>
+                                <span class="trainer-name-card"><?php echo htmlspecialchars($row['trainer_name']); ?></span>
+                                <span class="trainer-time-card">Time: <?php echo date("d.m.Y H:i", strtotime($row['date_time'])); ?></span>
+                            </div>
+                            <p class="class-description"><?php echo htmlspecialchars($row['description']); ?></p>
+
+                            <?php if($hasReviews): ?>
+                                <div class="review-summary review-summary--minimal review-summary--with-data">
+                                    <div class="review-summary__value"><?php echo number_format($summary['avg'], 1); ?></div>
+                                    <div class="review-summary__stack">
+                                        <div class="review-summary__meta">
+                                            <span class="star-rating-display">
+                                                <span class="star-rating-display__fill" style="width: <?php echo $summaryWidth; ?>%;"></span>
+                                            </span>
+                                            <span class="review-summary__count"><?php echo $summary['count']; ?> yorum</span>
+                                        </div>
+                                        <span class="review-summary__note">Önceki derslerden</span>
+                                    </div>
+                                </div>
+                            <?php endif; ?>
+
+                            <?php
+                            $stok_color = ($row['capacity'] < 3) ? '#dc3545' : '#28a745';
+                            ?>
+                            <span class="stok" style="color:<?php echo $stok_color; ?>"> Remaining Place: <?php echo (int) $row['capacity']; ?></span>
+
+                            <?php if(isset($_SESSION['user_id'])): ?>
+                                <?php if ($row['capacity'] > 0): ?>
+                                    <a href="book_class.php?id=<?php echo (int) $row['id']; ?>" class="btn-card">Book Now</a>
+                                <?php else: ?>
+                                    <button class="btn-card btn-disabled" disabled>FULL</button>
+                                <?php endif; ?>
+                            <?php else: ?>
+                                <a href="login.php" class="btn-card" style="background:#666;">Login & Book</a>
+                            <?php endif; ?>
+                        </div>
+                    </div>
+                    <?php
+                    if ($trainer_result) {
+                        mysqli_free_result($trainer_result);
+                    }
                 }
             } else {
                 echo '<div class="no-results-message">';
@@ -203,47 +277,118 @@ include 'header.php';
             $sql = "SELECT * FROM classes WHERE date_time < '$current_time' AND date_time >= '$one_day_ago' ORDER BY date_time DESC";
             $result = mysqli_query($conn, $sql);
 
-            if (mysqli_num_rows($result) > 0) {
+            if ($result && mysqli_num_rows($result) > 0) {
                 while($row = mysqli_fetch_assoc($result)) {
-                    
-                    // --- RESİM AYARLARI ---
                     $type = mb_strtolower($row['class_type']);
-                    $img_url = "img/default.jpg"; 
+                    $img_url = "img/default.jpg";
 
                     if(strpos($type, 'yoga') !== false) $img_url = "img/yoga.jpg";
                     elseif(strpos($type, 'pilates') !== false) $img_url = "img/pilates.jpg";
                     elseif(strpos($type, 'hiit') !== false) $img_url = "img/hiit.jpg";
                     elseif(strpos($type, 'zumba') !== false) $img_url = "img/zumba.jpg";
                     elseif(strpos($type, 'fitness') !== false) $img_url = "img/fitness.jpg";
-                    
-                    echo '<div class="class-card past-class" data-class-type="' . htmlspecialchars($row["class_type"]) . '">';
-                    echo '<img src="'.$img_url.'" alt="Class Image" class="card-image past-image" onerror="this.src=\'https://placehold.co/600x400?text=No+Image\'">';
-                    
-                    echo '<div class="card-content">';
-                        echo '<h3>' . $row["title"] . ' <span class="badge">Completed</span></h3>';
-                        
-                        // Instructor profil resmini çek
-                        $trainer_sql = "SELECT profile_photo, username FROM users WHERE username = '" . mysqli_real_escape_string($conn, $row["trainer_name"]) . "' LIMIT 1";
-                        $trainer_result = mysqli_query($conn, $trainer_sql);
-                        $trainer_data = mysqli_fetch_assoc($trainer_result);
-                        
-                        echo '<div class="trainer-info-card">';
-                        if($trainer_data && $trainer_data['profile_photo']) {
-                            echo '<img src="data:image/jpeg;base64,' . base64_encode($trainer_data['profile_photo']) . '" alt="Instructor" class="trainer-avatar-small">';
-                        } else {
-                            $initial = !empty($trainer_data['username']) ? strtoupper(substr($trainer_data['username'], 0, 1)) : strtoupper(substr($row["trainer_name"], 0, 1));
-                            echo '<div class="trainer-avatar-placeholder-small">' . $initial . '</div>';
-                        }
-                        echo '<span class="trainer-name-card">' . htmlspecialchars($row["trainer_name"]) . '</span>';
-                        echo '<span class="trainer-time-card">🕒 ' . date("d.m.Y H:i", strtotime($row["date_time"])) . '</span>';
-                        echo '</div>';
-                        echo '<p style="margin-top:10px;">' . $row["description"] . '</p>';
-                        
-                       
-                        echo '<button class="btn-card btn-disabled" disabled>Completed</button>';
 
-                    echo '</div>'; // card-content
-                    echo '</div>'; // class-card
+                    $reviewKey = buildReviewKey($row['trainer_name'], $row['class_type']);
+                    $summary = $trainerRatingSummary[$reviewKey] ?? null;
+                    $reviewList = $trainerReviewList[$reviewKey] ?? [];
+                    $panelId = 'reviews-past-' . (int) $row['id'];
+                    $hasReviews = $summary && ($summary['count'] > 0);
+                    $summaryWidth = $hasReviews ? max(0, min(100, ($summary['avg'] / 5) * 100)) : 0;
+                    $ratingCounts = [5 => 0, 4 => 0, 3 => 0, 2 => 0, 1 => 0];
+                    foreach ($reviewList as $reviewItem) {
+                        $rating = max(1, min(5, (int) $reviewItem['rating']));
+                        $ratingCounts[$rating]++;
+                    }
+                    $averageText = $hasReviews ? number_format($summary['avg'], 1) : '0.0';
+                    $totalReviews = $summary['count'] ?? 0;
+                    $toggleOpenText = '💬 Yorumlar (' . $totalReviews . ')';
+                    $toggleCloseText = 'Paneli Kapat';
+
+                    $trainer_sql = "SELECT profile_photo, username FROM users WHERE username = '" . mysqli_real_escape_string($conn, $row['trainer_name']) . "' LIMIT 1";
+                    $trainer_result = mysqli_query($conn, $trainer_sql);
+                    $trainer_data = $trainer_result ? mysqli_fetch_assoc($trainer_result) : null;
+                    ?>
+                    <div class="class-card past-class" data-class-type="<?php echo htmlspecialchars($row['class_type']); ?>">
+                        <img src="<?php echo $img_url; ?>" alt="Class Image" class="card-image past-image" onerror="this.src='https://placehold.co/600x400?text=No+Image'">
+                        <div class="card-content">
+                            <h3><?php echo htmlspecialchars($row['title']); ?> <span class="badge">Completed</span></h3>
+                            <div class="trainer-info-card">
+                                <?php if($trainer_data && !empty($trainer_data['profile_photo'])): ?>
+                                    <img src="data:image/jpeg;base64,<?php echo base64_encode($trainer_data['profile_photo']); ?>" alt="Instructor" class="trainer-avatar-small">
+                                <?php else: ?>
+                                    <?php $initial = !empty($trainer_data['username']) ? strtoupper(substr($trainer_data['username'], 0, 1)) : strtoupper(substr($row['trainer_name'], 0, 1)); ?>
+                                    <div class="trainer-avatar-placeholder-small"><?php echo htmlspecialchars($initial); ?></div>
+                                <?php endif; ?>
+                                <span class="trainer-name-card"><?php echo htmlspecialchars($row['trainer_name']); ?></span>
+                                <span class="trainer-time-card">Time: <?php echo date("d.m.Y H:i", strtotime($row['date_time'])); ?></span>
+                            </div>
+                            <p class="class-description"><?php echo htmlspecialchars($row['description']); ?></p>
+
+                            <div class="comment-bar">
+                                <?php if($hasReviews): ?>
+                                    <div class="comment-bar__stat">
+                                        <span class="comment-bar__score"><?php echo number_format($summary['avg'], 1); ?></span>
+                                        <span class="star-rating-display star-rating-display--sm">
+                                            <span class="star-rating-display__fill" style="width: <?php echo $summaryWidth; ?>%;"></span>
+                                        </span>
+                                        <span class="comment-bar__meta"><?php echo $totalReviews; ?> yorum</span>
+                                    </div>
+                                <?php else: ?>
+                                    <div class="comment-bar__stat comment-bar__stat--empty">Henüz yorum yok</div>
+                                <?php endif; ?>
+                                <button type="button" class="comment-trigger" data-target="<?php echo $panelId; ?>" data-open-text="<?php echo $toggleOpenText; ?>" data-close-text="<?php echo $toggleCloseText; ?>" aria-expanded="false" aria-controls="<?php echo $panelId; ?>"><?php echo $toggleOpenText; ?></button>
+                            </div>
+                            <div class="review-panel review-panel--trendy" id="<?php echo $panelId; ?>">
+                                <div class="review-panel__header">
+                                    <div class="review-panel__summary">
+                    <div class="review-panel__score"><?php echo $averageText; ?></div>
+                                        <div class="review-panel__stars">
+                                            <span class="star-rating-display">
+                                                <span class="star-rating-display__fill" style="width: <?php echo $summaryWidth; ?>%;"></span>
+                                            </span>
+                                            <span class="review-panel__total"><?php echo $totalReviews; ?> yorum</span>
+                                        </div>
+                                    </div>
+                                    <div class="review-panel__filters">
+                                        <button type="button" class="review-filter active" data-target-panel="<?php echo $panelId; ?>" data-filter="all">Tümü (<?php echo $totalReviews; ?>)</button>
+                                        <?php for ($star = 5; $star >= 1; $star--): ?>
+                                            <button type="button" class="review-filter" data-target-panel="<?php echo $panelId; ?>" data-filter="<?php echo $star; ?>"><?php echo $star; ?> ★ (<?php echo $ratingCounts[$star]; ?>)</button>
+                                        <?php endfor; ?>
+                                    </div>
+                                </div>
+                                <div class="review-panel__body">
+                                    <?php if($hasReviews): ?>
+                                        <div class="review-panel__list">
+                                            <?php foreach ($reviewList as $reviewItem): ?>
+                                                <?php $itemWidth = max(0, min(100, ($reviewItem['rating'] / 5) * 100)); ?>
+                                                <div class="review-item" data-rating="<?php echo (int) $reviewItem['rating']; ?>">
+                                                    <div class="review-item__meta">
+                                                        <span class="star-rating-display star-rating-display--sm">
+                                                            <span class="star-rating-display__fill" style="width: <?php echo $itemWidth; ?>%;"></span>
+                                                        </span>
+                                                        <span class="review-item__author"><?php echo htmlspecialchars($reviewItem['username']); ?></span>
+                                                        <span class="review-item__date"><?php echo date('d.m.Y', strtotime($reviewItem['created_at'])); ?></span>
+                                                    </div>
+                                                    <?php if(!empty($reviewItem['comment'])): ?>
+                                                        <div class="review-item__comment"><?php echo nl2br(htmlspecialchars($reviewItem['comment'])); ?></div>
+                                                    <?php endif; ?>
+                                                </div>
+                                            <?php endforeach; ?>
+                                        </div>
+                                        <div class="review-panel__empty review-panel__empty--filtered" style="display:none;">Bu filtre için yorum bulunamadı.</div>
+                                    <?php else: ?>
+                                        <div class="review-panel__empty">Henüz yorum yok. İlk yorumu sen paylaş!</div>
+                                    <?php endif; ?>
+                                </div>
+                            </div>
+
+                            <button class="btn-card btn-disabled" disabled>Completed</button>
+                        </div>
+                    </div>
+                    <?php
+                    if ($trainer_result) {
+                        mysqli_free_result($trainer_result);
+                    }
                 }
             } else {
                 echo '<div class="no-results-message">';
@@ -381,9 +526,86 @@ include 'header.php';
         // İlk yüklemede sayıyı göster
         document.getElementById('past-count').textContent = pastCards.length;
     }
-    
-    // Sayfa yüklendiğinde filtrelemeyi başlat
-    document.addEventListener('DOMContentLoaded', initFiltering);
+
+    function applyReviewFilter(panel, filter) {
+        if (!panel) {
+            return;
+        }
+
+        const list = panel.querySelector('.review-panel__list');
+        const items = list ? list.querySelectorAll('.review-item') : [];
+        let visible = 0;
+
+        items.forEach((item) => {
+            const rating = item.getAttribute('data-rating');
+            const shouldShow = filter === 'all' || rating === filter;
+            item.style.display = shouldShow ? 'block' : 'none';
+            if (shouldShow) {
+                visible++;
+            }
+        });
+
+        const emptyFiltered = panel.querySelector('.review-panel__empty--filtered');
+        if (emptyFiltered) {
+            emptyFiltered.style.display = visible === 0 ? 'block' : 'none';
+        }
+    }
+
+    function initReviewPanels() {
+        const toggleButtons = document.querySelectorAll('.comment-trigger');
+        toggleButtons.forEach((button) => {
+            const targetId = button.getAttribute('data-target');
+            const openText = button.getAttribute('data-open-text') || button.textContent || 'Yorumları Gör';
+            const closeText = button.getAttribute('data-close-text') || 'Paneli Kapat';
+            const panel = document.getElementById(targetId);
+
+            if (!panel) {
+                return;
+            }
+
+            button.setAttribute('aria-expanded', 'false');
+            panel.setAttribute('aria-hidden', 'true');
+
+            button.addEventListener('click', () => {
+                const isOpen = panel.classList.toggle('open');
+                button.classList.toggle('open', isOpen);
+                button.textContent = isOpen ? closeText : openText;
+                button.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+                panel.setAttribute('aria-hidden', isOpen ? 'false' : 'true');
+
+                if (isOpen) {
+                    const activeFilter = panel.querySelector('.review-filter.active');
+                    const filterValue = activeFilter ? activeFilter.getAttribute('data-filter') : 'all';
+                    applyReviewFilter(panel, filterValue || 'all');
+                }
+            });
+        });
+
+        const filterButtons = document.querySelectorAll('.review-filter');
+        filterButtons.forEach((button) => {
+            button.addEventListener('click', () => {
+                const panelId = button.getAttribute('data-target-panel');
+                const panel = document.getElementById(panelId);
+                if (!panel) {
+                    return;
+                }
+
+                const filtersContainer = button.closest('.review-panel__filters');
+                if (filtersContainer) {
+                    filtersContainer.querySelectorAll('.review-filter').forEach((btn) => btn.classList.remove('active'));
+                }
+                button.classList.add('active');
+
+                const filterValue = button.getAttribute('data-filter') || 'all';
+                applyReviewFilter(panel, filterValue);
+            });
+        });
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        initFiltering();
+        initReviewPanels();
+    });
     </script>
 
     <?php include 'footer.php'; ?>

@@ -12,8 +12,33 @@ if (!isset($_SESSION['user_id']) || ($_SESSION['role'] != 'admin' && $_SESSION['
 $message = "";
 $message_type = ""; // success veya error
 
+$user_search_query = '';
+$user_search_results = [];
+
+// --- KULLANICI ROLÜ GÜNCELLEME ---
+if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update_role']) && $_SESSION['role'] == 'admin') {
+    $user_id = isset($_POST['user_id']) ? intval($_POST['user_id']) : 0;
+    $new_role = $_POST['new_role'] ?? '';
+    $user_search_query = trim($_POST['search_query'] ?? '');
+    $allowed_roles = ['user', 'instructor'];
+
+    if ($user_id > 0 && in_array($new_role, $allowed_roles, true)) {
+        $update_sql = "UPDATE users SET role = '" . mysqli_real_escape_string($conn, $new_role) . "' WHERE id = $user_id";
+        if (mysqli_query($conn, $update_sql)) {
+            $message = "User role updated successfully.";
+            $message_type = "success";
+        } else {
+            $message = "Error: " . mysqli_error($conn);
+            $message_type = "error";
+        }
+    } else {
+        $message = "Invalid user or role selection.";
+        $message_type = "error";
+    }
+}
+
 // --- YENİ DERS EKLEME ---
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
+if ($_SERVER["REQUEST_METHOD"] == "POST" && !isset($_POST['update_role'])) {
     $title = $_POST['title'];
     
     // --- EĞİTMEN ADI BELİRLEME MANTIĞI ---
@@ -32,28 +57,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $capacity = $_POST['capacity'];
     $link = $_POST['video_link'];
     
-    // Instructor fotoğrafı yükleme
-    $instructor_photo = NULL;
-    if (isset($_FILES['instructor_photo']) && $_FILES['instructor_photo']['size'] > 0) {
-        $file_type = mime_content_type($_FILES['instructor_photo']['tmp_name']);
-        $allowed_types = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
-        
-        if (in_array($file_type, $allowed_types) && $_FILES['instructor_photo']['size'] <= 5 * 1024 * 1024) {
-            $instructor_photo = file_get_contents($_FILES['instructor_photo']['tmp_name']);
-            $instructor_photo = mysqli_real_escape_string($conn, $instructor_photo);
-        }
-    }
-    
-    // Eğer fotoğraf seçilmediyse, trainer'ın profil fotoğrafını kullan
-    if (!$instructor_photo) {
-        $trainer_photo = mysqli_fetch_assoc(mysqli_query($conn, "SELECT profile_photo FROM users WHERE username = '$trainer' LIMIT 1"));
-        if ($trainer_photo && !empty($trainer_photo['profile_photo'])) {
-            $instructor_photo = $trainer_photo['profile_photo'];
-        }
-    }
-
-    $sql = "INSERT INTO classes (title, trainer_name, description, class_type, date_time, capacity, video_link, instructor_photo) 
-            VALUES ('$title', '$trainer', '$description', '$type', '$date', '$capacity', '$link', " . ($instructor_photo ? "'$instructor_photo'" : "NULL") . ")";
+    $sql = "INSERT INTO classes (title, trainer_name, description, class_type, date_time, capacity, video_link) 
+            VALUES ('$title', '$trainer', '$description', '$type', '$date', '$capacity', '$link')";
 
     if (mysqli_query($conn, $sql)) {
         $class_id = mysqli_insert_id($conn);
@@ -61,11 +66,29 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         // BİLDİRİM GÖNDER: Yeni ders eklendi
         $notificationHandler->notifyNewClass($class_id, $title, $type, $trainer, $date);
         
-        $message = " Course Added Successfully!";
+        $message = "Course added successfully.";
         $message_type = "success";
     } else {
         $message = "Error: " . mysqli_error($conn);
         $message_type = "error";
+    }
+}
+
+// --- KULLANICI ARAMA SONUÇLARI ---
+if ($_SESSION['role'] == 'admin') {
+    if ($user_search_query === '' && isset($_GET['user_search'])) {
+        $user_search_query = trim($_GET['user_search']);
+    }
+
+    if ($user_search_query !== '') {
+        $safe_query = mysqli_real_escape_string($conn, $user_search_query);
+        $users_result = mysqli_query($conn, "SELECT id, username, email, role FROM users WHERE username LIKE '%$safe_query%' AND role != 'admin' ORDER BY username ASC LIMIT 25");
+        if ($users_result) {
+            while ($row = mysqli_fetch_assoc($users_result)) {
+                $user_search_results[] = $row;
+            }
+            mysqli_free_result($users_result);
+        }
     }
 }
 
@@ -84,7 +107,7 @@ if (isset($_GET['delete_id'])) {
         mysqli_query($conn, "DELETE FROM classes WHERE id=$id");
         header("Location: admin.php");
     } else {
-        $message = " Error: Only the Administrator has the authority to delete a course!";
+        $message = "Error: Only administrators can delete a course.";
         $message_type = "error";
     }
 }
@@ -96,7 +119,7 @@ include 'header.php';
     
     <!-- HERO BÖLÜMÜ -->
     <div class="admin-hero-simple">
-        <h1><?php echo ($_SESSION['role'] == 'admin') ? " Admin Panel" : "Trainer Panel"; ?></h1>
+        <h1><?php echo ($_SESSION['role'] == 'admin') ? "Admin Panel" : "Trainer Panel"; ?></h1>
     </div>
 
     <div class="admin-container">
@@ -110,14 +133,72 @@ include 'header.php';
             </div>
         <?php endif; ?>
 
+        <?php if($_SESSION['role'] == 'admin'): ?>
+            <div class="form-section user-management-section">
+                <div class="section-header">
+                    <h2>User Management</h2>
+                    <p>Search users and update their roles to <strong>Member</strong> or <strong>Instructor</strong>.</p>
+                </div>
+
+                <form method="GET" class="user-search-form">
+                    <input type="text" name="user_search" placeholder="Search by username" value="<?php echo htmlspecialchars($user_search_query); ?>">
+                    <button type="submit" class="btn-action-small btn-edit">Search</button>
+                    <?php if($user_search_query !== ''): ?>
+                        <a href="admin.php" class="btn-action-small btn-delete">Reset</a>
+                    <?php endif; ?>
+                </form>
+
+                <?php if($user_search_query !== ''): ?>
+                    <?php if(count($user_search_results) > 0): ?>
+                        <div class="table-wrapper">
+                            <table class="admin-table user-table">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Username</th>
+                                        <th>Email</th>
+                                        <th>Current Role</th>
+                                        <th>Update Role</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <?php foreach($user_search_results as $user): ?>
+                                        <tr>
+                                            <td class="td-id">#<?php echo str_pad($user['id'], 4, '0', STR_PAD_LEFT); ?></td>
+                                            <td><?php echo htmlspecialchars($user['username']); ?></td>
+                                            <td><?php echo htmlspecialchars($user['email']); ?></td>
+                                            <td><?php echo $user['role'] === 'instructor' ? 'Instructor' : 'Member'; ?></td>
+                                            <td>
+                                                <form method="POST" class="user-role-form">
+                                                    <input type="hidden" name="user_id" value="<?php echo intval($user['id']); ?>">
+                                                    <input type="hidden" name="search_query" value="<?php echo htmlspecialchars($user_search_query); ?>">
+                                                    <select name="new_role" class="role-select">
+                                                        <option value="user" <?php echo $user['role'] === 'user' ? 'selected' : ''; ?>>Member</option>
+                                                        <option value="instructor" <?php echo $user['role'] === 'instructor' ? 'selected' : ''; ?>>Instructor</option>
+                                                    </select>
+                                                    <button type="submit" name="update_role" value="1" class="btn-action-small btn-edit">Save</button>
+                                                </form>
+                                            </td>
+                                        </tr>
+                                    <?php endforeach; ?>
+                                </tbody>
+                            </table>
+                        </div>
+                    <?php else: ?>
+                        <div class="empty-state">No results found for "<?php echo htmlspecialchars($user_search_query); ?>".</div>
+                    <?php endif; ?>
+                <?php endif; ?>
+            </div>
+        <?php endif; ?>
+
         <!-- YENİ DERS FORMU -->
         <div class="form-section">
             <div class="section-header">
-                <h2> Create New Lesson</h2>
+                <h2>Create New Lesson</h2>
                 <p>Get students involved by adding a new course to the system</p>
             </div>
 
-            <form action="" method="POST" enctype="multipart/form-data" class="modern-form">
+            <form action="" method="POST" class="modern-form">
                 <div class="form-grid">
                     <div class="form-group">
                         <label for="title">Course Title</label>
@@ -149,11 +230,11 @@ include 'header.php';
                         <label for="class_type">Category</label>
                         <select id="class_type" name="class_type" required>
                             <option value="">-- Select --</option>
-                            <option value="Yoga"> Yoga</option>
-                            <option value="Pilates"> Pilates</option>
-                            <option value="HIIT"> HIIT</option>
-                            <option value="Zumba"> Zumba</option>
-                            <option value="Fitness"> Fitness</option>
+                            <option value="Yoga">Yoga</option>
+                            <option value="Pilates">Pilates</option>
+                            <option value="HIIT">HIIT</option>
+                            <option value="Zumba">Zumba</option>
+                            <option value="Fitness">Fitness</option>
                         </select>
                     </div>
 
@@ -181,13 +262,7 @@ include 'header.php';
                     </div>
 
                     <div class="form-group full-width">
-                        <label for="instructor_photo">Instructor Photo (Optional)</label>
-                        <input type="file" id="instructor_photo" name="instructor_photo" accept="image/*">
-                        <small>If not selected, instructor's profile photo will be used automatically</small>
-                    </div>
-
-                    <div class="form-group full-width">
-                        <button type="submit" class="btn-submit-large"> Publish Class</button>
+                        <button type="submit" class="btn-submit-large">Publish Class</button>
                     </div>
                 </div>
             </form>
@@ -196,7 +271,7 @@ include 'header.php';
         <!-- DERS LİSTESİ -->
         <div class="table-section">
             <div class="section-header">
-                <h2> Active Class List</h2>
+                <h2>Active Class List</h2>
                 <p>Manage and edit all classes in the system</p>
             </div>
 
@@ -205,11 +280,11 @@ include 'header.php';
                     <thead>
                         <tr>
                             <th>ID</th>
-                            <th>Ders Bilgisi</th>
-                            <th>Eğitmen</th>
-                            <th>Tarih & Saat</th>
-                            <th>Kontenjan</th>
-                            <th>İşlem</th>
+                            <th>Class Information</th>
+                            <th>Instructor</th>
+                            <th>Date & Time</th>
+                            <th>Capacity</th>
+                            <th>Action</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -230,11 +305,11 @@ include 'header.php';
                                 echo "<td><span class='badge-capacity'>" . $row['capacity'] . "</span></td>";
                                 
                                 echo "<td class='td-actions'>";
-                                echo "<a href='class_edit.php?id=" . $row['id'] . "' class='btn-action-small btn-edit'>✏️ Edit</a>";
+                                echo "<a href='class_edit.php?id=" . $row['id'] . "' class='btn-action-small btn-edit'>Edit</a>";
                                 if ($_SESSION['role'] == 'admin') {
-                                    echo "<a href='admin.php?delete_id=" . $row['id'] . "' class='btn-action-small btn-delete' onclick='return confirm(\"Are you sure you want to delete this class?\")'>🗑️ Delete</a>";
+                                    echo "<a href='admin.php?delete_id=" . $row['id'] . "' class='btn-action-small btn-delete' onclick='return confirm(\"Are you sure you want to delete this class?\")'>Delete</a>";
                                 } else {
-                                    echo "<span class='btn-action-small btn-locked'>🔒 Locked</span>";
+                                    echo "<span class='btn-action-small btn-locked'>Locked</span>";
                                 }
                                 echo "</td>";
                                 echo "</tr>";
@@ -251,7 +326,7 @@ include 'header.php';
         <!-- GEÇMİŞ DERS LİSTESİ -->
         <div class="table-section past-section">
             <div class="section-header">
-                <h2> Past Classes</h2>
+                <h2>Past Classes</h2>
                 <p>Previously held and archived classes</p>
             </div>
 
@@ -286,9 +361,9 @@ include 'header.php';
                                 
                                 echo "<td class='td-actions'>";
                                 if ($_SESSION['role'] == 'admin') {
-                                    echo "<a href='admin.php?delete_id=" . $row['id'] . "' class='btn-action-small btn-delete' onclick='return confirm(\"Are you sure you want to delete this class?\")'>🗑️ Delete</a>";
+                                    echo "<a href='admin.php?delete_id=" . $row['id'] . "' class='btn-action-small btn-delete' onclick='return confirm(\"Are you sure you want to delete this class?\")'>Delete</a>";
                                 } else {
-                                    echo "<span class='btn-action-small btn-locked'>🔒 Locked</span>";
+                                    echo "<span class='btn-action-small btn-locked'>Locked</span>";
                                 }
                                 echo "</td>";
                                 echo "</tr>";

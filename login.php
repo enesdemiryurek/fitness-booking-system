@@ -66,13 +66,13 @@ include 'header.php';
                 Don't have an account? <a href="register.php">Register Now</a>
             </div>
             <div class="back-link" style="margin-top:10px;">
-                <a href="index.php" style="color:#999; font-weight:normal;">← Return to Home</a>
+                <a href="index.php" style="color:#999; font-weight:normal;">Return to Home</a>
             </div>
         </div>
 
         <div class="image-side" style="background-image: url('https://images.unsplash.com/photo-1599058945522-28d584b6f0ff?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80');">
             <div class="image-overlay">
-                <div class="testimonial-stars">★★★★★</div>
+                <div class="testimonial-stars">5 Star Rating</div>
                 <p class="testimonial-text">"Consistency is the key to success. We're here to be 1% better every day."</p>
                 <p class="testimonial-author">BABA PRO GYM TEAM</p>
             </div>

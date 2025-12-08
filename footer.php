@@ -32,10 +32,10 @@
             </div>
 
             <div class="footer-section">
-                <h4>Communication</h4>
-                <p>📧 info@gym.com</p>
-                <p>📱 +90 (555) 123-4567</p>
-                <p>📍 Ankara, Türkiye</p>
+                <h4>Contact</h4>
+                <p>Email: info@gym.com</p>
+                <p>Phone: +90 (555) 123-4567</p>
+                <p>Address: Ankara, Turkey</p>
             </div>
         </div>
 

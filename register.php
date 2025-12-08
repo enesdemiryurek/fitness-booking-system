@@ -25,14 +25,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $result = mysqli_query($conn, $check);
 
     if (mysqli_num_rows($result) > 0) {
-        $message = "⚠️ This email address is already registered!";
+        $message = "This email address is already registered.";
     } else {
         // VERİTABANI KAYDI (Yaş ve Cinsiyet Sütunları Eklendi)
         $sql = "INSERT INTO users (username, email, phone, age, gender, password, role) 
                 VALUES ('$full_username', '$email', '$phone', '$age', '$gender', '$password', 'user')";
         
         if (mysqli_query($conn, $sql)) {
-            echo "<script>alert('✅ Registration Successful! Welcome to our community.'); window.location.href='login.php';</script>";
+            echo "<script>alert('Registration successful! Welcome to our community.'); window.location.href='login.php';</script>";
         } else {
             $message = "Error: " . mysqli_error($conn);
         }
@@ -89,9 +89,9 @@ include 'header.php';
                         <label>Gender</label>
                         <select name="gender" class="blue-input" style="background-color:white;" required>
                             <option value="" disabled selected>Select</option>
-                            <option value="Erkek">Male</option>
-                            <option value="Kadın">Female</option>
-                            <option value="Belirtmek İstemiyorum">Other</option>
+                                <option value="Male">Male</option>
+                                <option value="Female">Female</option>
+                                <option value="Prefer not to say">Prefer not to say</option>
                         </select>
                     </div>
                 </div>
@@ -109,14 +109,14 @@ include 'header.php';
                 Already have an account? <a href="login.php">Login</a>
             </div>
             <div class="back-link" style="margin-top:10px;">
-                <a href="index.php" style="color:#999; font-weight:normal;">← Return to Home</a>
+                <a href="index.php" style="color:#999; font-weight:normal;">Return to Home</a>
             </div>
         </div>
 
         <!-- SAĞ TARAF: RESİM -->
         <div class="image-side">
             <div class="image-overlay">
-                <div class="testimonial-stars">★★★★★</div>
+                <div class="testimonial-stars">5 Star Rating</div>
                 <p class="testimonial-text">"Since I started using this app, I never miss my workouts. The instructors are very attentive and the system works great!"</p>
                 <p class="testimonial-author">Mert Yılmaz<br><small>Fitness Member</small></p>
             </div>
