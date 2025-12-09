@@ -2,11 +2,11 @@
 session_start();
 include 'db.php';
 include 'notification_handler.php';
-$page_title = "Ders Düzenle | GYM";
+$page_title = "Edit Class | GYM";
 
 // GÜVENLİK: Admin veya Instructor giriş yapmalı
 if (!isset($_SESSION['user_id']) || ($_SESSION['role'] != 'admin' && $_SESSION['role'] != 'instructor')) {
-    die("<div style='text-align:center; margin-top:50px; font-family:sans-serif;'><h1>⛔ Yetkisiz Giriş!</h1><p>Bu sayfaya sadece yöneticiler ve eğitmenler girebilir.</p><a href='index.php'>Anasayfaya Dön</a></div>");
+    die("<div style='text-align:center; margin-top:50px; font-family:sans-serif;'><h1>⛔ Unauthorized Access!</h1><p>Only administrators and instructors can view this page.</p><a href='index.php'>Return to Home</a></div>");
 }
 
 $message = "";
@@ -24,7 +24,7 @@ if (isset($_GET['id'])) {
     
     // Eğitmen ise kendi derslerini mi editlemek istediğini kontrol et
     if ($_SESSION['role'] == 'instructor' && $class_data['trainer_name'] != $_SESSION['username']) {
-        die("<div style='text-align:center; margin-top:50px; font-family:sans-serif;'><h1>⛔ Yetki Yok!</h1><p>Sadece kendi derslerinizi düzenleyebilirsiniz.</p><a href='admin.php'>Yönetim Paneline Dön</a></div>");
+        die("<div style='text-align:center; margin-top:50px; font-family:sans-serif;'><h1> Not Allowed!</h1><p>You can only edit your own classes.</p><a href='admin.php'>Back to Admin Panel</a></div>");
     }
     
     // Ders bulunamazsa
@@ -73,7 +73,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $notificationHandler->notifyClassTimeUpdate($class_id, $title, $old_time, $date);
         }
         
-        $message = "✅ Ders Başarıyla Güncellendi!";
+        $message = "✅ Class updated successfully!";
         $message_type = "success";
         
         // Veriyi yenile
@@ -85,7 +85,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $class_data['capacity'] = $capacity;
         $class_data['video_link'] = $link;
     } else {
-        $message = "❌ Hata: " . mysqli_error($conn);
+        $message = "❌ Error: " . mysqli_error($conn);
         $message_type = "error";
     }
 }
@@ -97,7 +97,7 @@ include 'header.php';
     
     <!-- HERO BÖLÜMÜ -->
     <div class="admin-hero-simple">
-        <h1>✏️ Ders Düzenle</h1>
+        <h1> Edit Class</h1>
     </div>
 
     <div class="admin-container">
@@ -113,30 +113,30 @@ include 'header.php';
 
         <!-- GERI BUTONU -->
         <div style="margin-bottom: 20px;">
-            <a href="admin.php" class="btn-back">← Yönetim Paneline Dön</a>
+            <a href="admin.php" class="btn-back">← Back to Admin Panel</a>
         </div>
 
         <!-- GÜNCELLEME FORMU -->
         <div class="form-section">
             <div class="section-header">
-                <h2>🔧 Ders Bilgilerini Düzenle</h2>
-                <p><?php echo htmlspecialchars($class_data['title']); ?> - Değişiklikleri yapın ve kaydedin</p>
+                <h2> Edit Class Details</h2>
+                <p><?php echo htmlspecialchars($class_data['title']); ?> - Make your changes and save</p>
             </div>
 
             <form action="" method="POST" class="modern-form">
                 <div class="form-grid">
                     <div class="form-group">
-                        <label for="title">Ders Başlığı</label>
+                        <label for="title">Class Title</label>
                         <input type="text" id="title" name="title" value="<?php echo htmlspecialchars($class_data['title']); ?>" required>
                     </div>
                     
                     <div class="form-group">
-                        <label for="trainer">Eğitmen Adı</label>
+                        <label for="trainer">Instructor Name</label>
                         <?php if($_SESSION['role'] == 'instructor'): ?>
                             <input type="text" id="trainer" value="<?php echo $_SESSION['username']; ?>" readonly class="input-readonly">
                         <?php else: ?>
                             <select id="trainer" name="trainer" required>
-                                <option value="">-- Eğitmen Seçiniz --</option>
+                                <option value="">-- Select Instructor --</option>
                                 <?php
                                 $trainers_result = mysqli_query($conn, "SELECT username FROM users WHERE role = 'instructor' ORDER BY username ASC");
                                 while($trainer_row = mysqli_fetch_assoc($trainers_result)) {
@@ -149,7 +149,7 @@ include 'header.php';
                     </div>
 
                     <div class="form-group">
-                        <label for="class_type">Kategori</label>
+                        <label for="class_type">Category</label>
                         <select id="class_type" name="class_type" required>
                             <option value="Yoga" <?php echo ($class_data['class_type'] == 'Yoga') ? 'selected' : ''; ?>>🧘‍♀️ Yoga</option>
                             <option value="Pilates" <?php echo ($class_data['class_type'] == 'Pilates') ? 'selected' : ''; ?>>🤸‍♀️ Pilates</option>
@@ -160,30 +160,30 @@ include 'header.php';
                     </div>
 
                     <div class="form-group">
-                        <label for="capacity">Kontenjan (Kişi)</label>
+                        <label for="capacity">Capacity (People)</label>
                         <input type="number" id="capacity" name="capacity" value="<?php echo $class_data['capacity']; ?>" min="1" max="50" required>
                     </div>
 
                     <div class="form-group">
-                        <label for="date_time">Tarih ve Saat</label>
+                        <label for="date_time">Date and Time</label>
                         <input type="datetime-local" id="date_time" name="date_time" value="<?php echo date('Y-m-d\TH:i', strtotime($class_data['date_time'])); ?>" required>
-                        <small>⚠️ Bu alanı değiştirirseniz, rezerve yapan kullanıcılara bildirim gönderilecektir</small>
+                        <small> If you change this, users with a booking will be notified.</small>
                     </div>
 
                     <div class="form-group">
-                        <label for="video_link">Video Linki</label>
+                        <label for="video_link">Video Link</label>
                         <input type="url" id="video_link" name="video_link" value="<?php echo htmlspecialchars($class_data['video_link']); ?>" required>
                     </div>
 
                     <div class="form-group full-width">
-                        <label for="description">Açıklama</label>
+                        <label for="description">Description</label>
                         <textarea id="description" name="description" rows="4" required><?php echo htmlspecialchars($class_data['description']); ?></textarea>
                     </div>
 
                     <div class="form-group full-width">
                         <div class="form-actions">
-                            <button type="submit" class="btn-submit-large">💾 Değişiklikleri Kaydet</button>
-                            <a href="admin.php" class="btn-cancel-large">İptal</a>
+                            <button type="submit" class="btn-submit-large"> Save Changes</button>
+                            <a href="admin.php" class="btn-cancel-large">Cancel</a>
                         </div>
                     </div>
                 </div>
@@ -193,33 +193,33 @@ include 'header.php';
         <!-- DERS BİLGİ ÖZETI -->
         <div class="info-section">
             <div class="section-header">
-                <h2>📋 Mevcut Bilgiler</h2>
+                <h2> Current Information</h2>
             </div>
             
             <div class="info-grid">
                 <div class="info-item">
-                    <span class="info-label">Başlık:</span>
+                    <span class="info-label">Title:</span>
                     <span class="info-value"><?php echo htmlspecialchars($class_data['title']); ?></span>
                 </div>
                 <div class="info-item">
-                    <span class="info-label">Eğitmen:</span>
+                    <span class="info-label">Instructor:</span>
                     <span class="info-value"><?php echo htmlspecialchars($class_data['trainer_name']); ?></span>
                 </div>
                 <div class="info-item">
-                    <span class="info-label">Kategori:</span>
+                    <span class="info-label">Category:</span>
                     <span class="info-value"><?php echo $class_data['class_type']; ?></span>
                 </div>
                 <div class="info-item">
-                    <span class="info-label">Kontenjan:</span>
-                    <span class="info-value"><?php echo $class_data['capacity']; ?> kişi</span>
+                    <span class="info-label">Capacity:</span>
+                    <span class="info-value"><?php echo $class_data['capacity']; ?> people</span>
                 </div>
                 <div class="info-item">
-                    <span class="info-label">Tarih & Saat:</span>
+                    <span class="info-label">Date & Time:</span>
                     <span class="info-value"><?php echo date("d.m.Y H:i", strtotime($class_data['date_time'])); ?></span>
                 </div>
                 <div class="info-item">
-                    <span class="info-label">Video Linki:</span>
-                    <span class="info-value"><a href="<?php echo htmlspecialchars($class_data['video_link']); ?>" target="_blank" class="link-external">Linki Aç ↗️</a></span>
+                    <span class="info-label">Video Link:</span>
+                    <span class="info-value"><a href="<?php echo htmlspecialchars($class_data['video_link']); ?>" target="_blank" class="link-external">Open Link ↗️</a></span>
                 </div>
             </div>
         </div>

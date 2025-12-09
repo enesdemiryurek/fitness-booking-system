@@ -19,7 +19,7 @@ if (isset($_GET['id'])) {
     if (mysqli_num_rows($duplicate_result) > 0) {
         // Kullanıcı zaten bu derse kayıtlı!
         echo "<script>
-            alert('⚠️ Warning: You are already registered for this class! You cannot register again.');
+            alert('Warning: You are already registered for this class! You cannot register again.');
             window.location.href = 'index.php';
         </script>";
         exit;

@@ -1,7 +1,7 @@
 <?php
 session_start();
 include 'db.php';
-$page_title = "Ders Detayları | GYM";
+$page_title = "Class Details | GYM";
 
 if (!isset($_GET['id'])) {
     header("Location: index.php");
@@ -28,7 +28,7 @@ $trainer_info = mysqli_fetch_assoc($trainer_result);
 // Yorum ekle
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['submit_review'])) {
     if (!isset($_SESSION['user_id'])) {
-        $error_msg = "❌ Yorum yapmak için giriş yapmalısınız!";
+        $error_msg = "❌ You need to log in to add a comment!";
     } else {
         $user_id = $_SESSION['user_id'];
         $rating = intval($_POST['rating']);
@@ -39,13 +39,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['submit_review'])) {
         $check_result = mysqli_query($conn, $check_sql);
         
         if (mysqli_num_rows($check_result) > 0) {
-            $error_msg = "❌ Bu derse zaten yorum yaptınız!";
+            $error_msg = "❌ You have already commented on this class!";
         } else {
             $insert_sql = "INSERT INTO reviews (class_id, user_id, rating, comment) VALUES ($class_id, $user_id, $rating, '$comment')";
             if (mysqli_query($conn, $insert_sql)) {
-                $success_msg = "✅ Yorumunuz kaydedildi!";
+                $success_msg = "✅ Your comment has been saved!";
             } else {
-                $error_msg = "❌ Hata: " . mysqli_error($conn);
+                $error_msg = "❌ Error: " . mysqli_error($conn);
             }
         }
     }
@@ -81,28 +81,28 @@ include 'header.php';
         <!-- SOL TARAF: DERS BİLGİLERİ -->
         <div class="class-details-left">
             <div class="detail-card">
-                <h2>📋 Ders Bilgileri</h2>
+                <h2>📋 Class Info</h2>
                 <div class="info-row">
-                    <span class="info-label">Ders Türü:</span>
+                    <span class="info-label">Class Type:</span>
                     <span class="info-value"><?php echo htmlspecialchars($class_info['class_type']); ?></span>
                 </div>
                 <div class="info-row">
-                    <span class="info-label">Tarih & Saat:</span>
+                    <span class="info-label">Date & Time:</span>
                     <span class="info-value"><?php echo date("d.m.Y H:i", strtotime($class_info['date_time'])); ?></span>
                 </div>
                 <div class="info-row">
-                    <span class="info-label">Kapasite:</span>
-                    <span class="info-value"><?php echo $class_info['capacity']; ?> kişi</span>
+                    <span class="info-label">Capacity:</span>
+                    <span class="info-value"><?php echo $class_info['capacity']; ?> people</span>
                 </div>
                 <div class="info-row">
-                    <span class="info-label">Video Linki:</span>
-                    <a href="<?php echo htmlspecialchars($class_info['video_link']); ?>" target="_blank" class="btn-small">🎥 Yayına Git</a>
+                    <span class="info-label">Video Link:</span>
+                    <a href="<?php echo htmlspecialchars($class_info['video_link']); ?>" target="_blank" class="btn-small">🎥 Go to Stream</a>
                 </div>
             </div>
 
             <!-- EĞİTMEN KARTı -->
             <div class="detail-card instructor-card">
-                <h2>👨‍🏫 Eğitmen Bilgisi</h2>
+                <h2>👨‍🏫 Instructor</h2>
                 <div class="instructor-profile">
                     <?php if($trainer_info && $trainer_info['profile_photo']): ?>
                         <img src="data:image/jpeg;base64,<?php echo base64_encode($trainer_info['profile_photo']); ?>" alt="Eğitmen" class="trainer-photo">
@@ -111,7 +111,7 @@ include 'header.php';
                     <?php endif; ?>
                     <div class="trainer-info">
                         <h3><?php echo htmlspecialchars($class_info['trainer_name']); ?></h3>
-                        <p>Sertifikalı Eğitmen</p>
+                        <p>Certified Instructor</p>
                     </div>
                 </div>
             </div>
@@ -122,7 +122,7 @@ include 'header.php';
             
             <!-- PUANLAMA ÖZETİ -->
             <div class="detail-card review-summary">
-                <h2>⭐ Ders Puanlaması</h2>
+                <h2>⭐ Course Rating</h2>
                 <div class="rating-display">
                     <div class="rating-score"><?php echo $avg_rating; ?></div>
                     <div class="rating-stars">
@@ -132,15 +132,15 @@ include 'header.php';
                         }
                         ?>
                     </div>
-                    <div class="rating-count"><?php echo $total_reviews; ?> yorum</div>
+                    <div class="rating-count"><?php echo $total_reviews; ?> comments</div>
                 </div>
             </div>
 
             <!-- YORUM FORMU -->
             <div class="detail-card review-form-card">
                 <div class="review-form-header">
-                    <h3>✏️ Yorum Yap</h3>
-                    <button class="btn-expand" onclick="toggleReviewForm()">▼</button>
+                    <h3>Add Comment</h3>
+                    <button type="button" class="btn-expand" onclick="toggleReviewForm(event)">▼</button>
                 </div>
                 
                 <div id="review-form-panel" class="review-form-panel" style="display: none;">
@@ -153,36 +153,47 @@ include 'header.php';
 
                     <?php if(!isset($_SESSION['user_id'])): ?>
                         <div class="alert alert-warning">
-                            Yorum yapmak için <a href="login.php">giriş yapmalısınız</a>
+                            Please <a href="login.php">log in</a> to add a comment.
                         </div>
                     <?php else: ?>
                         <form method="POST" class="review-form">
                             <div class="form-group">
-                                <label for="rating">Puan:</label>
+                                <label for="rating">Rate:</label>
                                 <select id="rating" name="rating" required class="form-control">
-                                    <option value="">-- Seçiniz --</option>
-                                    <option value="5">⭐⭐⭐⭐⭐ Mükemmel (5)</option>
-                                    <option value="4">⭐⭐⭐⭐ Çok İyi (4)</option>
-                                    <option value="3">⭐⭐⭐ İyi (3)</option>
-                                    <option value="2">⭐⭐ Orta (2)</option>
-                                    <option value="1">⭐ Kötü (1)</option>
+                                    <option value="">-- Select --</option>
+                                    <option value="5">⭐⭐⭐⭐⭐ (5)</option>
+                                    <option value="4">⭐⭐⭐⭐  (4)</option>
+                                    <option value="3">⭐⭐⭐  (3)</option>
+                                    <option value="2">⭐⭐  (2)</option>
+                                    <option value="1">⭐ (1)</option>
                                 </select>
                             </div>
                             <div class="form-group">
-                                <label for="comment">Yorum:</label>
-                                <textarea id="comment" name="comment" required placeholder="Ders hakkında düşüncelerinizi paylaşın..." rows="3" class="form-control"></textarea>
+                                <label for="comment">Comment:</label>
+                                <textarea id="comment" name="comment" required placeholder="Share your thoughts about the class..." rows="3" class="form-control"></textarea>
                             </div>
-                            <button type="submit" name="submit_review" class="btn-primary">📤 Gönder</button>
+                            <button type="submit" name="submit_review" class="btn-primary">Submit</button>
                         </form>
                     <?php endif; ?>
+                </div>
+            </div>
+
+            <div class="detail-card review-form-card" style="margin-top:15px; border: 2px dashed #dce4f7; background:#f9fbff;">
+                <div class="review-form-header">
+                    <h3>Past Lessons - Add Comment</h3>
+                    <button type="button" class="btn-expand" onclick="toggleReviewFormPast(event)">▼</button>
+                </div>
+                <div id="review-form-panel-past" class="review-form-panel" style="display: none;">
+                    <p style="font-size:0.95rem; color:#4b5563; margin-bottom:12px;">Use the panel below to comment on classes you attended in the past.</p>
+                    <a href="class_details.php" class="btn-primary" style="display:inline-block; text-decoration:none;">Past Classes and Comments</a>
                 </div>
             </div>
 
             <!-- YORUMLAR LİSTESİ -->
             <div class="detail-card">
                 <div class="reviews-header">
-                    <h3>💬 Yorumlar</h3>
-                    <span class="reviews-count"><?php echo $total_reviews; ?> yorum</span>
+                    <h3>Comments</h3>
+                    <span class="reviews-count"><?php echo $total_reviews; ?> comments</span>
                 </div>
 
                 <div class="reviews-container">
@@ -212,11 +223,7 @@ include 'header.php';
                                 </div>
                             </div>
                         <?php endwhile; ?>
-                    <?php else: ?>
-                        <div style="text-align: center; padding: 30px; color: #999;">
-                            <p>Henüz yorum yapılmamış.</p>
-                        </div>
-                    <?php endif; ?>
+                    
                 </div>
             </div>
 
@@ -226,9 +233,12 @@ include 'header.php';
 </div>
 
 <script>
-function toggleReviewForm() {
+function toggleReviewForm(e) {
+    if (e) { e.preventDefault(); }
     const panel = document.getElementById('review-form-panel');
-    panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+    if (!panel) return;
+    const isHidden = panel.style.display === 'none' || panel.style.display === '';
+    panel.style.display = isHidden ? 'block' : 'none';
 }
 </script>
 

@@ -9,61 +9,7 @@ if(rand(1, 10) == 1) { // %10 oranında çalış (spam önleme)
     $notificationHandler->sendClassReminders();
 }
 
-if (!function_exists('buildReviewKey')) {
-    function buildReviewKey($trainerName, $classType) {
-        return mb_strtolower(trim($trainerName)) . '|' . mb_strtolower(trim($classType));
-    }
-}
-
-$trainerRatingSummary = [];
-$trainerReviewList = [];
-
-$ratingSummaryQuery = "
-    SELECT c.trainer_name, c.class_type, AVG(r.rating) AS avg_rating, COUNT(*) AS review_count
-    FROM reviews r
-    INNER JOIN classes c ON r.class_id = c.id
-    GROUP BY c.trainer_name, c.class_type
-";
-
-if ($ratingSummaryResult = mysqli_query($conn, $ratingSummaryQuery)) {
-    while ($summaryRow = mysqli_fetch_assoc($ratingSummaryResult)) {
-        $summaryKey = buildReviewKey($summaryRow['trainer_name'], $summaryRow['class_type']);
-        $trainerRatingSummary[$summaryKey] = [
-            'avg' => round((float) $summaryRow['avg_rating'], 1),
-            'count' => (int) $summaryRow['review_count']
-        ];
-    }
-    mysqli_free_result($ratingSummaryResult);
-}
-
-$ratingDetailsQuery = "
-    SELECT c.trainer_name, c.class_type, r.rating, r.comment, r.created_at, u.username
-    FROM reviews r
-    INNER JOIN classes c ON r.class_id = c.id
-    LEFT JOIN users u ON r.user_id = u.id
-    ORDER BY r.created_at DESC, r.id DESC
-";
-
-if ($ratingDetailsResult = mysqli_query($conn, $ratingDetailsQuery)) {
-    while ($detailRow = mysqli_fetch_assoc($ratingDetailsResult)) {
-        $detailKey = buildReviewKey($detailRow['trainer_name'], $detailRow['class_type']);
-        if (!isset($trainerReviewList[$detailKey])) {
-            $trainerReviewList[$detailKey] = [];
-        }
-
-        if (count($trainerReviewList[$detailKey]) >= 50) {
-            continue;
-        }
-
-        $trainerReviewList[$detailKey][] = [
-            'rating' => (int) $detailRow['rating'],
-            'comment' => $detailRow['comment'] ?? '',
-            'created_at' => $detailRow['created_at'],
-            'username' => $detailRow['username'] ?? 'Üye'
-        ];
-    }
-    mysqli_free_result($ratingDetailsResult);
-}
+// Reviews are displayed on class_details_reviews.php; no review aggregation needed here.
 
 include 'header.php';
 ?>
@@ -170,18 +116,12 @@ include 'header.php';
             if ($result && mysqli_num_rows($result) > 0) {
                 while($row = mysqli_fetch_assoc($result)) {
                     $type = mb_strtolower($row['class_type']);
-                    $img_url = "img/default.jpg";
 
                     if(strpos($type, 'yoga') !== false) $img_url = "img/yoga.jpg";
                     elseif(strpos($type, 'pilates') !== false) $img_url = "img/pilates.jpg";
                     elseif(strpos($type, 'hiit') !== false) $img_url = "img/hiit.jpg";
                     elseif(strpos($type, 'zumba') !== false) $img_url = "img/zumba.jpg";
                     elseif(strpos($type, 'fitness') !== false) $img_url = "img/fitness.jpg";
-
-                    $reviewKey = buildReviewKey($row['trainer_name'], $row['class_type']);
-                    $summary = $trainerRatingSummary[$reviewKey] ?? null;
-                    $hasReviews = $summary && ($summary['count'] > 0);
-                    $summaryWidth = $hasReviews ? max(0, min(100, ($summary['avg'] / 5) * 100)) : 0;
 
                     $trainer_sql = "SELECT profile_photo, username FROM users WHERE username = '" . mysqli_real_escape_string($conn, $row['trainer_name']) . "' LIMIT 1";
                     $trainer_result = mysqli_query($conn, $trainer_sql);
@@ -203,21 +143,6 @@ include 'header.php';
                             </div>
                             <p class="class-description"><?php echo htmlspecialchars($row['description']); ?></p>
 
-                            <?php if($hasReviews): ?>
-                                <div class="review-summary review-summary--minimal review-summary--with-data">
-                                    <div class="review-summary__value"><?php echo number_format($summary['avg'], 1); ?></div>
-                                    <div class="review-summary__stack">
-                                        <div class="review-summary__meta">
-                                            <span class="star-rating-display">
-                                                <span class="star-rating-display__fill" style="width: <?php echo $summaryWidth; ?>%;"></span>
-                                            </span>
-                                            <span class="review-summary__count"><?php echo $summary['count']; ?> yorum</span>
-                                        </div>
-                                        <span class="review-summary__note">Önceki derslerden</span>
-                                    </div>
-                                </div>
-                            <?php endif; ?>
-
                             <?php
                             $stok_color = ($row['capacity'] < 3) ? '#dc3545' : '#28a745';
                             ?>
@@ -229,8 +154,10 @@ include 'header.php';
                                 <?php else: ?>
                                     <button class="btn-card btn-disabled" disabled>FULL</button>
                                 <?php endif; ?>
+                                <a href="class_details_reviews.php?id=<?php echo (int) $row['id']; ?>" class="btn-card" style="margin-top:10px; background:#ffffff; color:#0A66C2; border:1px solid #0A66C2;">Details & Comments</a>
                             <?php else: ?>
                                 <a href="login.php" class="btn-card" style="background:#0A66C2;">Login & Book</a>
+                                <a href="class_details_reviews.php?id=<?php echo (int) $row['id']; ?>" class="btn-card" style="margin-top:10px; background:#ffffff; color:#0A66C2; border:1px solid #0A66C2;">Details & Comments</a>
                             <?php endif; ?>
                         </div>
                     </div>
@@ -288,22 +215,6 @@ include 'header.php';
                     elseif(strpos($type, 'zumba') !== false) $img_url = "img/zumba.jpg";
                     elseif(strpos($type, 'fitness') !== false) $img_url = "img/fitness.jpg";
 
-                    $reviewKey = buildReviewKey($row['trainer_name'], $row['class_type']);
-                    $summary = $trainerRatingSummary[$reviewKey] ?? null;
-                    $reviewList = $trainerReviewList[$reviewKey] ?? [];
-                    $panelId = 'reviews-past-' . (int) $row['id'];
-                    $hasReviews = $summary && ($summary['count'] > 0);
-                    $summaryWidth = $hasReviews ? max(0, min(100, ($summary['avg'] / 5) * 100)) : 0;
-                    $ratingCounts = [5 => 0, 4 => 0, 3 => 0, 2 => 0, 1 => 0];
-                    foreach ($reviewList as $reviewItem) {
-                        $rating = max(1, min(5, (int) $reviewItem['rating']));
-                        $ratingCounts[$rating]++;
-                    }
-                    $averageText = $hasReviews ? number_format($summary['avg'], 1) : '0.0';
-                    $totalReviews = $summary['count'] ?? 0;
-                    $toggleOpenText = '💬 Yorumlar (' . $totalReviews . ')';
-                    $toggleCloseText = 'Paneli Kapat';
-
                     $trainer_sql = "SELECT profile_photo, username FROM users WHERE username = '" . mysqli_real_escape_string($conn, $row['trainer_name']) . "' LIMIT 1";
                     $trainer_result = mysqli_query($conn, $trainer_sql);
                     $trainer_data = $trainer_result ? mysqli_fetch_assoc($trainer_result) : null;
@@ -324,65 +235,8 @@ include 'header.php';
                             </div>
                             <p class="class-description"><?php echo htmlspecialchars($row['description']); ?></p>
 
-                            <div class="comment-bar">
-                                <?php if($hasReviews): ?>
-                                    <div class="comment-bar__stat">
-                                        <span class="comment-bar__score"><?php echo number_format($summary['avg'], 1); ?></span>
-                                        <span class="star-rating-display star-rating-display--sm">
-                                            <span class="star-rating-display__fill" style="width: <?php echo $summaryWidth; ?>%;"></span>
-                                        </span>
-                                        <span class="comment-bar__meta"><?php echo $totalReviews; ?> yorum</span>
-                                    </div>
-                                <?php else: ?>
-                                    <div class="comment-bar__stat comment-bar__stat--empty">Henüz yorum yok</div>
-                                <?php endif; ?>
-                                <button type="button" class="comment-trigger" data-target="<?php echo $panelId; ?>" data-open-text="<?php echo $toggleOpenText; ?>" data-close-text="<?php echo $toggleCloseText; ?>" aria-expanded="false" aria-controls="<?php echo $panelId; ?>"><?php echo $toggleOpenText; ?></button>
-                            </div>
-                            <div class="review-panel review-panel--trendy" id="<?php echo $panelId; ?>">
-                                <div class="review-panel__header">
-                                    <div class="review-panel__summary">
-                    <div class="review-panel__score"><?php echo $averageText; ?></div>
-                                        <div class="review-panel__stars">
-                                            <span class="star-rating-display">
-                                                <span class="star-rating-display__fill" style="width: <?php echo $summaryWidth; ?>%;"></span>
-                                            </span>
-                                            <span class="review-panel__total"><?php echo $totalReviews; ?> yorum</span>
-                                        </div>
-                                    </div>
-                                    <div class="review-panel__filters">
-                                        <button type="button" class="review-filter active" data-target-panel="<?php echo $panelId; ?>" data-filter="all">Tümü (<?php echo $totalReviews; ?>)</button>
-                                        <?php for ($star = 5; $star >= 1; $star--): ?>
-                                            <button type="button" class="review-filter" data-target-panel="<?php echo $panelId; ?>" data-filter="<?php echo $star; ?>"><?php echo $star; ?> ★ (<?php echo $ratingCounts[$star]; ?>)</button>
-                                        <?php endfor; ?>
-                                    </div>
-                                </div>
-                                <div class="review-panel__body">
-                                    <?php if($hasReviews): ?>
-                                        <div class="review-panel__list">
-                                            <?php foreach ($reviewList as $reviewItem): ?>
-                                                <?php $itemWidth = max(0, min(100, ($reviewItem['rating'] / 5) * 100)); ?>
-                                                <div class="review-item" data-rating="<?php echo (int) $reviewItem['rating']; ?>">
-                                                    <div class="review-item__meta">
-                                                        <span class="star-rating-display star-rating-display--sm">
-                                                            <span class="star-rating-display__fill" style="width: <?php echo $itemWidth; ?>%;"></span>
-                                                        </span>
-                                                        <span class="review-item__author"><?php echo htmlspecialchars($reviewItem['username']); ?></span>
-                                                        <span class="review-item__date"><?php echo date('d.m.Y', strtotime($reviewItem['created_at'])); ?></span>
-                                                    </div>
-                                                    <?php if(!empty($reviewItem['comment'])): ?>
-                                                        <div class="review-item__comment"><?php echo nl2br(htmlspecialchars($reviewItem['comment'])); ?></div>
-                                                    <?php endif; ?>
-                                                </div>
-                                            <?php endforeach; ?>
-                                        </div>
-                                        <div class="review-panel__empty review-panel__empty--filtered" style="display:none;">Bu filtre için yorum bulunamadı.</div>
-                                    <?php else: ?>
-                                        <div class="review-panel__empty">Henüz yorum yok. İlk yorumu sen paylaş!</div>
-                                    <?php endif; ?>
-                                </div>
-                            </div>
-
-                            <button class="btn-card btn-disabled" disabled>Completed</button>
+                            <a href="class_details_reviews.php?id=<?php echo (int) $row['id']; ?>" class="btn-card" style="margin-top:10px; background:#ffffff; color:#0A66C2; border:1px solid #0A66C2;">Details & Comments</a>
+                            <button class="btn-card btn-disabled" disabled style="margin-top:10px;">Completed</button>
                         </div>
                     </div>
                     <?php
@@ -527,84 +381,8 @@ include 'header.php';
         document.getElementById('past-count').textContent = pastCards.length;
     }
 
-    function applyReviewFilter(panel, filter) {
-        if (!panel) {
-            return;
-        }
-
-        const list = panel.querySelector('.review-panel__list');
-        const items = list ? list.querySelectorAll('.review-item') : [];
-        let visible = 0;
-
-        items.forEach((item) => {
-            const rating = item.getAttribute('data-rating');
-            const shouldShow = filter === 'all' || rating === filter;
-            item.style.display = shouldShow ? 'block' : 'none';
-            if (shouldShow) {
-                visible++;
-            }
-        });
-
-        const emptyFiltered = panel.querySelector('.review-panel__empty--filtered');
-        if (emptyFiltered) {
-            emptyFiltered.style.display = visible === 0 ? 'block' : 'none';
-        }
-    }
-
-    function initReviewPanels() {
-        const toggleButtons = document.querySelectorAll('.comment-trigger');
-        toggleButtons.forEach((button) => {
-            const targetId = button.getAttribute('data-target');
-            const openText = button.getAttribute('data-open-text') || button.textContent || 'Yorumları Gör';
-            const closeText = button.getAttribute('data-close-text') || 'Paneli Kapat';
-            const panel = document.getElementById(targetId);
-
-            if (!panel) {
-                return;
-            }
-
-            button.setAttribute('aria-expanded', 'false');
-            panel.setAttribute('aria-hidden', 'true');
-
-            button.addEventListener('click', () => {
-                const isOpen = panel.classList.toggle('open');
-                button.classList.toggle('open', isOpen);
-                button.textContent = isOpen ? closeText : openText;
-                button.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
-                panel.setAttribute('aria-hidden', isOpen ? 'false' : 'true');
-
-                if (isOpen) {
-                    const activeFilter = panel.querySelector('.review-filter.active');
-                    const filterValue = activeFilter ? activeFilter.getAttribute('data-filter') : 'all';
-                    applyReviewFilter(panel, filterValue || 'all');
-                }
-            });
-        });
-
-        const filterButtons = document.querySelectorAll('.review-filter');
-        filterButtons.forEach((button) => {
-            button.addEventListener('click', () => {
-                const panelId = button.getAttribute('data-target-panel');
-                const panel = document.getElementById(panelId);
-                if (!panel) {
-                    return;
-                }
-
-                const filtersContainer = button.closest('.review-panel__filters');
-                if (filtersContainer) {
-                    filtersContainer.querySelectorAll('.review-filter').forEach((btn) => btn.classList.remove('active'));
-                }
-                button.classList.add('active');
-
-                const filterValue = button.getAttribute('data-filter') || 'all';
-                applyReviewFilter(panel, filterValue);
-            });
-        });
-    }
-
     document.addEventListener('DOMContentLoaded', () => {
         initFiltering();
-        initReviewPanels();
     });
     </script>
 

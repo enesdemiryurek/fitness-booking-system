@@ -36,8 +36,8 @@ class NotificationHandler {
      * Yeni ders eklendi - tüm kullanıcılara bildir
      */
     public function notifyNewClass($class_id, $class_title, $class_type, $trainer_name, $date_time) {
-        $title = "🎉 Yeni Ders: $class_title";
-        $message = "$class_type dersi - $trainer_name eğitmeninin rehberliğinde " . date("d.m.Y H:i", strtotime($date_time)) . " tarihinde";
+        $title = "🎉 New Class: $class_title";
+        $message = "$class_type class with trainer $trainer_name on " . date("d.m.Y H:i", strtotime($date_time));
         
         // Tüm aktif kullanıcılara gönder
         $sql = "SELECT id FROM users WHERE role = 'user'";
@@ -52,8 +52,8 @@ class NotificationHandler {
      * Ders iptal edildi - rezerve etmiş kullanıcılara bildir
      */
     public function notifyCancelledClass($class_id, $class_title, $reason = '') {
-        $title = "❌ Ders İptal Edildi: $class_title";
-        $message = "Maalesef bu ders iptal edilmiştir." . ($reason ? " Neden: $reason" : "");
+        $title = "Course canceled: $class_title";
+        $message = "Unfortunately, this course has been cancelled." . ($reason ? " Reason: $reason" : "");
         
         // Bu dersi rezerve etmiş kullanıcıları bul
         $sql = "SELECT DISTINCT user_id FROM bookings WHERE class_id = $class_id";
@@ -71,8 +71,8 @@ class NotificationHandler {
         $old_datetime = date("d.m.Y H:i", strtotime($old_time));
         $new_datetime = date("d.m.Y H:i", strtotime($new_time));
         
-        $title = "⏱️ Ders Saati Güncellendi: $class_title";
-        $message = "Ders saati değiştirildi.\n\nEski saat: $old_datetime\nYeni saat: $new_datetime";
+        $title = "Updated Class Time: $class_title";
+        $message = "The class time has changed.\n\nPrevious time: $old_datetime\nNew time: $new_datetime";
         
         // Bu dersi rezerve etmiş kullanıcıları bul
         $sql = "SELECT DISTINCT user_id FROM bookings WHERE class_id = $class_id";
@@ -116,8 +116,8 @@ class NotificationHandler {
         
         $result_1h = mysqli_query($this->conn, $sql_1h);
         while($row = mysqli_fetch_assoc($result_1h)) {
-            $title = "⏰ 1 saat sonra: " . $row['title'];
-            $message = "Dersim " . date("H:i", strtotime($row['date_time'])) . " da başlıyor!";
+            $title = "Starting in 1 hour: " . $row['title'];
+            $message = "Your class at " . date("H:i", strtotime($row['date_time'])) . " is starting soon!";
             $this->createNotification($row['user_id'], 'class_reminder_1h', $title, $message, $row['class_id']);
         }
         
@@ -133,8 +133,8 @@ class NotificationHandler {
         
         $result_30m = mysqli_query($this->conn, $sql_30m);
         while($row = mysqli_fetch_assoc($result_30m)) {
-            $title = "⏰ 30 dakika sonra: " . $row['title'];
-            $message = "Hazırlanma zamanı! Dersin bağlantısını kontrol et.";
+            $title = "Starting in 30 minutes: " . $row['title'];
+            $message = "Time to get ready! Check the class link.";
             $this->createNotification($row['user_id'], 'class_reminder_30m', $title, $message, $row['class_id']);
         }
         
@@ -150,8 +150,8 @@ class NotificationHandler {
         
         $result_10m = mysqli_query($this->conn, $sql_10m);
         while($row = mysqli_fetch_assoc($result_10m)) {
-            $title = "⏰ 10 dakika sonra: " . $row['title'];
-            $message = "Dersin başlamasına çok az kaldı! Yayın linkinizi açın.";
+            $title = "Starting in 10 minutes: " . $row['title'];
+            $message = "The class starts very soon! Open your streaming link.";
             $this->createNotification($row['user_id'], 'class_reminder_10m', $title, $message, $row['class_id']);
         }
     }

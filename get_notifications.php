@@ -24,17 +24,17 @@ while($row = mysqli_fetch_assoc($result)) {
     $interval = $now->diff($created_at);
     
     if($interval->y > 0) {
-        $time_ago = $interval->y . ' yıl önce';
+        $time_ago = $interval->y . ' year(s) ago';
     } elseif($interval->m > 0) {
-        $time_ago = $interval->m . ' ay önce';
+        $time_ago = $interval->m . ' month(s) ago';
     } elseif($interval->d > 0) {
-        $time_ago = $interval->d . ' gün önce';
+        $time_ago = $interval->d . ' day(s) ago';
     } elseif($interval->h > 0) {
-        $time_ago = $interval->h . ' saat önce';
+        $time_ago = $interval->h . ' hour(s) ago';
     } elseif($interval->i > 0) {
-        $time_ago = $interval->i . ' dakika önce';
+        $time_ago = $interval->i . ' minute(s) ago';
     } else {
-        $time_ago = 'Az önce';
+        $time_ago = 'Just now';
     }
     
     $notifications[] = [

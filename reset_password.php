@@ -20,11 +20,11 @@ if (isset($_GET['token'])) {
         $user_id = $row['user_id'];
         $reset_id = $row['id'];
     } else {
-        $message = "Şifre sıfırlama linki geçersiz veya süresi dolmuş.";
+        $message = "The password reset link is invalid or has expired.";
         $message_type = "error";
     }
 } else {
-    $message = "Geçersiz istek.";
+    $message = "Invalid request.";
     $message_type = "error";
 }
 
@@ -35,10 +35,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && $valid_token) {
 
     // Şifreyi doğrula
     if (strlen($new_password) < 6) {
-        $message = "Şifre en az 6 karakter olmalı.";
+        $message = "Password must be at least 6 characters.";
         $message_type = "error";
     } elseif ($new_password !== $confirm_password) {
-        $message = "Şifreler eşleşmiyor.";
+        $message = "Passwords do not match.";
         $message_type = "error";
     } else {
         // Şifreyi güncelle
@@ -49,14 +49,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && $valid_token) {
             $delete_sql = "DELETE FROM password_resets WHERE id = $reset_id";
             mysqli_query($conn, $delete_sql);
 
-            $message = "Şifreniz başarıyla sıfırlandı! Şimdi giriş yapabilirsiniz.";
+            $message = "Your password has been reset successfully! You can now log in.";
             $message_type = "success";
             $valid_token = false; // Formu gizle
 
             // 3 saniye sonra login sayfasına yönlendir
             header("refresh:3;url=login.php");
         } else {
-            $message = "Şifre güncellenirken hata oluştu. Lütfen tekrar deneyin.";
+            $message = "An error occurred while updating the password. Please try again.";
             $message_type = "error";
         }
     }
@@ -64,11 +64,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && $valid_token) {
 ?>
 
 <!DOCTYPE html>
-<html lang="tr">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Şifremi Sıfırla | GYM</title>
+    <title>Reset Password | GYM</title>
     <link rel="stylesheet" href="style.css">
     <style>
         .reset-password-container {
@@ -181,23 +181,23 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && $valid_token) {
 <body style="background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); min-height: 100vh;">
 
     <div class="reset-password-container">
-        <h2>Şifremi Sıfırla</h2>
+        <h2>Reset Password</h2>
 
         <?php if($message): ?>
             <div class="message <?php echo $message_type; ?>">
                 <?php echo $message; ?>
                 <?php if($message_type == "success"): ?>
-                    <p style="font-size: 12px; margin-top: 10px;">Giriş sayfasına yönlendiriliyorsunuz...</p>
+                    <p style="font-size: 12px; margin-top: 10px;">Redirecting to the login page...</p>
                 <?php endif; ?>
             </div>
         <?php endif; ?>
 
         <?php if($valid_token): ?>
             <div class="password-requirements">
-                <strong>Şifre Gereksinimleri:</strong>
+                <strong>Password Requirements:</strong>
                 <ul>
-                    <li>En az 6 karakter</li>
-                    <li>Şifreler eşleşmeli</li>
+                    <li>At least 6 characters</li>
+                    <li>Passwords must match</li>
                 </ul>
             </div>
 
@@ -205,24 +205,24 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && $valid_token) {
                 <input 
                     type="password" 
                     name="password" 
-                    placeholder="Yeni şifre" 
+                    placeholder="New password" 
                     required
                 >
                 <input 
                     type="password" 
                     name="confirm_password" 
-                    placeholder="Yeni şifreyi onayla" 
+                    placeholder="Confirm new password" 
                     required
                 >
-                <button type="submit">Şifreyi Sıfırla</button>
+                <button type="submit">Reset Password</button>
             </form>
 
             <div class="back-link">
-                <a href="login.php">Giriş sayfasına geri dön</a>
+                <a href="login.php">Back to login</a>
             </div>
         <?php else: ?>
             <div class="back-link" style="margin-top: 30px;">
-                <a href="login.php">← Giriş sayfasına geri dön</a>
+                <a href="login.php">← Back to login</a>
             </div>
         <?php endif; ?>
     </div>

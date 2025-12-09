@@ -551,9 +551,7 @@ if ($progress_stmt) {
                                         </span>
                                         <span class="comment-bar__meta"><?php echo $totalReviews; ?> comments</span>
                                     </div>
-                                <?php else: ?>
-                                    <div class="comment-bar__stat comment-bar__stat--empty">No comments yet</div>
-                                <?php endif; ?>
+            
                                 <button type="button" class="comment-trigger" data-target="<?php echo $panelId; ?>" data-open-text="Comments (<?php echo $totalReviews; ?>)" data-close-text="Close panel" aria-expanded="false" aria-controls="<?php echo $panelId; ?>">Comments (<?php echo $totalReviews; ?>)</button>
                             </div>
                             <div class="review-panel" id="<?php echo $panelId; ?>">
@@ -563,10 +561,9 @@ if ($progress_stmt) {
                                         <div class="review-panel__stars">
                                             <span class="star-rating-display">
                                                 <span class="star-rating-display__fill" style="width: <?php echo $summaryWidth; ?>%;"></span>
-                                            </span>
-                                            <span class="review-panel__total"><?php echo $totalReviews; ?> comments</span>
-                                        </div>
-                                    </div>
+                            
+                                            
+                            
                                     <div class="review-panel__filters">
                                         <button type="button" class="review-filter active" data-target-panel="<?php echo $panelId; ?>" data-filter="all">All ratings (<?php echo $totalReviews; ?>)</button>
                                         <?php for ($star = 5; $star >= 1; $star--): ?>
