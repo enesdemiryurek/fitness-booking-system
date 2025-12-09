@@ -28,7 +28,7 @@ $trainer_info = mysqli_fetch_assoc($trainer_result);
 // Yorum ekle
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['submit_review'])) {
     if (!isset($_SESSION['user_id'])) {
-        $error_msg = "❌ You need to log in to add a comment!";
+        $error_msg = " You need to log in to add a comment!";
     } else {
         $user_id = $_SESSION['user_id'];
         $rating = intval($_POST['rating']);
@@ -39,13 +39,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['submit_review'])) {
         $check_result = mysqli_query($conn, $check_sql);
         
         if (mysqli_num_rows($check_result) > 0) {
-            $error_msg = "❌ You have already commented on this class!";
+            $error_msg = " You have already commented on this class!";
         } else {
             $insert_sql = "INSERT INTO reviews (class_id, user_id, rating, comment) VALUES ($class_id, $user_id, $rating, '$comment')";
             if (mysqli_query($conn, $insert_sql)) {
                 $success_msg = "✅ Your comment has been saved!";
             } else {
-                $error_msg = "❌ Error: " . mysqli_error($conn);
+                $error_msg = " Error: " . mysqli_error($conn);
             }
         }
     }
@@ -81,7 +81,7 @@ include 'header.php';
         <!-- SOL TARAF: DERS BİLGİLERİ -->
         <div class="class-details-left">
             <div class="detail-card">
-                <h2>📋 Class Info</h2>
+                <h2> Class Info</h2>
                 <div class="info-row">
                     <span class="info-label">Class Type:</span>
                     <span class="info-value"><?php echo htmlspecialchars($class_info['class_type']); ?></span>
@@ -94,15 +94,12 @@ include 'header.php';
                     <span class="info-label">Capacity:</span>
                     <span class="info-value"><?php echo $class_info['capacity']; ?> people</span>
                 </div>
-                <div class="info-row">
-                    <span class="info-label">Video Link:</span>
-                    <a href="<?php echo htmlspecialchars($class_info['video_link']); ?>" target="_blank" class="btn-small">🎥 Go to Stream</a>
-                </div>
+               
             </div>
 
             <!-- EĞİTMEN KARTı -->
             <div class="detail-card instructor-card">
-                <h2>👨‍🏫 Instructor</h2>
+                <h2>Trainer</h2>
                 <div class="instructor-profile">
                     <?php if($trainer_info && $trainer_info['profile_photo']): ?>
                         <img src="data:image/jpeg;base64,<?php echo base64_encode($trainer_info['profile_photo']); ?>" alt="Eğitmen" class="trainer-photo">
@@ -122,7 +119,7 @@ include 'header.php';
             
             <!-- PUANLAMA ÖZETİ -->
             <div class="detail-card review-summary">
-                <h2>⭐ Course Rating</h2>
+                <h2> Course Rating</h2>
                 <div class="rating-display">
                     <div class="rating-score"><?php echo $avg_rating; ?></div>
                     <div class="rating-stars">
@@ -197,22 +194,22 @@ include 'header.php';
                 </div>
 
                 <div class="reviews-container">
-                    <?php if($total_reviews > 0): ?>
-                        <?php while($review = mysqli_fetch_assoc($reviews_result)): ?>
+                    <?php if ($total_reviews > 0) { ?>
+                        <?php while ($review = mysqli_fetch_assoc($reviews_result)) { ?>
                             <div class="review-item">
                                 <div class="review-header">
                                     <div class="reviewer-info">
-                                        <?php if($review['profile_photo']): ?>
+                                        <?php if ($review['profile_photo']) { ?>
                                             <img src="data:image/jpeg;base64,<?php echo base64_encode($review['profile_photo']); ?>" alt="Kullanıcı" class="reviewer-avatar">
-                                        <?php else: ?>
+                                        <?php } else { ?>
                                             <div class="reviewer-avatar-placeholder">👤</div>
-                                        <?php endif; ?>
+                                        <?php } ?>
                                         <div class="reviewer-details">
                                             <strong><?php echo htmlspecialchars($review['username']); ?></strong>
                                             <div class="review-rating">
-                                                <?php for($i = 1; $i <= 5; $i++): ?>
+                                                <?php for ($i = 1; $i <= 5; $i++) { ?>
                                                     <?php echo ($i <= $review['rating']) ? "⭐" : "☆"; ?>
-                                                <?php endfor; ?>
+                                                <?php } ?>
                                             </div>
                                         </div>
                                     </div>
@@ -222,8 +219,12 @@ include 'header.php';
                                     <?php echo htmlspecialchars($review['comment']); ?>
                                 </div>
                             </div>
-                        <?php endwhile; ?>
-                    
+                        <?php } ?>
+                    <?php } else { ?>
+                        <div style="text-align: center; padding: 30px; color: #999;">
+                            <p>No comments yet.</p>
+                        </div>
+                    <?php } ?>
                 </div>
             </div>
 
@@ -242,403 +243,6 @@ function toggleReviewForm(e) {
 }
 </script>
 
-<style>
-/* CLASS DETAILS STYLES */
-.class-details-container {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 30px 20px;
-}
 
-.class-hero {
-    background: linear-gradient(135deg, #185ADB 0%, #2a73de 100%);
-    color: white;
-    padding: 40px;
-    border-radius: 15px;
-    margin-bottom: 40px;
-    text-align: center;
-}
-
-.class-hero h1 {
-    font-size: 2.2rem;
-    margin-bottom: 10px;
-}
-
-.class-hero p {
-    font-size: 1.05rem;
-    opacity: 0.95;
-}
-
-.class-details-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 30px;
-}
-
-.detail-card {
-    background: white;
-    border-radius: 12px;
-    padding: 25px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.08);
-    margin-bottom: 20px;
-}
-
-.detail-card h2 {
-    font-size: 1.3rem;
-    margin-bottom: 20px;
-    color: #222;
-    border-bottom: 2px solid #f0f0f0;
-    padding-bottom: 15px;
-}
-
-.detail-card h3 {
-    font-size: 1.1rem;
-    color: #333;
-    margin-bottom: 15px;
-}
-
-.info-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 12px 0;
-    border-bottom: 1px solid #f5f5f5;
-}
-
-.info-row:last-child {
-    border-bottom: none;
-}
-
-.info-label {
-    font-weight: 600;
-    color: #555;
-}
-
-.info-value {
-    color: #333;
-}
-
-/* INSTRUCTOR CARD */
-.instructor-card {
-    background: linear-gradient(135deg, #f5f7fa 0%, #fafbfc 100%);
-    border-left: 4px solid #185ADB;
-}
-
-.instructor-profile {
-    display: flex;
-    gap: 20px;
-    align-items: center;
-}
-
-.trainer-photo {
-    width: 120px;
-    height: 120px;
-    border-radius: 50%;
-    object-fit: cover;
-    border: 3px solid #185ADB;
-}
-
-.trainer-photo-placeholder {
-    width: 120px;
-    height: 120px;
-    border-radius: 50%;
-    background: #e0e0e0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 3rem;
-}
-
-.trainer-info h3 {
-    margin: 0 0 5px 0;
-    color: #185ADB;
-}
-
-.trainer-info p {
-    color: #666;
-    margin: 0;
-}
-
-/* REVIEW SUMMARY */
-.review-summary {
-    text-align: center;
-    background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
-    color: #333;
-}
-
-.rating-display {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 15px;
-}
-
-.rating-score {
-    font-size: 3rem;
-    font-weight: bold;
-    color: #185ADB;
-}
-
-.rating-stars {
-    font-size: 1.8rem;
-    letter-spacing: 5px;
-}
-
-.rating-count {
-    font-size: 0.95rem;
-    color: #666;
-}
-
-/* REVIEW FORM */
-.review-form-card {
-    background: white;
-    border: 2px solid #f0f0f0;
-}
-
-.review-form-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    cursor: pointer;
-    padding-bottom: 15px;
-    border-bottom: 2px solid #f0f0f0;
-}
-
-.review-form-header h3 {
-    margin: 0;
-}
-
-.btn-expand {
-    background: #185ADB;
-    color: white;
-    border: none;
-    width: 35px;
-    height: 35px;
-    border-radius: 50%;
-    cursor: pointer;
-    font-size: 1rem;
-    transition: all 0.3s;
-}
-
-.btn-expand:hover {
-    background: #1245a8;
-    transform: scale(1.1);
-}
-
-.review-form-panel {
-    margin-top: 15px;
-    animation: slideDown 0.3s ease;
-}
-
-@keyframes slideDown {
-    from { opacity: 0; transform: translateY(-10px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-
-.form-group {
-    margin-bottom: 15px;
-}
-
-.form-group label {
-    display: block;
-    font-weight: 600;
-    margin-bottom: 8px;
-    color: #333;
-}
-
-.form-control {
-    width: 100%;
-    padding: 10px;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    font-family: inherit;
-    font-size: 0.95rem;
-}
-
-.form-control:focus {
-    outline: none;
-    border-color: #185ADB;
-    box-shadow: 0 0 0 3px rgba(24, 90, 219, 0.1);
-}
-
-.btn-primary {
-    background: #185ADB;
-    color: white;
-    border: none;
-    padding: 12px 30px;
-    border-radius: 8px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.3s;
-    font-size: 0.95rem;
-}
-
-.btn-primary:hover {
-    background: #1245a8;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(24, 90, 219, 0.3);
-}
-
-/* REVIEWS CONTAINER */
-.reviews-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20px;
-    padding-bottom: 15px;
-    border-bottom: 2px solid #f0f0f0;
-}
-
-.reviews-count {
-    background: #f0f0f0;
-    padding: 5px 12px;
-    border-radius: 20px;
-    font-size: 0.85rem;
-    color: #666;
-}
-
-.reviews-container {
-    max-height: 600px;
-    overflow-y: auto;
-    padding-right: 10px;
-}
-
-.reviews-container::-webkit-scrollbar {
-    width: 8px;
-}
-
-.reviews-container::-webkit-scrollbar-track {
-    background: #f0f0f0;
-    border-radius: 10px;
-}
-
-.reviews-container::-webkit-scrollbar-thumb {
-    background: #185ADB;
-    border-radius: 10px;
-}
-
-.reviews-container::-webkit-scrollbar-thumb:hover {
-    background: #1245a8;
-}
-
-.review-item {
-    padding: 15px;
-    border: 1px solid #f0f0f0;
-    border-radius: 8px;
-    margin-bottom: 15px;
-    transition: all 0.3s;
-}
-
-.review-item:hover {
-    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-    border-color: #e0e0e0;
-}
-
-.review-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    margin-bottom: 12px;
-}
-
-.reviewer-info {
-    display: flex;
-    gap: 12px;
-    align-items: flex-start;
-}
-
-.reviewer-avatar {
-    width: 45px;
-    height: 45px;
-    border-radius: 50%;
-    object-fit: cover;
-}
-
-.reviewer-avatar-placeholder {
-    width: 45px;
-    height: 45px;
-    border-radius: 50%;
-    background: #e0e0e0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.5rem;
-}
-
-.reviewer-details strong {
-    display: block;
-    color: #333;
-    margin-bottom: 4px;
-}
-
-.review-rating {
-    font-size: 0.9rem;
-    letter-spacing: 2px;
-}
-
-.review-date {
-    color: #999;
-    font-size: 0.85rem;
-}
-
-.review-comment {
-    color: #555;
-    line-height: 1.6;
-    font-size: 0.95rem;
-}
-
-.alert {
-    padding: 12px;
-    border-radius: 8px;
-    margin-bottom: 15px;
-    font-size: 0.95rem;
-}
-
-.alert-success {
-    background: #d4edda;
-    color: #155724;
-    border: 1px solid #c3e6cb;
-}
-
-.alert-error {
-    background: #f8d7da;
-    color: #721c24;
-    border: 1px solid #f5c6cb;
-}
-
-.alert-warning {
-    background: #fff3cd;
-    color: #856404;
-    border: 1px solid #ffeaa7;
-}
-
-.alert-warning a {
-    color: #185ADB;
-    font-weight: 600;
-}
-
-.btn-small {
-    background: #185ADB;
-    color: white;
-    padding: 6px 12px;
-    border-radius: 6px;
-    text-decoration: none;
-    font-size: 0.85rem;
-    font-weight: 600;
-    transition: all 0.3s;
-    display: inline-block;
-}
-
-.btn-small:hover {
-    background: #1245a8;
-    transform: translateY(-2px);
-}
-
-@media (max-width: 1024px) {
-    .class-details-grid {
-        grid-template-columns: 1fr;
-    }
-}
-</style>
 
 <?php include 'footer.php'; ?>
