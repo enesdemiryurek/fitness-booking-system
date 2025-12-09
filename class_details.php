@@ -96,12 +96,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if (empty($errors)) {
             $stmt = mysqli_prepare(
                 $conn,
-                'UPDATE users SET username = ?, email = ?, phone = ?, age = ?, gender = ? WHERE id = ?'
+                "UPDATE users SET username = ?, email = ?, phone = NULLIF(?, ''), age = NULLIF(?, -1), gender = NULLIF(?, '') WHERE id = ?"
             );
             if ($stmt) {
-                $phone_param = $new_phone !== '' ? $new_phone : null;
-                $gender_param = $new_gender !== '' ? $new_gender : null;
-                $age_param = $age_value;
+                $phone_param = $new_phone !== '' ? $new_phone : '';
+                $gender_param = $new_gender !== '' ? $new_gender : '';
+                $age_param = $age_value !== null ? $age_value : -1;
 
                 mysqli_stmt_bind_param(
                     $stmt,
@@ -149,7 +149,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             );
 
             if ($stmt) {
-                mysqli_stmt_bind_param($stmt, 'isid', $user_id, $weight_raw, $height_cm, $bmi);
+                mysqli_stmt_bind_param($stmt, 'idid', $user_id, $weight, $height_cm, $bmi);
                 if (mysqli_stmt_execute($stmt)) {
                     $progress_message = 'Progress saved. BMI: ' . number_format($bmi, 2, ',', '.');
                 } else {
@@ -342,15 +342,21 @@ if ($ratingDetailsResult = mysqli_query($conn, $ratingDetailsQuery)) {
 }
 
 $progress_history = [];
-$progress_res = mysqli_query(
+$progress_stmt = mysqli_prepare(
     $conn,
-    'SELECT weight, height, bmi, record_date FROM user_progress WHERE user_id = ' . $user_id . ' ORDER BY record_date DESC LIMIT 5'
+    'SELECT weight, height, bmi, record_date FROM user_progress WHERE user_id = ? ORDER BY record_date DESC LIMIT 5'
 );
-if ($progress_res) {
-    while ($row = mysqli_fetch_assoc($progress_res)) {
-        $progress_history[] = $row;
+if ($progress_stmt) {
+    mysqli_stmt_bind_param($progress_stmt, 'i', $user_id);
+    mysqli_stmt_execute($progress_stmt);
+    $result = mysqli_stmt_get_result($progress_stmt);
+    if ($result) {
+        while ($row = mysqli_fetch_assoc($result)) {
+            $progress_history[] = $row;
+        }
+        mysqli_free_result($result);
     }
-    mysqli_free_result($progress_res);
+    mysqli_stmt_close($progress_stmt);
 }
 ?>
 <!DOCTYPE html>
@@ -397,31 +403,57 @@ if ($progress_res) {
         .comment-bar__stat--empty { color: #999; }
         .comment-trigger { border: none; background: transparent; color: #1b4cd3; font-weight: 600; cursor: pointer; }
         .comment-trigger.open { color: #c0392b; }
-        .review-panel { border: 1px solid #e0e0e0; border-radius: 10px; margin-top: 15px; display: none; padding: 15px; background: #fff; }
+        .review-panel { border: 1px solid #dfe6ff; border-radius: 16px; margin-top: 15px; display: none; padding: 22px; background: #fdfdff; box-shadow: 0 14px 30px rgba(15, 23, 42, 0.08); }
         .review-panel.open { display: block; }
-        .review-panel__header { display: flex; flex-direction: column; gap: 12px; margin-bottom: 15px; }
-        .review-panel__summary { display: flex; align-items: center; gap: 15px; }
-        .review-panel__score { font-size: 2rem; font-weight: bold; }
-        .review-panel__stars { display: flex; align-items: center; gap: 8px; }
+        .review-panel__header { display: flex; flex-direction: column; gap: 12px; margin-bottom: 18px; }
+        .review-panel__summary { display: flex; align-items: center; gap: 18px; }
+        .review-panel__score { font-size: 2.4rem; font-weight: 800; color: #1b4cd3; }
+        .review-panel__stars { display: flex; align-items: center; gap: 12px; }
+        .star-rating-display { position: relative; display: inline-block; width: 96px; height: 20px; color: #d1d7f3; font-size: 20px; line-height: 20px; }
+        .star-rating-display::before { content: '\2605\2605\2605\2605\2605'; position: absolute; left: 0; top: 0; width: 100%; height: 100%; color: #d1d7f3; }
+        .star-rating-display__fill { position: absolute; left: 0; top: 0; height: 100%; overflow: hidden; color: #ffb400; }
+        .star-rating-display__fill::before { content: '\2605\2605\2605\2605\2605'; position: absolute; left: 0; top: 0; }
+        .star-rating-display--sm { width: 80px; font-size: 17px; height: 18px; line-height: 18px; }
+        .review-panel__body { display: flex; flex-direction: column; gap: 22px; }
         .review-panel__filters { display: flex; flex-wrap: wrap; gap: 10px; }
-        .review-filter { border: 1px solid #1b4cd3; border-radius: 30px; padding: 6px 14px; background: #fff; color: #1b4cd3; cursor: pointer; font-size: 0.75rem; font-weight: 600; }
-        .review-filter.active { background: #1b4cd3; color: #fff; }
-        .review-panel__list { display: flex; flex-direction: column; gap: 12px; }
-        .review-panel__empty { font-size: 0.85rem; color: #777; text-align: center; margin-top: 10px; }
-        .review-item__meta { display: flex; align-items: center; gap: 10px; font-size: 0.8rem; color: #555; }
-        .review-item__comment { margin-top: 6px; font-size: 0.85rem; line-height: 1.4; color: #333; }
-        .review-form-trendy { border: 1px solid #e0e0e0; padding: 15px; border-radius: 10px; margin-bottom: 15px; }
-        .form-group-review { margin-bottom: 12px; }
-        .star-rating-input { display: inline-flex; flex-direction: row-reverse; gap: 4px; }
+        .review-filter { border: 1px solid #1b4cd3; border-radius: 30px; padding: 6px 16px; background: #fff; color: #1b4cd3; cursor: pointer; font-size: 0.75rem; font-weight: 600; transition: all 0.2s ease; }
+        .review-filter:hover { background: rgba(27, 76, 211, 0.08); }
+        .review-filter.active { background: #1b4cd3; color: #fff; box-shadow: 0 8px 16px rgba(27, 76, 211, 0.25); }
+        .review-panel__list { display: flex; flex-direction: column; gap: 18px; }
+        .review-panel__empty { font-size: 0.88rem; color: #7b82a9; text-align: center; margin-top: 10px; }
+        .review-panel__empty--filtered { font-size: 0.85rem; color: #7b82a9; text-align: center; }
+        .review-create { background: linear-gradient(135deg, rgba(27, 76, 211, 0.12), rgba(90, 125, 255, 0.08)); border: 1px solid #dbe2ff; border-radius: 16px; padding: 18px; box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.4); }
+        .review-form-trendy { display: flex; flex-direction: column; gap: 16px; }
+        .form-group-review { margin: 0; display: flex; flex-direction: column; gap: 8px; }
+        .form-group-review label { font-size: 0.8rem; font-weight: 700; color: #27325a; letter-spacing: 0.02em; text-transform: uppercase; }
+        .star-rating-input { display: inline-flex; flex-direction: row-reverse; gap: 6px; align-items: center; }
         .star-rating-input input { display: none; }
-        .star-rating-input label { font-size: 1.5rem; color: #ddd; cursor: pointer; }
-        .star-rating-input input:checked ~ label { color: #f1c40f; }
-        .review-form-actions { text-align: right; }
-        .btn-send-review { background: #1b4cd3; color: #fff; border: none; padding: 8px 16px; border-radius: 6px; font-weight: 600; cursor: pointer; }
-        .review-badge { border: 1px solid #e0e0e0; border-radius: 8px; padding: 12px; margin-bottom: 15px; background: #f8f9ff; }
-        .review-badge__tag { display: inline-block; font-size: 0.7rem; font-weight: 700; color: #1b4cd3; background: #e4e9ff; padding: 3px 8px; border-radius: 20px; margin-bottom: 8px; }
+        .star-rating-input label { font-size: 1.8rem; color: #c7cfef; cursor: pointer; transition: color 0.2s ease, transform 0.2s ease; }
+        .star-rating-input label:hover,
+        .star-rating-input label:hover ~ label { color: #ffb400; transform: translateY(-1px); }
+        .star-rating-input input:checked ~ label { color: #ffb400; }
+        .star-rating-input input:focus-visible + label { outline: 2px solid #1b4cd3; outline-offset: 4px; border-radius: 4px; }
+        .review-form-trendy textarea { width: 100%; border-radius: 14px; border: 1px solid #d5dcf7; padding: 14px 16px; font-size: 0.95rem; resize: vertical; min-height: 120px; transition: border-color 0.2s ease, box-shadow 0.2s ease; background: #fff; }
+        .review-form-trendy textarea:focus { border-color: #1b4cd3; box-shadow: 0 0 0 3px rgba(27, 76, 211, 0.15); outline: none; }
+        .review-form-actions { display: flex; justify-content: flex-end; }
+        .btn-send-review { background: linear-gradient(135deg, #1b4cd3, #5a7dff); color: #fff; border: none; padding: 11px 26px; border-radius: 999px; font-weight: 600; cursor: pointer; transition: transform 0.2s ease, box-shadow 0.2s ease; letter-spacing: 0.02em; }
+        .btn-send-review:hover { transform: translateY(-1px); box-shadow: 0 12px 24px rgba(27, 76, 211, 0.25); }
+        .review-feed { display: flex; flex-direction: column; gap: 14px; }
+        .review-card { display: flex; gap: 14px; background: #fff; border: 1px solid #ecf0ff; border-radius: 18px; padding: 16px 18px; box-shadow: 0 16px 28px rgba(15, 23, 42, 0.06); position: relative; transition: transform 0.2s ease, box-shadow 0.2s ease; }
+        .review-card:hover { transform: translateY(-2px); box-shadow: 0 18px 32px rgba(15, 23, 42, 0.1); }
+        .review-card--yours { border: 1px solid rgba(27, 76, 211, 0.6); background: linear-gradient(135deg, rgba(27, 76, 211, 0.15), rgba(255, 255, 255, 0.9)); }
+        .review-card__avatar { flex: 0 0 48px; width: 48px; height: 48px; border-radius: 50%; background: linear-gradient(135deg, #1b4cd3, #5a7dff); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 1.1rem; text-transform: uppercase; letter-spacing: 0.02em; }
+        .review-card__content { flex: 1; display: flex; flex-direction: column; gap: 8px; }
+        .review-card__meta { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+        .review-card__name { font-weight: 700; color: #1f2a4a; font-size: 0.95rem; }
+        .review-card__timestamp { font-size: 0.75rem; color: #8a94b7; }
+        .review-card__comment { font-size: 0.95rem; color: #2d3557; line-height: 1.55; white-space: pre-wrap; }
+        .review-card__stars { display: flex; align-items: center; gap: 10px; font-size: 0.82rem; color: #4b4f68; }
+        .review-card__badge { display: inline-flex; align-items: center; gap: 6px; font-size: 0.7rem; font-weight: 700; color: #1b4cd3; background: rgba(27, 76, 211, 0.12); padding: 4px 12px; border-radius: 999px; text-transform: uppercase; letter-spacing: 0.03em; }
+        .review-card__divider { height: 1px; background: #e7ebff; margin: 4px 0; }
+        .review-card__likes { font-size: 0.78rem; color: #8993be; display: flex; align-items: center; gap: 12px; }
         .review-summary__score { font-weight: 700; font-size: 0.9rem; margin-left: 8px; }
-        .review-item__date { font-size: 0.75rem; color: #888; }
+        .btn-card { width: 100%; padding: 10px; border-radius: 8px; border: none; background: #ccc; color: #555; font-weight: 600; cursor: not-allowed; margin-top: 10px; }
         .btn-card { width: 100%; padding: 10px; border-radius: 8px; border: none; background: #ccc; color: #555; font-weight: 600; cursor: not-allowed; margin-top: 10px; }
         .prog-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #f0f0f0; font-size: 0.85rem; }
         .prog-bmi { background: #e0f2f1; color: #00695c; padding: 3px 8px; border-radius: 20px; font-weight: bold; font-size: 0.75rem; }
@@ -563,13 +595,17 @@ if ($progress_res) {
                         $totalReviews = $pastSummary['count'] ?? 0;
 
                         $rev_data = null;
-                        $reviewCheck = mysqli_query(
+                        $review_stmt = mysqli_prepare(
                             $conn,
-                            'SELECT rating, comment, created_at FROM reviews WHERE user_id = ' . $user_id . ' AND class_id = ' . (int) $row['id'] . ' LIMIT 1'
+                            'SELECT rating, comment, created_at FROM reviews WHERE user_id = ? AND class_id = ? LIMIT 1'
                         );
-                        if ($reviewCheck) {
-                            $rev_data = mysqli_fetch_assoc($reviewCheck);
-                            mysqli_free_result($reviewCheck);
+                        if ($review_stmt) {
+                            $class_id_lookup = (int) $row['id'];
+                            mysqli_stmt_bind_param($review_stmt, 'ii', $user_id, $class_id_lookup);
+                            mysqli_stmt_execute($review_stmt);
+                            $result = mysqli_stmt_get_result($review_stmt);
+                            $rev_data = $result ? mysqli_fetch_assoc($result) : null;
+                            mysqli_stmt_close($review_stmt);
                         }
 
                         $trainer_data = null;
@@ -634,60 +670,81 @@ if ($progress_res) {
                                     </div>
                                 </div>
                                 <div class="review-panel__body">
-                                    <?php if (!$rev_data): ?>
-                                        <form method="POST" class="review-form-trendy">
-                                            <input type="hidden" name="class_id" value="<?php echo (int) $row['id']; ?>">
-                                            <div class="form-group-review">
-                                                <label>How would you rate this class?</label>
-                                                <div class="star-rating-input">
-                                                    <?php for ($i = 5; $i >= 1; $i--): ?>
-                                                        <input type="radio" id="rating-<?php echo (int) $row['id']; ?>-<?php echo $i; ?>" name="rating" value="<?php echo $i; ?>" required>
-                                                        <label for="rating-<?php echo (int) $row['id']; ?>-<?php echo $i; ?>">★</label>
-                                                    <?php endfor; ?>
-                                                </div>
-                                            </div>
-                                            <div class="form-group-review">
-                                                <label>Your comment</label>
-                                                <textarea name="comment" rows="3" placeholder="Share your experience..." required></textarea>
-                                            </div>
-                                            <div class="review-form-actions">
-                                                <button type="submit" name="submit_review" class="btn-send-review">Submit</button>
-                                            </div>
-                                        </form>
-                                    <?php else: ?>
-                                        <div class="review-badge">
-                                            <span class="review-badge__tag">Your review</span>
-                                            <div class="review-badge__header">
-                                                <?php $userWidth = max(0, min(100, ($rev_data['rating'] / 5) * 100)); ?>
-                                                <span class="star-rating-display star-rating-display--sm">
-                                                    <span class="star-rating-display__fill" style="width: <?php echo $userWidth; ?>%;"></span>
-                                                </span>
-                                                <span class="review-summary__score"><?php echo (int) $rev_data['rating']; ?>/5</span>
-                                            </div>
-                                            <?php if (!empty($rev_data['comment'])): ?>
-                                                <p class="review-comment"><?php echo nl2br(htmlspecialchars($rev_data['comment'])); ?></p>
-                                            <?php endif; ?>
-                                            <?php if (!empty($rev_data['created_at'])): ?>
-                                                <span class="review-item__date">Submitted: <?php echo date('d.m.Y', strtotime($rev_data['created_at'])); ?></span>
-                                            <?php endif; ?>
-                                        </div>
-                                    <?php endif; ?>
-                                    <?php if ($hasPastReviews): ?>
-                                        <div class="review-panel__list">
-                                            <?php foreach ($pastReviewList as $reviewItem): ?>
-                                                <?php $width = max(0, min(100, ($reviewItem['rating'] / 5) * 100)); ?>
-                                                <div class="review-item" data-rating="<?php echo (int) $reviewItem['rating']; ?>">
-                                                    <div class="review-item__meta">
-                                                        <span class="star-rating-display star-rating-display--sm">
-                                                            <span class="star-rating-display__fill" style="width: <?php echo $width; ?>%;"></span>
-                                                        </span>
-                                                        <span class="review-item__author"><?php echo htmlspecialchars($reviewItem['username']); ?></span>
-                                                        <span class="review-item__date"><?php echo date('d.m.Y', strtotime($reviewItem['created_at'])); ?></span>
+                                    <div class="review-create">
+                                        <?php if (!$rev_data): ?>
+                                            <form method="POST" class="review-form-trendy">
+                                                <input type="hidden" name="class_id" value="<?php echo (int) $row['id']; ?>">
+                                                <div class="form-group-review">
+                                                    <label>Rate this class</label>
+                                                    <div class="star-rating-input">
+                                                        <?php for ($i = 5; $i >= 1; $i--): ?>
+                                                            <input type="radio" id="rating-<?php echo (int) $row['id']; ?>-<?php echo $i; ?>" name="rating" value="<?php echo $i; ?>" required>
+                                                            <label for="rating-<?php echo (int) $row['id']; ?>-<?php echo $i; ?>">★</label>
+                                                        <?php endfor; ?>
                                                     </div>
-                                                    <?php if (!empty($reviewItem['comment'])): ?>
-                                                        <div class="review-item__comment"><?php echo nl2br(htmlspecialchars($reviewItem['comment'])); ?></div>
+                                                </div>
+                                                <div class="form-group-review">
+                                                    <label>Share your thoughts</label>
+                                                    <textarea name="comment" rows="3" placeholder="Tell the community what stood out for you..." required></textarea>
+                                                </div>
+                                                <div class="review-form-actions">
+                                                    <button type="submit" name="submit_review" class="btn-send-review">Send review</button>
+                                                </div>
+                                            </form>
+                                        <?php else: ?>
+                                            <?php
+                                            $userInitial = strtoupper(substr(($user_row['username'] ?? 'You'), 0, 1));
+                                            $userWidth = max(0, min(100, ($rev_data['rating'] / 5) * 100));
+                                            ?>
+                                            <div class="review-card review-card--yours">
+                                                <div class="review-card__avatar"><?php echo htmlspecialchars($userInitial); ?></div>
+                                                <div class="review-card__content">
+                                                    <div class="review-card__meta">
+                                                        <span class="review-card__name">You</span>
+                                                        <?php if (!empty($rev_data['created_at'])): ?>
+                                                            <span class="review-card__timestamp"><?php echo date('d.m.Y', strtotime($rev_data['created_at'])); ?></span>
+                                                        <?php endif; ?>
+                                                    </div>
+                                                    <div class="review-card__stars">
+                                                        <span class="star-rating-display star-rating-display--sm">
+                                                            <span class="star-rating-display__fill" style="width: <?php echo $userWidth; ?>%;"></span>
+                                                        </span>
+                                                        <span><?php echo (int) $rev_data['rating']; ?>/5</span>
+                                                        <span class="review-card__badge">Your review</span>
+                                                    </div>
+                                                    <?php if (!empty($rev_data['comment'])): ?>
+                                                        <div class="review-card__comment"><?php echo nl2br(htmlspecialchars($rev_data['comment'])); ?></div>
                                                     <?php endif; ?>
                                                 </div>
+                                            </div>
+                                        <?php endif; ?>
+                                    </div>
+                                    <?php if ($hasPastReviews): ?>
+                                        <div class="review-feed review-panel__list">
+                                            <?php foreach ($pastReviewList as $reviewItem): ?>
+                                                <?php
+                                                $width = max(0, min(100, ($reviewItem['rating'] / 5) * 100));
+                                                $reviewerName = $reviewItem['username'] ?? 'Member';
+                                                $avatarLetter = strtoupper(substr($reviewerName, 0, 1));
+                                                ?>
+                                                <article class="review-card" data-rating="<?php echo (int) $reviewItem['rating']; ?>">
+                                                    <div class="review-card__avatar"><?php echo htmlspecialchars($avatarLetter); ?></div>
+                                                    <div class="review-card__content">
+                                                        <div class="review-card__meta">
+                                                            <span class="review-card__name"><?php echo htmlspecialchars($reviewerName); ?></span>
+                                                            <span class="review-card__timestamp"><?php echo date('d.m.Y', strtotime($reviewItem['created_at'])); ?></span>
+                                                        </div>
+                                                        <div class="review-card__stars">
+                                                            <span class="star-rating-display star-rating-display--sm">
+                                                                <span class="star-rating-display__fill" style="width: <?php echo $width; ?>%;"></span>
+                                                            </span>
+                                                            <span><?php echo (int) $reviewItem['rating']; ?>/5</span>
+                                                        </div>
+                                                        <?php if (!empty($reviewItem['comment'])): ?>
+                                                            <p class="review-card__comment"><?php echo nl2br(htmlspecialchars($reviewItem['comment'])); ?></p>
+                                                        <?php endif; ?>
+                                                    </div>
+                                                </article>
                                             <?php endforeach; ?>
                                         </div>
                                         <div class="review-panel__empty review-panel__empty--filtered" style="display:none;">No reviews for this filter.</div>
@@ -728,12 +785,12 @@ document.addEventListener('DOMContentLoaded', function () {
     function applyReviewFilter(panel, filter) {
         if (!panel) { return; }
         const list = panel.querySelector('.review-panel__list');
-        const items = list ? list.querySelectorAll('.review-item') : [];
+        const items = list ? list.querySelectorAll('.review-card') : [];
         let visible = 0;
         items.forEach(function (item) {
             const rating = item.getAttribute('data-rating');
             const show = filter === 'all' || rating === filter;
-            item.style.display = show ? 'block' : 'none';
+            item.style.display = show ? 'flex' : 'none';
             if (show) { visible++; }
         });
         const emptyFiltered = panel.querySelector('.review-panel__empty--filtered');
