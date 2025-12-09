@@ -230,7 +230,7 @@ include 'header.php';
                                     <button class="btn-card btn-disabled" disabled>FULL</button>
                                 <?php endif; ?>
                             <?php else: ?>
-                                <a href="login.php" class="btn-card" style="background:#666;">Login & Book</a>
+                                <a href="login.php" class="btn-card" style="background:#0A66C2;">Login & Book</a>
                             <?php endif; ?>
                         </div>
                     </div>

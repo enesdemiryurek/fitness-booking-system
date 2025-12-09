@@ -474,7 +474,7 @@ if ($progress_stmt) {
                 <?php endif; ?>
             </div>
 
-            <div class="dash-card" style="border-top: 5px solid #666;">
+            <div class="dash-card" style="border-top: 5px solid ;">
                 <div class="card-head" style="color:#444;">Completed Classes</div>
                 <?php if ($review_success_message !== ''): ?>
                     <div class="flash-success"><?php echo htmlspecialchars($review_success_message); ?></div>
