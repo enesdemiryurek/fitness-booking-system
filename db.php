@@ -73,6 +73,20 @@ if(mysqli_num_rows($check_reviews) == 0) {
     mysqli_query($conn, $create_reviews);
 }
 
+// Instructor specialties tablosu oluştur (eğitmenlerin ders kategorileri)
+$check_specialties = mysqli_query($conn, "SHOW TABLES LIKE 'instructor_specialties'");
+if (mysqli_num_rows($check_specialties) == 0) {
+    $create_specialties = "CREATE TABLE IF NOT EXISTS instructor_specialties (
+        id INT PRIMARY KEY AUTO_INCREMENT,
+        user_id INT NOT NULL,
+        class_type VARCHAR(50) NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        UNIQUE KEY uniq_instructor_specialty (user_id, class_type),
+        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+    )";
+    mysqli_query($conn, $create_specialties);
+}
+
 // Payments tablosu oluştur
 $check_payments = mysqli_query($conn, "SHOW TABLES LIKE 'payments'");
 if(mysqli_num_rows($check_payments) == 0) {
