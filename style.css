@@ -4477,7 +4477,7 @@ html { scroll-behavior: smooth; }
 .payment-page {
     min-height: calc(100vh - 200px);
     padding: 40px 20px;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: #0A66C2;
 }
 
 .payment-container {
@@ -4493,7 +4493,7 @@ html { scroll-behavior: smooth; }
 }
 
 .payment-header {
-    background: linear-gradient(135deg, #185ADB 0%, #0F4C75 100%);
+    background: #00008B;
     color: white;
     padding: 30px;
     text-align: center;
@@ -4665,7 +4665,7 @@ html { scroll-behavior: smooth; }
 }
 
 .btn-pay {
-    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+    background: #0a66c2;
     color: white;
 }
 

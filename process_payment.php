@@ -99,7 +99,7 @@ include 'header.php';
     <div class="payment-container">
         <div class="payment-card">
             <div class="payment-header">
-                <h1>💳 Payment Process</h1>
+                <h1> Payment Process</h1>
                 <p>Complete payment for your reservation</p>
             </div>
 
@@ -144,27 +144,25 @@ include 'header.php';
                             <option value="Credit Card">Credit Card</option>
                             <option value="Debit Card">Debit Card</option>
                             <option value="PayPal">PayPal</option>
-                            <option value="Bank Transfer">Bank Transfer</option>
+                            
                         </select>
                         <small>Select your preferred payment method</small>
                     </div>
 
                     <div class="form-group">
                         <label>Card Number</label>
-                        <input type="text" class="payment-input" placeholder="1234 5678 9012 3456" maxlength="19" 
-                               pattern="[0-9\s]{13,19}" required>
+                        <input type="text" id="cardNumber" class="payment-input" placeholder="1234 5678 9012 3456" maxlength="19" required>
                         <small>Simulated payment - you can enter any number</small>
                     </div>
 
                     <div class="form-row">
                         <div class="form-group">
                             <label>Expiry Date</label>
-                            <input type="text" class="payment-input" placeholder="MM/YY" maxlength="5" 
-                                   pattern="[0-9]{2}/[0-9]{2}" required>
+                            <input type="text" id="expiryDate" class="payment-input" placeholder="MM/YY" maxlength="5" required>
                         </div>
                         <div class="form-group">
                             <label>CVV</label>
-                            <input type="text" class="payment-input" placeholder="123" maxlength="3" 
+                            <input type="text" id="cvv" class="payment-input" placeholder="123" maxlength="3" 
                                    pattern="[0-9]{3}" required>
                         </div>
                     </div>
@@ -184,7 +182,28 @@ include 'header.php';
     </div>
 </div>
 
+<script>
+    // Kredi kartı numarasına otomatik boşluk ekle (4 haneden sonra)
+    document.getElementById('cardNumber').addEventListener('input', function(e) {
+        let value = e.target.value.replace(/\s/g, '');
+        let formattedValue = value.replace(/(\d{4})(?=\d)/g, '$1 ');
+        e.target.value = formattedValue.substring(0, 19);
+    });
 
+    // Tarih alanına otomatik "/" ekle
+    document.getElementById('expiryDate').addEventListener('input', function(e) {
+        let value = e.target.value.replace(/\D/g, '');
+        if (value.length >= 2) {
+            value = value.substring(0, 2) + '/' + value.substring(2, 4);
+        }
+        e.target.value = value.substring(0, 5);
+    });
+
+    // CVV sadece rakam kabul et
+    document.getElementById('cvv').addEventListener('input', function(e) {
+        e.target.value = e.target.value.replace(/\D/g, '').substring(0, 3);
+    });
+</script>
 
 <?php include 'footer.php'; ?>
 
