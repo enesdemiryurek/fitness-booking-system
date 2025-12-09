@@ -366,10 +366,11 @@ if ($progress_stmt) {
     <title>Dashboard | GYM</title>
     <link rel="stylesheet" href="style.css">
     <style>
-        body { background-color: #f0f2f5; font-family: 'Poppins', Arial, sans-serif; }
+        body { background-color: #f0f2f5; font-family: 'Poppins', Arial, sans-serif; margin: 0; }
         .dashboard-container { max-width: 1200px; margin: 30px auto; padding: 0 20px; }
         .dash-header { background: #1b4cd3; color: #fff; padding: 30px; border-radius: 15px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; box-shadow: 0 10px 20px rgba(24, 90, 219, 0.2); }
         .dash-title h1 { margin: 0; font-size: 1.8rem; }
+        .dash-title p { margin: 6px 0 0; }
         .dash-btn { background: rgba(255,255,255,0.2); color: #fff; text-decoration: none; padding: 10px 20px; border-radius: 8px; font-weight: 600; transition: 0.3s; margin-left: 10px; display: inline-block; }
         .dash-btn:hover { background: #fff; color: #1b4cd3; }
         .dash-grid { display: grid; grid-template-columns: 1fr 1.5fr 1fr; gap: 25px; }
@@ -377,7 +378,7 @@ if ($progress_stmt) {
         .card-head { border-bottom: 2px solid #f0f2f5; padding-bottom: 15px; margin-bottom: 20px; font-size: 1.1rem; font-weight: 800; color: #333; }
         .form-group { margin-bottom: 15px; }
         .form-group label { display: block; font-size: 0.85rem; font-weight: 600; color: #555; margin-bottom: 5px; }
-        .dash-input { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; outline: none; transition: 0.3s; }
+        .dash-input { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; outline: none; transition: border-color 0.3s ease; }
         .dash-input:focus { border-color: #1b4cd3; }
         .btn-submit { width: 100%; padding: 12px; background: #1b4cd3; color: #fff; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.3s; }
         .btn-submit:hover { background: #153bb0; }
@@ -401,64 +402,62 @@ if ($progress_stmt) {
         .comment-bar { display: flex; justify-content: space-between; align-items: center; margin-top: 10px; }
         .comment-bar__stat { display: flex; align-items: center; gap: 8px; font-size: 0.85rem; color: #444; }
         .comment-bar__stat--empty { color: #999; }
+        .comment-bar__score { font-weight: 700; }
         .comment-trigger { border: none; background: transparent; color: #1b4cd3; font-weight: 600; cursor: pointer; }
         .comment-trigger.open { color: #c0392b; }
-        .review-panel { border: 1px solid #dfe6ff; border-radius: 16px; margin-top: 15px; display: none; padding: 22px; background: #fdfdff; box-shadow: 0 14px 30px rgba(15, 23, 42, 0.08); }
-        .review-panel.open { display: block; }
-        .review-panel__header { display: flex; flex-direction: column; gap: 12px; margin-bottom: 18px; }
-        .review-panel__summary { display: flex; align-items: center; gap: 18px; }
-        .review-panel__score { font-size: 2.4rem; font-weight: 800; color: #1b4cd3; }
-        .review-panel__stars { display: flex; align-items: center; gap: 12px; }
-        .star-rating-display { position: relative; display: inline-block; width: 96px; height: 20px; color: #d1d7f3; font-size: 20px; line-height: 20px; }
-        .star-rating-display::before { content: '\2605\2605\2605\2605\2605'; position: absolute; left: 0; top: 0; width: 100%; height: 100%; color: #d1d7f3; }
-        .star-rating-display__fill { position: absolute; left: 0; top: 0; height: 100%; overflow: hidden; color: #ffb400; }
+        .star-rating-display { position: relative; display: inline-block; width: 92px; height: 18px; color: #d5d9d9; font-size: 18px; line-height: 18px; }
+        .star-rating-display::before { content: '\2605\2605\2605\2605\2605'; position: absolute; left: 0; top: 0; width: 100%; height: 100%; color: #d5d9d9; }
+        .star-rating-display__fill { position: absolute; left: 0; top: 0; height: 100%; overflow: hidden; color: #ffa41c; }
         .star-rating-display__fill::before { content: '\2605\2605\2605\2605\2605'; position: absolute; left: 0; top: 0; }
-        .star-rating-display--sm { width: 80px; font-size: 17px; height: 18px; line-height: 18px; }
-        .review-panel__body { display: flex; flex-direction: column; gap: 22px; }
+        .star-rating-display--sm { width: 80px; font-size: 16px; height: 16px; line-height: 16px; }
+        .review-panel { border: 1px solid #d5d9d9; border-radius: 10px; margin-top: 15px; display: none; padding: 20px; background: #fff; }
+        .review-panel.open { display: block; }
+        .review-panel__header { display: flex; flex-direction: column; gap: 14px; margin-bottom: 20px; }
+        .review-panel__summary { display: flex; align-items: center; gap: 16px; }
+        .review-panel__score { font-size: 2rem; font-weight: 700; color: #007185; }
+        .review-panel__stars { display: flex; align-items: center; gap: 10px; }
+        .review-panel__body { display: flex; flex-direction: column; gap: 20px; }
         .review-panel__filters { display: flex; flex-wrap: wrap; gap: 10px; }
-        .review-filter { border: 1px solid #1b4cd3; border-radius: 30px; padding: 6px 16px; background: #fff; color: #1b4cd3; cursor: pointer; font-size: 0.75rem; font-weight: 600; transition: all 0.2s ease; }
-        .review-filter:hover { background: rgba(27, 76, 211, 0.08); }
-        .review-filter.active { background: #1b4cd3; color: #fff; box-shadow: 0 8px 16px rgba(27, 76, 211, 0.25); }
-        .review-panel__list { display: flex; flex-direction: column; gap: 18px; }
-        .review-panel__empty { font-size: 0.88rem; color: #7b82a9; text-align: center; margin-top: 10px; }
-        .review-panel__empty--filtered { font-size: 0.85rem; color: #7b82a9; text-align: center; }
-        .review-create { background: linear-gradient(135deg, rgba(27, 76, 211, 0.12), rgba(90, 125, 255, 0.08)); border: 1px solid #dbe2ff; border-radius: 16px; padding: 18px; box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.4); }
-        .review-form-trendy { display: flex; flex-direction: column; gap: 16px; }
-        .form-group-review { margin: 0; display: flex; flex-direction: column; gap: 8px; }
-        .form-group-review label { font-size: 0.8rem; font-weight: 700; color: #27325a; letter-spacing: 0.02em; text-transform: uppercase; }
+        .review-filter { border: 1px solid #d5d9d9; border-radius: 999px; padding: 6px 16px; background: #fff; color: #0f1111; cursor: pointer; font-size: 0.8rem; font-weight: 600; transition: background 0.2s ease, border-color 0.2s ease; }
+        .review-filter:hover { background: #f3f4f6; }
+        .review-filter.active { border-color: #ffa41c; background: #fff7e0; }
+        .review-panel__list { display: flex; flex-direction: column; gap: 20px; }
+        .review-panel__empty { font-size: 0.9rem; color: #565959; text-align: center; margin-top: 10px; }
+        .review-panel__empty--filtered { font-size: 0.85rem; color: #565959; text-align: center; }
+        .review-create { border: 1px solid #d5d9d9; border-radius: 10px; background: #f8f9fb; padding: 18px; }
+        .review-form-trendy { display: flex; flex-direction: column; gap: 14px; }
+        .form-group-review { margin: 0; display: flex; flex-direction: column; gap: 6px; }
+        .form-group-review label { font-size: 0.82rem; font-weight: 600; color: #0f1111; }
         .star-rating-input { display: inline-flex; flex-direction: row-reverse; gap: 6px; align-items: center; }
         .star-rating-input input { display: none; }
-        .star-rating-input label { font-size: 1.8rem; color: #c7cfef; cursor: pointer; transition: color 0.2s ease, transform 0.2s ease; }
+        .star-rating-input label { font-size: 1.6rem; color: #d5d9d9; cursor: pointer; transition: color 0.2s ease; }
         .star-rating-input label:hover,
-        .star-rating-input label:hover ~ label { color: #ffb400; transform: translateY(-1px); }
-        .star-rating-input input:checked ~ label { color: #ffb400; }
-        .star-rating-input input:focus-visible + label { outline: 2px solid #1b4cd3; outline-offset: 4px; border-radius: 4px; }
-        .review-form-trendy textarea { width: 100%; border-radius: 14px; border: 1px solid #d5dcf7; padding: 14px 16px; font-size: 0.95rem; resize: vertical; min-height: 120px; transition: border-color 0.2s ease, box-shadow 0.2s ease; background: #fff; }
-        .review-form-trendy textarea:focus { border-color: #1b4cd3; box-shadow: 0 0 0 3px rgba(27, 76, 211, 0.15); outline: none; }
+        .star-rating-input label:hover ~ label { color: #ffa41c; }
+        .star-rating-input input:checked ~ label { color: #ffa41c; }
+        .star-rating-input input:focus-visible + label { outline: 2px solid #ffa41c; outline-offset: 4px; border-radius: 4px; }
+        .review-form-trendy textarea { width: 100%; border-radius: 8px; border: 1px solid #d5d9d9; padding: 12px; font-size: 0.95rem; resize: vertical; min-height: 110px; transition: border-color 0.2s ease, box-shadow 0.2s ease; background: #fff; }
+        .review-form-trendy textarea:focus { border-color: #ffa41c; box-shadow: 0 0 0 3px rgba(255, 164, 28, 0.25); outline: none; }
         .review-form-actions { display: flex; justify-content: flex-end; }
-        .btn-send-review { background: linear-gradient(135deg, #1b4cd3, #5a7dff); color: #fff; border: none; padding: 11px 26px; border-radius: 999px; font-weight: 600; cursor: pointer; transition: transform 0.2s ease, box-shadow 0.2s ease; letter-spacing: 0.02em; }
-        .btn-send-review:hover { transform: translateY(-1px); box-shadow: 0 12px 24px rgba(27, 76, 211, 0.25); }
-        .review-feed { display: flex; flex-direction: column; gap: 14px; }
-        .review-card { display: flex; gap: 14px; background: #fff; border: 1px solid #ecf0ff; border-radius: 18px; padding: 16px 18px; box-shadow: 0 16px 28px rgba(15, 23, 42, 0.06); position: relative; transition: transform 0.2s ease, box-shadow 0.2s ease; }
-        .review-card:hover { transform: translateY(-2px); box-shadow: 0 18px 32px rgba(15, 23, 42, 0.1); }
-        .review-card--yours { border: 1px solid rgba(27, 76, 211, 0.6); background: linear-gradient(135deg, rgba(27, 76, 211, 0.15), rgba(255, 255, 255, 0.9)); }
-        .review-card__avatar { flex: 0 0 48px; width: 48px; height: 48px; border-radius: 50%; background: linear-gradient(135deg, #1b4cd3, #5a7dff); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 1.1rem; text-transform: uppercase; letter-spacing: 0.02em; }
+        .btn-send-review { background: linear-gradient(180deg, #ffa41c, #ff8f00); color: #0f1111; border: 1px solid #ff8f00; padding: 10px 20px; border-radius: 8px; font-weight: 600; cursor: pointer; box-shadow: 0 2px 5px rgba(15, 17, 17, 0.15); }
+        .btn-send-review:hover { background: #ff9900; }
+        .review-feed { display: flex; flex-direction: column; }
+        .review-card { display: flex; gap: 14px; }
+        .review-feed .review-card { padding-bottom: 18px; border-bottom: 1px solid #e3e6e6; }
+        .review-feed .review-card:last-of-type { border-bottom: none; padding-bottom: 0; }
+        .review-card--yours { border: 1px solid #f0d67a; border-radius: 8px; background: #fdf7e2; padding: 16px; gap: 14px; }
+        .review-card__avatar { flex: 0 0 42px; width: 42px; height: 42px; border-radius: 50%; background: #ecf1f8; color: #37475a; display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 1rem; }
+        .review-card--yours .review-card__avatar { background: #f0d67a; color: #0f1111; }
         .review-card__content { flex: 1; display: flex; flex-direction: column; gap: 8px; }
-        .review-card__meta { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
-        .review-card__name { font-weight: 700; color: #1f2a4a; font-size: 0.95rem; }
-        .review-card__timestamp { font-size: 0.75rem; color: #8a94b7; }
-        .review-card__comment { font-size: 0.95rem; color: #2d3557; line-height: 1.55; white-space: pre-wrap; }
-        .review-card__stars { display: flex; align-items: center; gap: 10px; font-size: 0.82rem; color: #4b4f68; }
-        .review-card__badge { display: inline-flex; align-items: center; gap: 6px; font-size: 0.7rem; font-weight: 700; color: #1b4cd3; background: rgba(27, 76, 211, 0.12); padding: 4px 12px; border-radius: 999px; text-transform: uppercase; letter-spacing: 0.03em; }
-        .review-card__divider { height: 1px; background: #e7ebff; margin: 4px 0; }
-        .review-card__likes { font-size: 0.78rem; color: #8993be; display: flex; align-items: center; gap: 12px; }
-        .review-summary__score { font-weight: 700; font-size: 0.9rem; margin-left: 8px; }
-        .btn-card { width: 100%; padding: 10px; border-radius: 8px; border: none; background: #ccc; color: #555; font-weight: 600; cursor: not-allowed; margin-top: 10px; }
-        .btn-card { width: 100%; padding: 10px; border-radius: 8px; border: none; background: #ccc; color: #555; font-weight: 600; cursor: not-allowed; margin-top: 10px; }
-        .prog-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #f0f0f0; font-size: 0.85rem; }
-        .prog-bmi { background: #e0f2f1; color: #00695c; padding: 3px 8px; border-radius: 20px; font-weight: bold; font-size: 0.75rem; }
+        .review-card__header { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+        .review-card__name { font-weight: 600; color: #0f1111; }
+        .review-card__verified { font-size: 0.75rem; color: #0f1111; font-weight: 600; background: #edeff2; padding: 2px 6px; border-radius: 4px; }
+        .review-card__timestamp { font-size: 0.8rem; color: #565959; }
+        .review-card__comment { font-size: 0.92rem; color: #181a1b; line-height: 1.6; }
         .flash-success { color: #1b5e20; background: #e8f5e9; padding: 10px; border-radius: 5px; margin-bottom: 15px; text-align: center; }
         .flash-error { color: #b71c1c; background: #ffebee; padding: 10px; border-radius: 5px; margin-bottom: 15px; text-align: center; }
+        .prog-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #f0f0f0; font-size: 0.85rem; }
+        .prog-bmi { background: #e0f2f1; color: #00695c; padding: 3px 8px; border-radius: 20px; font-weight: bold; font-size: 0.75rem; }
+        .btn-card { width: 100%; padding: 10px; border-radius: 8px; border: none; background: #ccc; color: #555; font-weight: 600; cursor: not-allowed; margin-top: 10px; }
         @media (max-width: 1024px) { .dash-grid { grid-template-columns: 1fr; } }
     </style>
 </head>
@@ -553,7 +552,7 @@ if ($progress_stmt) {
                                     <span class="star-rating-display">
                                         <span class="star-rating-display__fill" style="width: <?php echo $width; ?>%;"></span>
                                     </span>
-                                    <span><?php echo $upcomingSummary['count']; ?> reviews</span>
+                                    <span><?php echo $upcomingSummary['count']; ?> comments</span>
                                 </div>
                             <?php endif; ?>
                             <div class="lesson-actions">
@@ -644,12 +643,12 @@ if ($progress_stmt) {
                                         <span class="star-rating-display">
                                             <span class="star-rating-display__fill" style="width: <?php echo $summaryWidth; ?>%;"></span>
                                         </span>
-                                        <span class="comment-bar__meta"><?php echo $totalReviews; ?> reviews</span>
+                                        <span class="comment-bar__meta"><?php echo $totalReviews; ?> comments</span>
                                     </div>
                                 <?php else: ?>
-                                    <div class="comment-bar__stat comment-bar__stat--empty">No reviews yet</div>
+                                    <div class="comment-bar__stat comment-bar__stat--empty">No comments yet</div>
                                 <?php endif; ?>
-                                <button type="button" class="comment-trigger" data-target="<?php echo $panelId; ?>" data-open-text="Reviews (<?php echo $totalReviews; ?>)" data-close-text="Close panel" aria-expanded="false" aria-controls="<?php echo $panelId; ?>">Reviews (<?php echo $totalReviews; ?>)</button>
+                                <button type="button" class="comment-trigger" data-target="<?php echo $panelId; ?>" data-open-text="Comments (<?php echo $totalReviews; ?>)" data-close-text="Close panel" aria-expanded="false" aria-controls="<?php echo $panelId; ?>">Comments (<?php echo $totalReviews; ?>)</button>
                             </div>
                             <div class="review-panel" id="<?php echo $panelId; ?>">
                                 <div class="review-panel__header">
@@ -659,11 +658,11 @@ if ($progress_stmt) {
                                             <span class="star-rating-display">
                                                 <span class="star-rating-display__fill" style="width: <?php echo $summaryWidth; ?>%;"></span>
                                             </span>
-                                            <span class="review-panel__total"><?php echo $totalReviews; ?> reviews</span>
+                                            <span class="review-panel__total"><?php echo $totalReviews; ?> comments</span>
                                         </div>
                                     </div>
                                     <div class="review-panel__filters">
-                                        <button type="button" class="review-filter active" data-target-panel="<?php echo $panelId; ?>" data-filter="all">All (<?php echo $totalReviews; ?>)</button>
+                                        <button type="button" class="review-filter active" data-target-panel="<?php echo $panelId; ?>" data-filter="all">All ratings (<?php echo $totalReviews; ?>)</button>
                                         <?php for ($star = 5; $star >= 1; $star--): ?>
                                             <button type="button" class="review-filter" data-target-panel="<?php echo $panelId; ?>" data-filter="<?php echo $star; ?>"><?php echo $star; ?> star (<?php echo $counts[$star]; ?>)</button>
                                         <?php endfor; ?>
@@ -684,11 +683,11 @@ if ($progress_stmt) {
                                                     </div>
                                                 </div>
                                                 <div class="form-group-review">
-                                                    <label>Share your thoughts</label>
-                                                    <textarea name="comment" rows="3" placeholder="Tell the community what stood out for you..." required></textarea>
+                                                    <label>Write your comment</label>
+                                                    <textarea name="comment" rows="3" placeholder="Share details that will help other members decide." required></textarea>
                                                 </div>
                                                 <div class="review-form-actions">
-                                                    <button type="submit" name="submit_review" class="btn-send-review">Send review</button>
+                                                    <button type="submit" name="submit_review" class="btn-send-review">Send comment</button>
                                                 </div>
                                             </form>
                                         <?php else: ?>
@@ -699,19 +698,16 @@ if ($progress_stmt) {
                                             <div class="review-card review-card--yours">
                                                 <div class="review-card__avatar"><?php echo htmlspecialchars($userInitial); ?></div>
                                                 <div class="review-card__content">
-                                                    <div class="review-card__meta">
-                                                        <span class="review-card__name">You</span>
-                                                        <?php if (!empty($rev_data['created_at'])): ?>
-                                                            <span class="review-card__timestamp"><?php echo date('d.m.Y', strtotime($rev_data['created_at'])); ?></span>
-                                                        <?php endif; ?>
-                                                    </div>
-                                                    <div class="review-card__stars">
+                                                    <div class="review-card__header">
                                                         <span class="star-rating-display star-rating-display--sm">
                                                             <span class="star-rating-display__fill" style="width: <?php echo $userWidth; ?>%;"></span>
                                                         </span>
-                                                        <span><?php echo (int) $rev_data['rating']; ?>/5</span>
-                                                        <span class="review-card__badge">Your review</span>
+                                                        <span class="review-card__name">You</span>
+                                                        <span class="review-card__verified">Verified attendee</span>
                                                     </div>
+                                                    <?php if (!empty($rev_data['created_at'])): ?>
+                                                        <div class="review-card__timestamp">Reviewed on <?php echo date('F j, Y', strtotime($rev_data['created_at'])); ?></div>
+                                                    <?php endif; ?>
                                                     <?php if (!empty($rev_data['comment'])): ?>
                                                         <div class="review-card__comment"><?php echo nl2br(htmlspecialchars($rev_data['comment'])); ?></div>
                                                     <?php endif; ?>
@@ -730,26 +726,24 @@ if ($progress_stmt) {
                                                 <article class="review-card" data-rating="<?php echo (int) $reviewItem['rating']; ?>">
                                                     <div class="review-card__avatar"><?php echo htmlspecialchars($avatarLetter); ?></div>
                                                     <div class="review-card__content">
-                                                        <div class="review-card__meta">
-                                                            <span class="review-card__name"><?php echo htmlspecialchars($reviewerName); ?></span>
-                                                            <span class="review-card__timestamp"><?php echo date('d.m.Y', strtotime($reviewItem['created_at'])); ?></span>
-                                                        </div>
-                                                        <div class="review-card__stars">
+                                                        <div class="review-card__header">
                                                             <span class="star-rating-display star-rating-display--sm">
                                                                 <span class="star-rating-display__fill" style="width: <?php echo $width; ?>%;"></span>
                                                             </span>
-                                                            <span><?php echo (int) $reviewItem['rating']; ?>/5</span>
+                                                            <span class="review-card__name"><?php echo htmlspecialchars($reviewerName); ?></span>
+                                                            <span class="review-card__verified">Verified attendee</span>
                                                         </div>
+                                                        <div class="review-card__timestamp">Reviewed on <?php echo date('F j, Y', strtotime($reviewItem['created_at'])); ?></div>
                                                         <?php if (!empty($reviewItem['comment'])): ?>
-                                                            <p class="review-card__comment"><?php echo nl2br(htmlspecialchars($reviewItem['comment'])); ?></p>
+                                                            <div class="review-card__comment"><?php echo nl2br(htmlspecialchars($reviewItem['comment'])); ?></div>
                                                         <?php endif; ?>
                                                     </div>
                                                 </article>
                                             <?php endforeach; ?>
                                         </div>
-                                        <div class="review-panel__empty review-panel__empty--filtered" style="display:none;">No reviews for this filter.</div>
+                                        <div class="review-panel__empty review-panel__empty--filtered" style="display:none;">No comments match this filter.</div>
                                     <?php else: ?>
-                                        <div class="review-panel__empty">No reviews yet. Be the first to share your thoughts.</div>
+                                        <div class="review-panel__empty">No comments yet. Be the first to share your experience.</div>
                                     <?php endif; ?>
                                 </div>
                             </div>
@@ -801,7 +795,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     document.querySelectorAll('.comment-trigger').forEach(function (button) {
         const targetId = button.getAttribute('data-target');
-        const openText = button.getAttribute('data-open-text') || 'Show reviews';
+        const openText = button.getAttribute('data-open-text') || 'Show comments';
         const closeText = button.getAttribute('data-close-text') || 'Close panel';
         const panel = document.getElementById(targetId);
         if (!panel) { return; }
