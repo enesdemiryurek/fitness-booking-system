@@ -58,7 +58,6 @@ $message = "";
 $message_type = "";
 $user_search_query = '';
 $user_search_results = [];
-$lastSpecialtyInstructorId = null;
 
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
     if (isset($_POST['update_role']) && $_SESSION['role'] == 'admin') {
@@ -86,79 +85,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         } else {
             $message = "Invalid user or role selection.";
             $message_type = "error";
-        }
-    } elseif (isset($_POST['update_specialties'])) {
-        $targetInstructorId = $_SESSION['role'] === 'instructor'
-            ? (int) $_SESSION['user_id']
-            : (int) ($_POST['instructor_id'] ?? 0);
-
-        if ($_SESSION['role'] === 'instructor' && $targetInstructorId !== (int) $_SESSION['user_id']) {
-            $message = "You are not allowed to update another instructor's specialties.";
-            $message_type = "error";
-        } elseif ($targetInstructorId <= 0) {
-            $message = "Please select a valid instructor.";
-            $message_type = "error";
-        } else {
-            $isValidInstructor = true;
-            if ($_SESSION['role'] === 'admin') {
-                $verify = mysqli_prepare($conn, "SELECT id FROM users WHERE id = ? AND role = 'instructor' LIMIT 1");
-                if ($verify) {
-                    mysqli_stmt_bind_param($verify, 'i', $targetInstructorId);
-                    mysqli_stmt_execute($verify);
-                    mysqli_stmt_store_result($verify);
-                    if (mysqli_stmt_num_rows($verify) === 0) {
-                        $isValidInstructor = false;
-                    }
-                    mysqli_stmt_close($verify);
-                } else {
-                    $isValidInstructor = false;
-                }
-            }
-
-            if (!$isValidInstructor) {
-                $message = "The selected instructor could not be found.";
-                $message_type = "error";
-            } else {
-                $selected = isset($_POST['specialties']) && is_array($_POST['specialties']) ? $_POST['specialties'] : [];
-                $selected = array_values(array_intersect($selected, $category_keys));
-
-                $updateSuccess = true;
-                $delete = mysqli_prepare($conn, "DELETE FROM instructor_specialties WHERE user_id = ?");
-                if ($delete) {
-                    mysqli_stmt_bind_param($delete, 'i', $targetInstructorId);
-                    if (!mysqli_stmt_execute($delete)) {
-                        $updateSuccess = false;
-                    }
-                    mysqli_stmt_close($delete);
-                } else {
-                    $updateSuccess = false;
-                }
-
-                if ($updateSuccess && !empty($selected)) {
-                    $insert = mysqli_prepare($conn, "INSERT INTO instructor_specialties (user_id, class_type) VALUES (?, ?)");
-                    if ($insert) {
-                        foreach ($selected as $category) {
-                            mysqli_stmt_bind_param($insert, 'is', $targetInstructorId, $category);
-                            if (!mysqli_stmt_execute($insert)) {
-                                $updateSuccess = false;
-                                break;
-                            }
-                        }
-                        mysqli_stmt_close($insert);
-                    } else {
-                        $updateSuccess = false;
-                    }
-                }
-
-                if ($updateSuccess) {
-                    $message = "Instructor specialties updated.";
-                    $message_type = "success";
-                    $lastSpecialtyInstructorId = $targetInstructorId;
-                } else {
-                    $message = "Unable to update instructor specialties. Please try again.";
-                    $message_type = "error";
-                }
-            }
         }
     } elseif (isset($_POST['create_class'])) {
         $title = trim($_POST['title'] ?? '');
@@ -280,25 +206,6 @@ foreach ($instructors as $id => $username) {
     $categoriesById[$id] = $categories;
 }
 
-$selectedInstructorIdForSpecialties = null;
-if ($_SESSION['role'] === 'instructor') {
-    $selectedInstructorIdForSpecialties = (int) $_SESSION['user_id'];
-} else {
-    if ($lastSpecialtyInstructorId !== null && isset($instructors[$lastSpecialtyInstructorId])) {
-        $selectedInstructorIdForSpecialties = $lastSpecialtyInstructorId;
-    } elseif (isset($_POST['instructor_id']) && isset($instructors[(int) $_POST['instructor_id']])) {
-        $selectedInstructorIdForSpecialties = (int) $_POST['instructor_id'];
-    } elseif (isset($_GET['specialty_instructor']) && isset($instructors[(int) $_GET['specialty_instructor']])) {
-        $selectedInstructorIdForSpecialties = (int) $_GET['specialty_instructor'];
-    } elseif (!empty($instructors)) {
-        foreach ($instructors as $id => $_name) {
-            $selectedInstructorIdForSpecialties = $id;
-            break;
-        }
-    }
-}
-
-$selectedInstructorSpecialties = $selectedInstructorIdForSpecialties ? ($specialtiesByInstructor[$selectedInstructorIdForSpecialties] ?? []) : [];
 $currentInstructorCategories = [];
 if ($_SESSION['role'] === 'instructor') {
     $currentInstructorCategories = $specialtiesByInstructor[(int) $_SESSION['user_id']] ?? [];
@@ -431,57 +338,6 @@ include 'header.php';
                 <?php endif; ?>
             </div>
         <?php endif; ?>
-
-        <div class="form-section">
-            <div class="section-header">
-                <h2>Instructor Specialties</h2>
-                <p>Select which categories each instructor is allowed to teach.</p>
-            </div>
-
-            <?php if($_SESSION['role'] == 'admin' && empty($instructors)): ?>
-                <div class="empty-state">Assign the instructor role to at least one user to configure specialties.</div>
-            <?php else: ?>
-                <form method="POST" class="modern-form">
-                    <input type="hidden" name="update_specialties" value="1">
-
-                    <?php if($_SESSION['role'] == 'admin'): ?>
-                        <div class="form-group">
-                            <label for="specialty_instructor">Instructor</label>
-                            <select id="specialty_instructor" name="instructor_id" required>
-                                <?php foreach ($instructors as $instructorId => $instructorUsername): ?>
-                                    <option value="<?php echo $instructorId; ?>" <?php echo ($selectedInstructorIdForSpecialties === $instructorId) ? 'selected' : ''; ?>><?php echo htmlspecialchars($instructorUsername); ?></option>
-                                <?php endforeach; ?>
-                            </select>
-                            <small>Select an instructor to manage their specialties.</small>
-                        </div>
-                    <?php else: ?>
-                        <input type="hidden" name="instructor_id" value="<?php echo (int) $_SESSION['user_id']; ?>">
-                        <div class="form-group">
-                            <label>Instructor</label>
-                            <input type="text" value="<?php echo htmlspecialchars($_SESSION['username']); ?>" readonly class="input-readonly">
-                            <small>Choose the categories you can teach.</small>
-                        </div>
-                    <?php endif; ?>
-
-                    <div class="form-group">
-                        <label>Allowed Categories</label>
-                        <div class="specialty-grid" style="display:flex; flex-wrap:wrap; gap:12px; margin-top:6px;">
-                            <?php foreach ($class_categories as $categoryValue => $categoryLabel): ?>
-                                <label class="specialty-checkbox" style="display:flex; align-items:center; gap:8px; padding:8px 12px; background:#f6f7fb; border-radius:6px; border:1px solid #e5e7ef;">
-                                    <input type="checkbox" name="specialties[]" value="<?php echo htmlspecialchars($categoryValue); ?>" <?php echo in_array($categoryValue, $selectedInstructorSpecialties, true) ? 'checked' : ''; ?>>
-                                    <span><?php echo htmlspecialchars($categoryLabel); ?></span>
-                                </label>
-                            <?php endforeach; ?>
-                        </div>
-                        <small>Course categories will be restricted to this selection.</small>
-                    </div>
-
-                    <div class="form-group">
-                        <button type="submit" class="btn-action-small btn-edit">Save Categories</button>
-                    </div>
-                </form>
-            <?php endif; ?>
-        </div>
 
         <!-- YENİ DERS FORMU -->
         <div class="form-section">
@@ -707,86 +563,68 @@ include 'header.php';
 
 </div>
 
-    <script>
-    document.addEventListener('DOMContentLoaded', function () {
-        var categoriesByUsername = <?php echo json_encode($categoriesByUsername, JSON_UNESCAPED_UNICODE); ?>;
-        var categoriesById = <?php echo json_encode($categoriesById, JSON_UNESCAPED_UNICODE); ?>;
-        var trainerSelect = document.getElementById('trainer');
-        var categorySelect = document.getElementById('class_type');
-        var categoryMessage = document.getElementById('category-select-message');
-        var publishButton = document.getElementById('publish-class-button');
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    var categoriesByUsername = <?php echo json_encode($categoriesByUsername, JSON_UNESCAPED_UNICODE); ?>;
+    var trainerSelect = document.getElementById('trainer');
+    var categorySelect = document.getElementById('class_type');
+    var categoryMessage = document.getElementById('category-select-message');
+    var publishButton = document.getElementById('publish-class-button');
 
-        function syncCategoryOptions(categories) {
-            if (!categorySelect) {
-                return;
-            }
+    function syncCategoryOptions(categories) {
+        if (!categorySelect) {
+            return;
+        }
 
-            while (categorySelect.firstChild) {
-                categorySelect.removeChild(categorySelect.firstChild);
-            }
+        while (categorySelect.firstChild) {
+            categorySelect.removeChild(categorySelect.firstChild);
+        }
 
-            if (!categories || categories.length === 0) {
-                categorySelect.disabled = true;
-                var option = document.createElement('option');
-                option.value = '';
-                option.textContent = 'No categories available';
-                categorySelect.appendChild(option);
-                if (categoryMessage) {
-                    categoryMessage.textContent = 'Assign specialties to the selected instructor before publishing a class.';
-                    categoryMessage.style.color = '#c0392b';
-                }
-                if (publishButton) {
-                    publishButton.disabled = true;
-                }
-                return;
-            }
-
-            categories.forEach(function (category) {
-                var option = document.createElement('option');
-                option.value = category;
-                option.textContent = category;
-                categorySelect.appendChild(option);
-            });
-
-            categorySelect.disabled = false;
-            categorySelect.value = categories[0];
-
+        if (!categories || categories.length === 0) {
+            categorySelect.disabled = true;
+            var option = document.createElement('option');
+            option.value = '';
+            option.textContent = 'No categories available';
+            categorySelect.appendChild(option);
             if (categoryMessage) {
-                categoryMessage.textContent = 'Category is limited to the instructor specialties.';
-                categoryMessage.style.color = '#555';
+                categoryMessage.textContent = 'Assign specialties to the selected instructor before publishing a class.';
+                categoryMessage.style.color = '#c0392b';
             }
             if (publishButton) {
-                publishButton.disabled = false;
+                publishButton.disabled = true;
             }
+            return;
         }
 
-        if (trainerSelect && categorySelect) {
-            var initialCategories = categoriesByUsername[trainerSelect.value] || [];
-            syncCategoryOptions(initialCategories);
+        categories.forEach(function (category) {
+            var option = document.createElement('option');
+            option.value = category;
+            option.textContent = category;
+            categorySelect.appendChild(option);
+        });
 
-            trainerSelect.addEventListener('change', function () {
-                var selectedCategories = categoriesByUsername[this.value] || [];
-                syncCategoryOptions(selectedCategories);
-            });
+        categorySelect.disabled = false;
+        categorySelect.value = categories[0];
+
+        if (categoryMessage) {
+            categoryMessage.textContent = 'Category is limited to the instructor specialties.';
+            categoryMessage.style.color = '#555';
         }
-
-        var specialtySelect = document.getElementById('specialty_instructor');
-        if (specialtySelect) {
-            var checkboxes = document.querySelectorAll('.specialty-grid input[type="checkbox"]');
-            function syncSpecialtyCheckboxes(instructorId) {
-                var allowed = categoriesById[String(instructorId)] || [];
-                checkboxes.forEach(function (checkbox) {
-                    checkbox.checked = allowed.indexOf(checkbox.value) !== -1;
-                });
-            }
-
-            syncSpecialtyCheckboxes(specialtySelect.value);
-
-            specialtySelect.addEventListener('change', function () {
-                syncSpecialtyCheckboxes(this.value);
-            });
+        if (publishButton) {
+            publishButton.disabled = false;
         }
-    });
-    </script>
+    }
+
+    if (trainerSelect && categorySelect) {
+        var initialCategories = categoriesByUsername[trainerSelect.value] || [];
+        syncCategoryOptions(initialCategories);
+
+        trainerSelect.addEventListener('change', function () {
+            var selectedCategories = categoriesByUsername[this.value] || [];
+            syncCategoryOptions(selectedCategories);
+        });
+    }
+});
+</script>
 
 <?php include 'footer.php'; ?>

@@ -9,6 +9,17 @@ if (!isset($_SESSION['user_id'])) {
 
 $user_id = (int) $_SESSION['user_id'];
 
+$class_categories = include __DIR__ . '/class_categories.php';
+if (!is_array($class_categories) || empty($class_categories)) {
+    $class_categories = [
+        'Yoga' => 'Yoga',
+        'Pilates' => 'Pilates',
+        'HIIT' => 'HIIT',
+        'Zumba' => 'Zumba',
+        'Fitness' => 'Fitness'
+    ];
+}
+
 $message = '';
 $message_type = '';
 $progress_message = '';
@@ -19,6 +30,14 @@ $body_fat_percentage = null;
 $body_fat_category = '';
 $shoulder_waist_ratio = null;
 $lean_mass = null;
+
+$user_query = mysqli_query($conn, "SELECT id, username, email, phone, age, gender, role, profile_photo, profile_pic FROM users WHERE id = $user_id LIMIT 1");
+$user_row = $user_query ? mysqli_fetch_assoc($user_query) : null;
+
+if (!$user_row) {
+    header('Location: logout.php');
+    exit;
+}
 
 $detectMimeType = static function (string $path): ?string {
     if (!is_readable($path)) {
@@ -85,6 +104,7 @@ if (isset($_POST['update_profile'])) {
     $new_phone = trim($_POST['phone'] ?? '');
     $new_age = trim($_POST['age'] ?? '');
     $new_gender = trim($_POST['gender'] ?? '');
+    $specialties_to_update = isset($_POST['specialties']) && is_array($_POST['specialties']) ? $_POST['specialties'] : null;
 
     $profile_errors = [];
     $age_value = null;
@@ -141,9 +161,40 @@ if (isset($_POST['update_profile'])) {
             ";
 
             if (mysqli_query($conn, $update_sql)) {
+                if ($user_row['role'] === 'instructor' && $specialties_to_update !== null) {
+                    $category_keys = array_keys($class_categories);
+                    $selected = array_values(array_intersect($specialties_to_update, $category_keys));
+
+                    $delete = mysqli_prepare($conn, "DELETE FROM instructor_specialties WHERE user_id = ?");
+                    if ($delete) {
+                        mysqli_stmt_bind_param($delete, 'i', $user_id);
+                        mysqli_stmt_execute($delete);
+                        mysqli_stmt_close($delete);
+                    }
+
+                    if (!empty($selected)) {
+                        $insert = mysqli_prepare($conn, "INSERT INTO instructor_specialties (user_id, class_type) VALUES (?, ?)");
+                        if ($insert) {
+                            foreach ($selected as $category) {
+                                mysqli_stmt_bind_param($insert, 'is', $user_id, $category);
+                                mysqli_stmt_execute($insert);
+                            }
+                            mysqli_stmt_close($insert);
+                        }
+                    }
+
+                    $instructor_specialties = $selected;
+                }
+
                 $message = "Success: Details updated successfully.";
                 $message_type = "success";
                 $_SESSION['username'] = $new_username;
+
+                $user_row['username'] = $new_username;
+                $user_row['email'] = $new_email;
+                $user_row['phone'] = $new_phone;
+                $user_row['age'] = $age_value;
+                $user_row['gender'] = $new_gender;
             } else {
                 $profile_errors[] = "Error: An error occurred while updating your profile.";
             }
@@ -189,12 +240,21 @@ if (isset($_POST['add_progress'])) {
     }
 }
 
-$user_query = mysqli_query($conn, "SELECT id, username, email, phone, age, gender, role, profile_photo, profile_pic FROM users WHERE id = $user_id LIMIT 1");
-$user_row = $user_query ? mysqli_fetch_assoc($user_query) : null;
-
-if (!$user_row) {
-    header('Location: logout.php');
-    exit;
+$instructor_specialties = [];
+if ($user_row['role'] === 'instructor') {
+    $specialty_stmt = mysqli_prepare($conn, "SELECT class_type FROM instructor_specialties WHERE user_id = ? ORDER BY class_type ASC");
+    if ($specialty_stmt) {
+        mysqli_stmt_bind_param($specialty_stmt, 'i', $user_id);
+        mysqli_stmt_execute($specialty_stmt);
+        $specialty_result = mysqli_stmt_get_result($specialty_stmt);
+        if ($specialty_result) {
+            while ($specialty_row = mysqli_fetch_assoc($specialty_result)) {
+                $instructor_specialties[] = $specialty_row['class_type'];
+            }
+            mysqli_free_result($specialty_result);
+        }
+        mysqli_stmt_close($specialty_stmt);
+    }
 }
 
 $role_labels = [
@@ -415,7 +475,7 @@ include 'header.php';
                 <?php elseif (!empty($user_row['profile_pic']) && $user_row['profile_pic'] !== 'default.png'): ?>
                     <img src="<?php echo htmlspecialchars($user_row['profile_pic']); ?>" alt="Profile Photo">
                 <?php else: ?>
-                    <div class="profile-avatar-placeholder">🏋️</div>
+                    <img src="img/defaultuser.png" alt="Default Profile Photo">
                 <?php endif; ?>
             </div>
             <div class="profile-hero-info">
@@ -515,6 +575,23 @@ include 'header.php';
                             </select>
                         </div>
                     </div>
+
+                    <?php if ($user_row['role'] === 'instructor'): ?>
+                        <div class="card-divider" style="margin: 24px 0;"></div>
+
+                        <div class="form-group">
+                            <label>Instructor Specialties</label>
+                            <p class="form-hint" style="margin-bottom: 12px;">Select the categories you can teach. You can only create courses in these categories.</p>
+                            <div class="specialty-grid" style="display:flex; flex-wrap:wrap; gap:12px;">
+                                <?php foreach ($class_categories as $categoryValue => $categoryLabel): ?>
+                                    <label class="specialty-checkbox" style="display:flex; align-items:center; gap:8px; padding:8px 12px; background:#f6f7fb; border-radius:6px; border:1px solid #e5e7ef; cursor:pointer;">
+                                        <input type="checkbox" name="specialties[]" value="<?php echo htmlspecialchars($categoryValue); ?>" <?php echo in_array($categoryValue, $instructor_specialties, true) ? 'checked' : ''; ?>>
+                                        <span style="font-size:14px; font-weight:500;"><?php echo htmlspecialchars($categoryLabel); ?></span>
+                                    </label>
+                                <?php endforeach; ?>
+                            </div>
+                        </div>
+                    <?php endif; ?>
 
                     <div class="form-actions">
                         <button type="submit" name="update_profile" class="btn-submit-large">Update Details</button>
