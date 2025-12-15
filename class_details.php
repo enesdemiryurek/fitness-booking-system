@@ -542,114 +542,53 @@ if ($progress_stmt) {
                             <?php if (!empty($row['description'])): ?>
                                 <p class="class-description" style="font-size:0.9rem; color:#555; line-height:1.5;"><?php echo nl2br(htmlspecialchars($row['description'])); ?></p>
                             <?php endif; ?>
-                            <div class="comment-bar">
-                                <?php if ($hasPastReviews): ?>
-                                    <div class="comment-bar__stat">
-                                        <span class="comment-bar__score"><?php echo number_format($pastSummary['avg'], 1); ?></span>
-                                        <span class="star-rating-display">
-                                            <span class="star-rating-display__fill" style="width: <?php echo $summaryWidth; ?>%;"></span>
-                                        </span>
-                                        <span class="comment-bar__meta"><?php echo $totalReviews; ?> comments</span>
-                                    </div>
-            
-                                <button type="button" class="comment-trigger" data-target="<?php echo $panelId; ?>" data-open-text="Comments (<?php echo $totalReviews; ?>)" data-close-text="Close panel" aria-expanded="false" aria-controls="<?php echo $panelId; ?>">Comments (<?php echo $totalReviews; ?>)</button>
-                            </div>
-                            <div class="review-panel" id="<?php echo $panelId; ?>">
-                                <div class="review-panel__header">
-                                    <div class="review-panel__summary">
-                                        <div class="review-panel__score"><?php echo $averageText; ?></div>
-                                        <div class="review-panel__stars">
-                                            <span class="star-rating-display">
-                                                <span class="star-rating-display__fill" style="width: <?php echo $summaryWidth; ?>%;"></span>
-                            
-                                            
-                            
-                                    <div class="review-panel__filters">
-                                        <button type="button" class="review-filter active" data-target-panel="<?php echo $panelId; ?>" data-filter="all">All ratings (<?php echo $totalReviews; ?>)</button>
-                                        <?php for ($star = 5; $star >= 1; $star--): ?>
-                                            <button type="button" class="review-filter" data-target-panel="<?php echo $panelId; ?>" data-filter="<?php echo $star; ?>"><?php echo $star; ?> star (<?php echo $counts[$star]; ?>)</button>
-                                        <?php endfor; ?>
-                                    </div>
+                            <?php if ($hasPastReviews): ?>
+                                <div style="margin-top:15px; padding:10px; background:#f9f9f9; border-radius:5px;">
+                                    <p style="margin:0 0 10px 0; font-weight:bold;">Class Rating: <?php echo number_format($pastSummary['avg'], 1); ?>/5 (<?php echo $totalReviews; ?> reviews)</p>
                                 </div>
-                                <div class="review-panel__body">
-                                    <div class="review-create">
-                                        <?php if (!$rev_data): ?>
-                                            <form method="POST" class="review-form-trendy">
-                                                <input type="hidden" name="class_id" value="<?php echo (int) $row['id']; ?>">
-                                                <div class="form-group-review">
-                                                    <label>Rate this class</label>
-                                                    <div class="star-rating-input">
-                                                        <?php for ($i = 5; $i >= 1; $i--): ?>
-                                                            <input type="radio" id="rating-<?php echo (int) $row['id']; ?>-<?php echo $i; ?>" name="rating" value="<?php echo $i; ?>" required>
-                                                            <label for="rating-<?php echo (int) $row['id']; ?>-<?php echo $i; ?>">★</label>
-                                                        <?php endfor; ?>
-                                                    </div>
-                                                </div>
-                                                <div class="form-group-review">
-                                                    <label>Write your comment</label>
-                                                    <textarea name="comment" rows="3" placeholder="Share details that will help other members decide." required></textarea>
-                                                </div>
-                                                <div class="review-form-actions">
-                                                    <button type="submit" name="submit_review" class="btn-send-review">Send comment</button>
-                                                </div>
-                                            </form>
-                                        <?php else: ?>
-                                            <?php
-                                            $userInitial = strtoupper(substr(($user_row['username'] ?? 'You'), 0, 1));
-                                            $userWidth = max(0, min(100, ($rev_data['rating'] / 5) * 100));
-                                            ?>
-                                            <div class="review-card review-card--yours">
-                                                <div class="review-card__avatar"><?php echo htmlspecialchars($userInitial); ?></div>
-                                                <div class="review-card__content">
-                                                    <div class="review-card__header">
-                                                        <span class="star-rating-display star-rating-display--sm">
-                                                            <span class="star-rating-display__fill" style="width: <?php echo $userWidth; ?>%;"></span>
-                                                        </span>
-                                                        <span class="review-card__name">You</span>
-                                                        <span class="review-card__verified">Verified attendee</span>
-                                                    </div>
-                                                    <?php if (!empty($rev_data['created_at'])): ?>
-                                                        <div class="review-card__timestamp">Reviewed on <?php echo date('F j, Y', strtotime($rev_data['created_at'])); ?></div>
-                                                    <?php endif; ?>
-                                                    <?php if (!empty($rev_data['comment'])): ?>
-                                                        <div class="review-card__comment"><?php echo nl2br(htmlspecialchars($rev_data['comment'])); ?></div>
-                                                    <?php endif; ?>
-                                                </div>
+                            <?php endif; ?>
+                            
+                            <?php if (!$rev_data): ?>
+                                <div style="margin-top:15px; padding:15px; background:#fff; border:1px solid #ddd; border-radius:5px;">
+                                    <form method="POST">
+                                        <input type="hidden" name="class_id" value="<?php echo (int) $row['id']; ?>">
+                                        <div style="margin-bottom:10px;">
+                                            <label style="display:block; margin-bottom:5px; font-weight:bold;">Rate this class</label>
+                                            <div style="display:flex; gap:5px;">
+                                                <?php for ($i = 5; $i >= 1; $i--): ?>
+                                                    <input type="radio" id="rating-<?php echo (int) $row['id']; ?>-<?php echo $i; ?>" name="rating" value="<?php echo $i; ?>" required>
+                                                    <label for="rating-<?php echo (int) $row['id']; ?>-<?php echo $i; ?>" style="cursor:pointer; font-size:20px;">★</label>
+                                                <?php endfor; ?>
                                             </div>
-                                        <?php endif; ?>
-                                    </div>
-                                    <?php if ($hasPastReviews): ?>
-                                        <div class="review-feed review-panel__list">
-                                            <?php foreach ($pastReviewList as $reviewItem): ?>
-                                                <?php
-                                                $width = max(0, min(100, ($reviewItem['rating'] / 5) * 100));
-                                                $reviewerName = $reviewItem['username'] ?? 'Member';
-                                                $avatarLetter = strtoupper(substr($reviewerName, 0, 1));
-                                                ?>
-                                                <article class="review-card" data-rating="<?php echo (int) $reviewItem['rating']; ?>">
-                                                    <div class="review-card__avatar"><?php echo htmlspecialchars($avatarLetter); ?></div>
-                                                    <div class="review-card__content">
-                                                        <div class="review-card__header">
-                                                            <span class="star-rating-display star-rating-display--sm">
-                                                                <span class="star-rating-display__fill" style="width: <?php echo $width; ?>%;"></span>
-                                                            </span>
-                                                            <span class="review-card__name"><?php echo htmlspecialchars($reviewerName); ?></span>
-                                                            <span class="review-card__verified">Verified attendee</span>
-                                                        </div>
-                                                        <div class="review-card__timestamp">Reviewed on <?php echo date('F j, Y', strtotime($reviewItem['created_at'])); ?></div>
-                                                        <?php if (!empty($reviewItem['comment'])): ?>
-                                                            <div class="review-card__comment"><?php echo nl2br(htmlspecialchars($reviewItem['comment'])); ?></div>
-                                                        <?php endif; ?>
-                                                    </div>
-                                                </article>
-                                            <?php endforeach; ?>
                                         </div>
-                                        <div class="review-panel__empty review-panel__empty--filtered" style="display:none;">No comments match this filter.</div>
-                                    <?php else: ?>
-                                        <div class="review-panel__empty">No comments yet. Be the first to share your experience.</div>
-                                    <?php endif; ?>
+                                        <div style="margin-bottom:10px;">
+                                            <label style="display:block; margin-bottom:5px; font-weight:bold;">Write your comment</label>
+                                            <textarea name="comment" rows="3" style="width:100%; padding:8px; border:1px solid #ddd; border-radius:3px;" placeholder="Share your feedback..." required></textarea>
+                                        </div>
+                                        <button type="submit" name="submit_review" style="background:#28a745; color:white; padding:8px 15px; border:none; border-radius:3px; cursor:pointer;">Submit Review</button>
+                                    </form>
                                 </div>
-                            </div>
+                            <?php else: ?>
+                                <div style="margin-top:15px; padding:10px; background:#e8f5e9; border-left:3px solid #4caf50; border-radius:3px;">
+                                    <p style="margin:0; font-size:0.9rem;"><strong>Your review:</strong> <?php echo htmlspecialchars($rev_data['comment']); ?></p>
+                                </div>
+                            <?php endif; ?>
+                            
+                            <?php if ($hasPastReviews): ?>
+                                <div style="margin-top:15px;">
+                                    <h4 style="margin:0 0 10px 0;">Comments from other members</h4>
+                                    <?php foreach ($pastReviewList as $reviewItem): ?>
+                                        <div style="padding:10px; margin-bottom:10px; background:#f5f5f5; border-radius:3px; border-left:3px solid #1b4cd3;">
+                                            <div style="display:flex; justify-content:space-between; margin-bottom:5px;">
+                                                <strong><?php echo htmlspecialchars($reviewItem['username'] ?? 'Member'); ?></strong>
+                                                <span style="color:#666; font-size:0.85rem;">★★★★★ (<?php echo (int) $reviewItem['rating']; ?>/5)</span>
+                                            </div>
+                                            <p style="margin:5px 0 0 0; font-size:0.9rem; line-height:1.4;"><?php echo htmlspecialchars($reviewItem['comment']); ?></p>
+                                            <p style="margin:5px 0 0 0; font-size:0.8rem; color:#999;"><?php echo date('M j, Y', strtotime($reviewItem['created_at'])); ?></p>
+                                        </div>
+                                    <?php endforeach; ?>
+                                </div>
+                            <?php endif; ?>
                             <button class="btn-card" disabled>Completed</button>
                         </div>
                     <?php endforeach; ?>
@@ -677,64 +616,5 @@ if ($progress_stmt) {
         </div>
     </div>
 </div>
-<script>
-document.addEventListener('DOMContentLoaded', function () {
-    function applyReviewFilter(panel, filter) {
-        if (!panel) { return; }
-        const list = panel.querySelector('.review-panel__list');
-        const items = list ? list.querySelectorAll('.review-card') : [];
-        let visible = 0;
-        items.forEach(function (item) {
-            const rating = item.getAttribute('data-rating');
-            const show = filter === 'all' || rating === filter;
-            item.style.display = show ? 'flex' : 'none';
-            if (show) { visible++; }
-        });
-        const emptyFiltered = panel.querySelector('.review-panel__empty--filtered');
-        if (emptyFiltered) {
-            emptyFiltered.style.display = visible === 0 ? 'block' : 'none';
-        }
-    }
-
-    document.querySelectorAll('.comment-trigger').forEach(function (button) {
-        const targetId = button.getAttribute('data-target');
-        const openText = button.getAttribute('data-open-text') || 'Show comments';
-        const closeText = button.getAttribute('data-close-text') || 'Close panel';
-        const panel = document.getElementById(targetId);
-        if (!panel) { return; }
-        button.setAttribute('aria-expanded', 'false');
-        panel.setAttribute('aria-hidden', 'true');
-        button.addEventListener('click', function () {
-            const isOpen = panel.classList.toggle('open');
-            button.classList.toggle('open', isOpen);
-            button.textContent = isOpen ? closeText : openText;
-            button.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
-            panel.setAttribute('aria-hidden', isOpen ? 'false' : 'true');
-            if (isOpen) {
-                const activeFilter = panel.querySelector('.review-filter.active');
-                const filterValue = activeFilter ? activeFilter.getAttribute('data-filter') : 'all';
-                applyReviewFilter(panel, filterValue || 'all');
-            }
-        });
-    });
-
-    document.querySelectorAll('.review-filter').forEach(function (button) {
-        button.addEventListener('click', function () {
-            const panelId = button.getAttribute('data-target-panel');
-            const panel = document.getElementById(panelId);
-            if (!panel) { return; }
-            const container = button.closest('.review-panel__filters');
-            if (container) {
-                container.querySelectorAll('.review-filter').forEach(function (btn) {
-                    btn.classList.remove('active');
-                });
-            }
-            button.classList.add('active');
-            const filterValue = button.getAttribute('data-filter') || 'all';
-            applyReviewFilter(panel, filterValue);
-        });
-    });
-});
-</script>
 </body>
 </html>

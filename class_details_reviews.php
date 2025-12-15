@@ -34,7 +34,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['submit_review'])) {
         $rating = intval($_POST['rating']);
         $comment = mysqli_real_escape_string($conn, $_POST['comment']);
         
-        // Daha önce yorum yapmış mı?
+        // Daha önce yorum yapmış mi
         $check_sql = "SELECT * FROM reviews WHERE user_id = $user_id AND class_id = $class_id";
         $check_result = mysqli_query($conn, $check_sql);
         
@@ -134,56 +134,40 @@ include 'header.php';
             </div>
 
             <!-- YORUM FORMU -->
-            <div class="detail-card review-form-card">
-                <div class="review-form-header">
-                    <h3>Add Comment</h3>
-                    <button type="button" class="btn-expand" onclick="toggleReviewForm(event)">▼</button>
-                </div>
+            <div style="padding:15px; background:#fff; border:1px solid #ddd; border-radius:5px; margin-bottom:20px;">
+                <h3 style="margin:0 0 15px 0;">Add Comment</h3>
                 
-                <div id="review-form-panel" class="review-form-panel" style="display: none;">
-                    <?php if(isset($success_msg)): ?>
-                        <div class="alert alert-success"><?php echo $success_msg; ?></div>
-                    <?php endif; ?>
-                    <?php if(isset($error_msg)): ?>
-                        <div class="alert alert-error"><?php echo $error_msg; ?></div>
-                    <?php endif; ?>
+                <?php if(isset($success_msg)): ?>
+                    <div style="padding:10px; background:#d4edda; border:1px solid #c3e6cb; border-radius:3px; color:#155724; margin-bottom:15px;"><?php echo $success_msg; ?></div>
+                <?php endif; ?>
+                <?php if(isset($error_msg)): ?>
+                    <div style="padding:10px; background:#f8d7da; border:1px solid #f5c6cb; border-radius:3px; color:#721c24; margin-bottom:15px;"><?php echo $error_msg; ?></div>
+                <?php endif; ?>
 
-                    <?php if(!isset($_SESSION['user_id'])): ?>
-                        <div class="alert alert-warning">
-                            Please <a href="login.php">log in</a> to add a comment.
+                <?php if(!isset($_SESSION['user_id'])): ?>
+                    <div style="padding:10px; background:#fff3cd; border:1px solid #ffeaa7; border-radius:3px; color:#856404;">
+                        Please <a href="login.php">log in</a> to add a comment.
+                    </div>
+                <?php else: ?>
+                    <form method="POST">
+                        <div style="margin-bottom:12px;">
+                            <label style="display:block; margin-bottom:5px; font-weight:bold;">Rate this class:</label>
+                            <select name="rating" required style="width:100%; padding:8px; border:1px solid #ddd; border-radius:3px;">
+                                <option value="">-- Select rating --</option>
+                                <option value="5">⭐⭐⭐⭐⭐ Excellent (5)</option>
+                                <option value="4">⭐⭐⭐⭐ Good (4)</option>
+                                <option value="3">⭐⭐⭐ Average (3)</option>
+                                <option value="2">⭐⭐ Poor (2)</option>
+                                <option value="1">⭐ Very Poor (1)</option>
+                            </select>
                         </div>
-                    <?php else: ?>
-                        <form method="POST" class="review-form">
-                            <div class="form-group">
-                                <label for="rating">Rate:</label>
-                                <select id="rating" name="rating" required class="form-control">
-                                    <option value="">-- Select --</option>
-                                    <option value="5">⭐⭐⭐⭐⭐ (5)</option>
-                                    <option value="4">⭐⭐⭐⭐  (4)</option>
-                                    <option value="3">⭐⭐⭐  (3)</option>
-                                    <option value="2">⭐⭐  (2)</option>
-                                    <option value="1">⭐ (1)</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label for="comment">Comment:</label>
-                                <textarea id="comment" name="comment" required placeholder="Share your thoughts about the class..." rows="3" class="form-control"></textarea>
-                            </div>
-                            <button type="submit" name="submit_review" class="btn-primary">Submit</button>
-                        </form>
-                    <?php endif; ?>
-                </div>
-            </div>
-
-            <div class="detail-card review-form-card" style="margin-top:15px; border: 2px dashed #dce4f7; background:#f9fbff;">
-                <div class="review-form-header">
-                    <h3>Past Lessons - Add Comment</h3>
-                    <button type="button" class="btn-expand" onclick="toggleReviewFormPast(event)">▼</button>
-                </div>
-                <div id="review-form-panel-past" class="review-form-panel" style="display: none;">
-                    <p style="font-size:0.95rem; color:#4b5563; margin-bottom:12px;">Use the panel below to comment on classes you attended in the past.</p>
-                    <a href="class_details.php" class="btn-primary" style="display:inline-block; text-decoration:none;">Past Classes and Comments</a>
-                </div>
+                        <div style="margin-bottom:12px;">
+                            <label style="display:block; margin-bottom:5px; font-weight:bold;">Your comment:</label>
+                            <textarea name="comment" required placeholder="Share your thoughts about the class..." rows="3" style="width:100%; padding:8px; border:1px solid #ddd; border-radius:3px; font-family:Arial, sans-serif;"></textarea>
+                        </div>
+                        <button type="submit" name="submit_review" style="background:#1b4cd3; color:white; padding:10px 20px; border:none; border-radius:3px; cursor:pointer; font-weight:bold;">Submit Comment</button>
+                    </form>
+                <?php endif; ?>
             </div>
 
             <!-- YORUMLAR LİSTESİ -->
@@ -232,17 +216,5 @@ include 'header.php';
     </div>
 
 </div>
-
-<script>
-function toggleReviewForm(e) {
-    if (e) { e.preventDefault(); }
-    const panel = document.getElementById('review-form-panel');
-    if (!panel) return;
-    const isHidden = panel.style.display === 'none' || panel.style.display === '';
-    panel.style.display = isHidden ? 'block' : 'none';
-}
-</script>
-
-
 
 <?php include 'footer.php'; ?>

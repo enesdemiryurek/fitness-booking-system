@@ -15,7 +15,7 @@ include 'notification_handler.php';
 
     <nav class="navbar">
         <a href="index.php" class="logo">
-            BABA PRO GYM
+            GYMCİME
         </a>
 
         <div class="nav-center">
