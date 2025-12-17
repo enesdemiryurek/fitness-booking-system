@@ -641,9 +641,7 @@ body {
         font-size: 1.5rem;
     }
 
-    .profile-hero-simple h1 {
-        font-size: 1.5rem;
-    }
+    
 
     .trainer-info-card {
         flex-wrap: wrap;
@@ -2009,6 +2007,7 @@ body {
 /* Action Buttons */
 .btn-action-small {
     display: inline-block;
+    
     padding: 8px 15px;
     border-radius: 6px;
     text-decoration: none;
@@ -2099,18 +2098,10 @@ body {
         padding: 10px;
     }
 
-    .btn-action-small {
-        padding: 6px 12px;
-        font-size: 0.8rem;
-    }
 }
 
 /* ========== PROFILE PAGESİ STİLLERİ (AMAZON TARZI) ========== */
 
-.profile-page {
-    min-height: 100vh;
-    background: #ffffff;
-}
 
 /* Profile Hero - Amazon Style */
 .profile-hero {
@@ -2595,9 +2586,6 @@ body {
     border-bottom-color: #e0e0e0;
 }
 
-.past-section .card-header h2 {
-    color: #212121;
-}
 
 /* Responsive Profile */
 @media (max-width: 1024px) {
@@ -3156,15 +3144,7 @@ body {
     z-index: 1;
 }
 
-.btn-action-small {
-    padding: 10px 16px;
-    border-radius: 999px;
-    font-size: 0.85rem;
-    font-weight: 600;
-    border: none;
-    cursor: pointer;
-    transition: all 0.2s ease;
-}
+
 
 .btn-action-small.btn-watch {
     background: rgba(34, 197, 94, 0.18);
