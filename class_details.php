@@ -365,6 +365,15 @@ if ($progress_stmt) {
     <meta charset="UTF-8">
     <title>Dashboard | GYM</title>
     <link rel="stylesheet" href="style.css">
+    <style>
+        .simple-box {border: 1px solid #e5e7eb; padding: 12px; border-radius: 6px; background: #fff;}
+        .simple-stack {display: flex; flex-direction: column; gap: 10px;}
+        .simple-input {padding: 8px; border: 1px solid #d1d5db; border-radius: 4px; font-size: 14px;}
+        .simple-btn {padding: 10px 12px; background: #1b4cd3; color: #fff; border: none; border-radius: 0; font-weight: 600; cursor: pointer;}
+        .simple-btn:disabled {background: #ccc; cursor: not-allowed;}
+        .simple-stars {color: #f4b400; font-size: 0.95rem;}
+        .muted {color: #666; font-size: 0.9rem;}
+    </style>
    
 </head>
 <body>
@@ -488,14 +497,7 @@ if ($progress_stmt) {
                         $pastKey = $buildReviewKey($row['trainer_name'], $row['class_type']);
                         $pastSummary = $trainerRatingSummary[$pastKey] ?? null;
                         $pastReviewList = $trainerReviewList[$pastKey] ?? [];
-                        $panelId = 'review-panel-' . (int) $row['id'];
                         $hasPastReviews = $pastSummary && $pastSummary['count'] > 0;
-                        $summaryWidth = $hasPastReviews ? max(0, min(100, ($pastSummary['avg'] / 5) * 100)) : 0;
-                        $counts = [5 => 0, 4 => 0, 3 => 0, 2 => 0, 1 => 0];
-                        foreach ($pastReviewList as $item) {
-                            $ratingValue = max(1, min(5, (int) $item['rating']));
-                            $counts[$ratingValue]++;
-                        }
                         $averageText = $hasPastReviews ? number_format($pastSummary['avg'], 1) : '0.0';
                         $totalReviews = $pastSummary['count'] ?? 0;
 
@@ -543,48 +545,55 @@ if ($progress_stmt) {
                                 <p class="class-description" style="font-size:0.9rem; color:#555; line-height:1.5;"><?php echo nl2br(htmlspecialchars($row['description'])); ?></p>
                             <?php endif; ?>
                             <?php if ($hasPastReviews): ?>
-                                <div style="margin-top:15px; padding:10px; background:#f9f9f9; border-radius:5px;">
-                                    <p style="margin:0 0 10px 0; font-weight:bold;">Class Rating: <?php echo number_format($pastSummary['avg'], 1); ?>/5 (<?php echo $totalReviews; ?> reviews)</p>
+                                <div class="simple-box" style="margin-top:12px;">
+                                    <strong>Class Rating:</strong> <?php echo number_format($pastSummary['avg'], 1); ?>/5 (<?php echo $totalReviews; ?> reviews)
                                 </div>
                             <?php endif; ?>
-                            
                             <?php if (!$rev_data): ?>
-                                <div style="margin-top:15px; padding:15px; background:#fff; border:1px solid #ddd; border-radius:5px;">
-                                    <form method="POST">
+                                <div class="simple-box" style="margin-top:12px;">
+                                    <form method="POST" class="simple-stack">
                                         <input type="hidden" name="class_id" value="<?php echo (int) $row['id']; ?>">
-                                        <div style="margin-bottom:10px;">
-                                            <label style="display:block; margin-bottom:5px; font-weight:bold;">Rate this class</label>
-                                            <div style="display:flex; gap:5px;">
-                                                <?php for ($i = 5; $i >= 1; $i--): ?>
-                                                    <input type="radio" id="rating-<?php echo (int) $row['id']; ?>-<?php echo $i; ?>" name="rating" value="<?php echo $i; ?>" required>
-                                                    <label for="rating-<?php echo (int) $row['id']; ?>-<?php echo $i; ?>" style="cursor:pointer; font-size:20px;">★</label>
-                                                <?php endfor; ?>
-                                            </div>
-                                        </div>
-                                        <div style="margin-bottom:10px;">
-                                            <label style="display:block; margin-bottom:5px; font-weight:bold;">Write your comment</label>
-                                            <textarea name="comment" rows="3" style="width:100%; padding:8px; border:1px solid #ddd; border-radius:3px;" placeholder="Share your feedback..." required></textarea>
-                                        </div>
-                                        <button type="submit" name="submit_review" style="background:#28a745; color:white; padding:8px 15px; border:none; border-radius:3px; cursor:pointer;">Submit Review</button>
+                                        <label for="rating-<?php echo (int) $row['id']; ?>">Rate this class</label>
+                                        <select name="rating" id="rating-<?php echo (int) $row['id']; ?>" class="simple-input" required>
+                                            <option value="">Select</option>
+                                            <option value="5">5 - Excellent</option>
+                                            <option value="4">4 - Good</option>
+                                            <option value="3">3 - Average</option>
+                                            <option value="2">2 - Poor</option>
+                                            <option value="1">1 - Very Poor</option>
+                                        </select>
+                                        <label for="comment-<?php echo (int) $row['id']; ?>">Write your comment</label>
+                                        <textarea name="comment" id="comment-<?php echo (int) $row['id']; ?>" rows="3" class="simple-input" placeholder="Share your feedback..." required></textarea>
+                                        <button type="submit" name="submit_review" class="simple-btn">Submit Review</button>
                                     </form>
                                 </div>
                             <?php else: ?>
-                                <div style="margin-top:15px; padding:10px; background:#e8f5e9; border-left:3px solid #4caf50; border-radius:3px;">
-                                    <p style="margin:0; font-size:0.9rem;"><strong>Your review:</strong> <?php echo htmlspecialchars($rev_data['comment']); ?></p>
+                                <?php $userStars = str_repeat('★', max(0, min(5, (int) ($rev_data['rating'] ?? 0)))); ?>
+                                <div class="simple-box" style="margin-top:12px; background:#f0fdf4; border-color:#bbf7d0;">
+                                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                                        <strong>Your review</strong>
+                                        <span class="simple-stars"><?php echo $userStars; ?></span>
+                                    </div>
+                                    <div class="muted" style="margin-top:6px;"><?php echo htmlspecialchars($rev_data['comment']); ?></div>
+                                    <div class="muted" style="font-size:0.8rem; margin-top:4px;"><?php echo date('d.m.Y', strtotime($rev_data['created_at'])); ?></div>
                                 </div>
                             <?php endif; ?>
-                            
+
                             <?php if ($hasPastReviews): ?>
-                                <div style="margin-top:15px;">
-                                    <h4 style="margin:0 0 10px 0;">Comments from other members</h4>
+                                <div class="simple-box" style="margin-top:12px;">
+                                    <strong>Comments from other members</strong>
                                     <?php foreach ($pastReviewList as $reviewItem): ?>
-                                        <div style="padding:10px; margin-bottom:10px; background:#f5f5f5; border-radius:3px; border-left:3px solid #1b4cd3;">
-                                            <div style="display:flex; justify-content:space-between; margin-bottom:5px;">
-                                                <strong><?php echo htmlspecialchars($reviewItem['username'] ?? 'Member'); ?></strong>
-                                                <span style="color:#666; font-size:0.85rem;">★★★★★ (<?php echo (int) $reviewItem['rating']; ?>/5)</span>
+                                        <?php
+                                            $rVal = max(1, min(5, (int) ($reviewItem['rating'] ?? 0)));
+                                            $stars = str_repeat('★', $rVal) . str_repeat('☆', 5 - $rVal);
+                                        ?>
+                                        <div style="border-top:1px solid #eee; padding-top:10px; margin-top:10px;">
+                                            <div style="display:flex; justify-content:space-between; align-items:center;">
+                                                <span><strong><?php echo htmlspecialchars($reviewItem['username'] ?? 'Member'); ?></strong></span>
+                                                <span class="simple-stars"><?php echo $stars; ?></span>
                                             </div>
-                                            <p style="margin:5px 0 0 0; font-size:0.9rem; line-height:1.4;"><?php echo htmlspecialchars($reviewItem['comment']); ?></p>
-                                            <p style="margin:5px 0 0 0; font-size:0.8rem; color:#999;"><?php echo date('M j, Y', strtotime($reviewItem['created_at'])); ?></p>
+                                            <div class="muted" style="margin-top:6px;"> <?php echo htmlspecialchars($reviewItem['comment']); ?> </div>
+                                            <div class="muted" style="font-size:0.8rem; margin-top:4px;"> <?php echo date('M j, Y', strtotime($reviewItem['created_at'])); ?> </div>
                                         </div>
                                     <?php endforeach; ?>
                                 </div>

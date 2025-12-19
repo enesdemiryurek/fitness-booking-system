@@ -19,8 +19,8 @@ include 'header.php';
         <p>Discover your potential with the best instructors. Book your place now.</p>
     </div>
 
-    
-   <!-- GRUP DERSLERİ (STICKY BÖLÜM) BAŞLANGIÇ -->
+   
+    <!-- GRUP DERSLERİ (STICKY BÖLÜM) BAŞLANGIÇ -->
     <div class="group-classes-section">
         <div class="group-wrapper">
             
@@ -86,29 +86,22 @@ include 'header.php';
         </div>
     </div>
     <!-- GRUP DERSLERİ BİTİŞ -->
-            
-   
+
     <div class="container" id="dersler">
         <h2 class="section-title">Upcoming Lessons</h2>
-
-        <!-- Filtreleme Butonları -->
-        <div class="filter-container">
-            <div class="filter-buttons">
-                <button class="filter-btn active" data-filter="all">All Classes</button>
-                <button class="filter-btn" data-filter="Yoga">Yoga</button>
-                <button class="filter-btn" data-filter="Pilates">Pilates</button>
-                <button class="filter-btn" data-filter="HIIT">HIIT</button>
-                <button class="filter-btn" data-filter="Zumba">Zumba</button>
-                <button class="filter-btn" data-filter="Fitness">Fitness</button>
-            </div>
-            <div class="filter-results">
-                <span id="upcoming-count">0</span> classes found
-            </div>
+        <div style="margin-bottom:12px; display:flex; align-items:center; gap:8px;">
+            <label for="upcoming-filter" style="font-weight:600;">Filter:</label>
+            <select id="upcoming-filter" style="padding:6px 8px; border:1px solid #ddd; border-radius:4px;">
+                <option value="all">All</option>
+                <option value="Yoga">Yoga</option>
+                <option value="Pilates">Pilates</option>
+                <option value="HIIT">HIIT</option>
+                <option value="Zumba">Zumba</option>
+                <option value="Fitness">Fitness</option>
+            </select>
         </div>
-
         <div class="class-list" id="upcoming-classes">
             <?php
-            // Sadece gelecekteki dersler
             $current_time = date("Y-m-d H:i:s");
             $sql = "SELECT * FROM classes WHERE date_time >= '$current_time' ORDER BY date_time ASC";
             $result = mysqli_query($conn, $sql);
@@ -116,7 +109,7 @@ include 'header.php';
             if ($result && mysqli_num_rows($result) > 0) {
                 while($row = mysqli_fetch_assoc($result)) {
                     $type = mb_strtolower($row['class_type']);
-
+                    $img_url = "img/default.jpg";
                     if(strpos($type, 'yoga') !== false) $img_url = "img/yoga.jpg";
                     elseif(strpos($type, 'pilates') !== false) $img_url = "img/pilates.jpg";
                     elseif(strpos($type, 'hiit') !== false) $img_url = "img/hiit.jpg";
@@ -131,6 +124,7 @@ include 'header.php';
                         <img src="<?php echo $img_url; ?>" alt="Class Image" class="card-image" onerror="this.src='https://placehold.co/600x400?text=No+Image'">
                         <div class="card-content">
                             <h3><?php echo htmlspecialchars($row['title']); ?> <span class="badge"><?php echo htmlspecialchars($row['class_type']); ?></span></h3>
+                            <p class="class-description"><?php echo htmlspecialchars($row['description']); ?></p>
                             <div class="trainer-info-card">
                                 <?php if($trainer_data && !empty($trainer_data['profile_photo'])): ?>
                                     <img src="data:image/jpeg;base64,<?php echo base64_encode($trainer_data['profile_photo']); ?>" alt="Instructor" class="trainer-avatar-small">
@@ -141,24 +135,19 @@ include 'header.php';
                                 <span class="trainer-name-card"><?php echo htmlspecialchars($row['trainer_name']); ?></span>
                                 <span class="trainer-time-card">Time: <?php echo date("d.m.Y H:i", strtotime($row['date_time'])); ?></span>
                             </div>
-                            <p class="class-description"><?php echo htmlspecialchars($row['description']); ?></p>
-
-                            <?php
-                            $stok_color = ($row['capacity'] < 3) ? '#dc3545' : '#28a745';
-                            ?>
-                            <span class="stok" style="color:<?php echo $stok_color; ?>"> Remaining Place: <?php echo (int) $row['capacity']; ?></span>
-
-                            <?php if(isset($_SESSION['user_id'])): ?>
-                                <?php if ($row['capacity'] > 0): ?>
-                                    <a href="book_class.php?id=<?php echo (int) $row['id']; ?>" class="btn-card">Book Now</a>
+                            <div class="card-actions" style="margin-top:10px; display:flex; gap:8px; flex-wrap:wrap;">
+                                <?php if(isset($_SESSION['user_id'])): ?>
+                                    <?php if ($row['capacity'] > 0): ?>
+                                        <a href="book_class.php?id=<?php echo (int) $row['id']; ?>" class="btn-card">Book</a>
+                                    <?php else: ?>
+                                        <button class="btn-card btn-disabled" disabled>Full</button>
+                                    <?php endif; ?>
+                                    <a href="class_details_reviews.php?id=<?php echo (int) $row['id']; ?>" class="btn-card" style="background:#ffffff; color:#0A66C2; border:1px solid #0A66C2;">Details</a>
                                 <?php else: ?>
-                                    <button class="btn-card btn-disabled" disabled>FULL</button>
+                                    <a href="login.php" class="btn-card" style="background:#0A66C2;">Login & Book</a>
+                                    <a href="class_details_reviews.php?id=<?php echo (int) $row['id']; ?>" class="btn-card" style="background:#ffffff; color:#0A66C2; border:1px solid #0A66C2;">Details</a>
                                 <?php endif; ?>
-                                <a href="class_details_reviews.php?id=<?php echo (int) $row['id']; ?>" class="btn-card" style="margin-top:10px; background:#ffffff; color:#0A66C2; border:1px solid #0A66C2;">Details & Comments</a>
-                            <?php else: ?>
-                                <a href="login.php" class="btn-card" style="background:#0A66C2;">Login & Book</a>
-                                <a href="class_details_reviews.php?id=<?php echo (int) $row['id']; ?>" class="btn-card" style="margin-top:10px; background:#ffffff; color:#0A66C2; border:1px solid #0A66C2;">Details & Comments</a>
-                            <?php endif; ?>
+                            </div>
                         </div>
                     </div>
                     <?php
@@ -175,32 +164,24 @@ include 'header.php';
         </div>
     </div>
 
-    <!-- GEÇMIŞ DERSLER BÖLÜMÜ -->
     <div class="container" id="gecmis-dersler">
-        <h2 class="section-title"> Past Lessons </h2>
-
-        <!-- Filtreleme Butonları -->
-        <div class="filter-container">
-            <div class="filter-buttons">
-                <button class="filter-btn active" data-filter="all">All Classes</button>
-                <button class="filter-btn" data-filter="Yoga">Yoga</button>
-                <button class="filter-btn" data-filter="Pilates">Pilates</button>
-                <button class="filter-btn" data-filter="HIIT">HIIT</button>
-                <button class="filter-btn" data-filter="Zumba">Zumba</button>
-                <button class="filter-btn" data-filter="Fitness">Fitness</button>
-            </div>
-            <div class="filter-results">
-                <span id="past-count">0</span> classes found
-            </div>
+        <h2 class="section-title">Past Lessons</h2>
+        <div style="margin-bottom:12px; display:flex; align-items:center; gap:8px;">
+            <label for="past-filter" style="font-weight:600;">Filter:</label>
+            <select id="past-filter" style="padding:6px 8px; border:1px solid #ddd; border-radius:4px;">
+                <option value="all">All</option>
+                <option value="Yoga">Yoga</option>
+                <option value="Pilates">Pilates</option>
+                <option value="HIIT">HIIT</option>
+                <option value="Zumba">Zumba</option>
+                <option value="Fitness">Fitness</option>
+            </select>
         </div>
-
         <div class="class-list" id="past-classes">
             <?php
-            // Son 24 saat içinde geçen dersler
             $now = time();
-            $one_day_ago = date("Y-m-d H:i:s", $now - 604800); // 1 hafta zaman
+            $one_day_ago = date("Y-m-d H:i:s", $now - 604800);
             $current_time = date("Y-m-d H:i:s");
-
             $sql = "SELECT * FROM classes WHERE date_time < '$current_time' AND date_time >= '$one_day_ago' ORDER BY date_time DESC";
             $result = mysqli_query($conn, $sql);
 
@@ -208,7 +189,6 @@ include 'header.php';
                 while($row = mysqli_fetch_assoc($result)) {
                     $type = mb_strtolower($row['class_type']);
                     $img_url = "img/default.jpg";
-
                     if(strpos($type, 'yoga') !== false) $img_url = "img/yoga.jpg";
                     elseif(strpos($type, 'pilates') !== false) $img_url = "img/pilates.jpg";
                     elseif(strpos($type, 'hiit') !== false) $img_url = "img/hiit.jpg";
@@ -223,6 +203,7 @@ include 'header.php';
                         <img src="<?php echo $img_url; ?>" alt="Class Image" class="card-image past-image" onerror="this.src='https://placehold.co/600x400?text=No+Image'">
                         <div class="card-content">
                             <h3><?php echo htmlspecialchars($row['title']); ?> <span class="badge">Completed</span></h3>
+                            <p class="class-description"><?php echo htmlspecialchars($row['description']); ?></p>
                             <div class="trainer-info-card">
                                 <?php if($trainer_data && !empty($trainer_data['profile_photo'])): ?>
                                     <img src="data:image/jpeg;base64,<?php echo base64_encode($trainer_data['profile_photo']); ?>" alt="Instructor" class="trainer-avatar-small">
@@ -233,10 +214,10 @@ include 'header.php';
                                 <span class="trainer-name-card"><?php echo htmlspecialchars($row['trainer_name']); ?></span>
                                 <span class="trainer-time-card">Time: <?php echo date("d.m.Y H:i", strtotime($row['date_time'])); ?></span>
                             </div>
-                            <p class="class-description"><?php echo htmlspecialchars($row['description']); ?></p>
-
-                            <a href="class_details_reviews.php?id=<?php echo (int) $row['id']; ?>" class="btn-card" style="margin-top:10px; background:#ffffff; color:#0A66C2; border:1px solid #0A66C2;">Details & Comments</a>
-                            <button class="btn-card btn-disabled" disabled style="margin-top:10px;">Completed</button>
+                            <div class="card-actions" style="margin-top:10px; display:flex; gap:8px; flex-wrap:wrap;">
+                                <a href="class_details_reviews.php?id=<?php echo (int) $row['id']; ?>" class="btn-card" style="background:#ffffff; color:#0A66C2; border:1px solid #0A66C2;">Details</a>
+                                <button class="btn-card btn-disabled" disabled>Completed</button>
+                            </div>
                         </div>
                     </div>
                     <?php
@@ -254,135 +235,28 @@ include 'header.php';
     </div>
 
     <script>
-    // Filtreleme Fonksiyonu - Upcoming Lessons
-    function initFiltering() {
-        // Upcoming Lessons Filtreleme
-        const upcomingFilterBtns = document.querySelectorAll('#dersler .filter-btn');
-        const upcomingCards = document.querySelectorAll('#upcoming-classes .class-card');
-        
-        upcomingFilterBtns.forEach(btn => {
-            btn.addEventListener('click', function() {
-                const filter = this.getAttribute('data-filter');
-                
-                // Aktif buton stilini güncelle
-                upcomingFilterBtns.forEach(b => b.classList.remove('active'));
-                this.classList.add('active');
-                
-                // Kartları filtrele
-                let visibleCount = 0;
-                upcomingCards.forEach((card, index) => {
-                    const cardType = card.getAttribute('data-class-type');
-                    if(filter === 'all' || cardType === filter) {
-                        card.style.opacity = '0';
-                        card.style.transform = 'translateY(20px)';
-                        setTimeout(() => {
-                            card.style.display = 'block';
-                            card.style.transition = 'all 0.3s ease';
-                            setTimeout(() => {
-                                card.style.opacity = '1';
-                                card.style.transform = 'translateY(0)';
-                            }, 10);
-                        }, index * 50);
-                        visibleCount++;
-                    } else {
-                        card.style.transition = 'all 0.3s ease';
-                        card.style.opacity = '0';
-                        card.style.transform = 'translateY(-20px)';
-                        setTimeout(() => {
-                            card.style.display = 'none';
-                        }, 300);
-                    }
-                });
-                
-                // Sonuç sayısını güncelle
-                document.getElementById('upcoming-count').textContent = visibleCount;
-                
-                // Eğer sonuç yoksa mesaj göster
-                const upcomingList = document.getElementById('upcoming-classes');
-                let noResultsMsg = upcomingList.querySelector('.no-results-filtered');
-                if(visibleCount === 0) {
-                    if(!noResultsMsg) {
-                        noResultsMsg = document.createElement('div');
-                        noResultsMsg.className = 'no-results-message no-results-filtered';
-                        noResultsMsg.innerHTML = '<p>No classes found for this filter. Try selecting a different category.</p>';
-                        upcomingList.appendChild(noResultsMsg);
-                    }
-                } else {
-                    if(noResultsMsg) {
-                        noResultsMsg.remove();
-                    }
-                }
+    function applySelectFilter(listId, selectId) {
+        const list = document.getElementById(listId);
+        const select = document.getElementById(selectId);
+        if (!list || !select) return;
+        const cards = list.querySelectorAll('.class-card');
+
+        function runFilter() {
+            const value = select.value;
+            cards.forEach(card => {
+                const type = card.getAttribute('data-class-type');
+                const match = value === 'all' || type === value;
+                card.style.display = match ? 'block' : 'none';
             });
-        });
-        
-        // İlk yüklemede sayıyı göster
-        document.getElementById('upcoming-count').textContent = upcomingCards.length;
-        
-        // Past Lessons Filtreleme
-        const pastFilterBtns = document.querySelectorAll('#gecmis-dersler .filter-btn');
-        const pastCards = document.querySelectorAll('#past-classes .class-card');
-        
-        pastFilterBtns.forEach(btn => {
-            btn.addEventListener('click', function() {
-                const filter = this.getAttribute('data-filter');
-                
-                // Aktif buton stilini güncelle
-                pastFilterBtns.forEach(b => b.classList.remove('active'));
-                this.classList.add('active');
-                
-                // Kartları filtrele
-                let visibleCount = 0;
-                pastCards.forEach((card, index) => {
-                    const cardType = card.getAttribute('data-class-type');
-                    if(filter === 'all' || cardType === filter) {
-                        card.style.opacity = '0';
-                        card.style.transform = 'translateY(20px)';
-                        setTimeout(() => {
-                            card.style.display = 'block';
-                            card.style.transition = 'all 0.3s ease';
-                            setTimeout(() => {
-                                card.style.opacity = '1';
-                                card.style.transform = 'translateY(0)';
-                            }, 10);
-                        }, index * 50);
-                        visibleCount++;
-                    } else {
-                        card.style.transition = 'all 0.3s ease';
-                        card.style.opacity = '0';
-                        card.style.transform = 'translateY(-20px)';
-                        setTimeout(() => {
-                            card.style.display = 'none';
-                        }, 300);
-                    }
-                });
-                
-                // Sonuç sayısını güncelle
-                document.getElementById('past-count').textContent = visibleCount;
-                
-                // Eğer sonuç yoksa mesaj göster
-                const pastList = document.getElementById('past-classes');
-                let noResultsMsg = pastList.querySelector('.no-results-filtered');
-                if(visibleCount === 0) {
-                    if(!noResultsMsg) {
-                        noResultsMsg = document.createElement('div');
-                        noResultsMsg.className = 'no-results-message no-results-filtered';
-                        noResultsMsg.innerHTML = '<p>No classes found for this filter. Try selecting a different category.</p>';
-                        pastList.appendChild(noResultsMsg);
-                    }
-                } else {
-                    if(noResultsMsg) {
-                        noResultsMsg.remove();
-                    }
-                }
-            });
-        });
-        
-        // İlk yüklemede sayıyı göster
-        document.getElementById('past-count').textContent = pastCards.length;
+        }
+
+        select.addEventListener('change', runFilter);
+        runFilter();
     }
 
     document.addEventListener('DOMContentLoaded', () => {
-        initFiltering();
+        applySelectFilter('upcoming-classes', 'upcoming-filter');
+        applySelectFilter('past-classes', 'past-filter');
     });
     </script>
 

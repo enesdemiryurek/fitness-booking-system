@@ -3,46 +3,53 @@ session_start();
 include 'db.php';
 include 'notification_handler.php';
 
-// 1. GÜVENLİK KONTROLÜ: Kullanıcı giriş yapmış mı?
 if (!isset($_SESSION['user_id'])) {
-    die("Error: You must be logged in to perform this action.");
+    header('Location: login.php');
+    exit;
 }
 
-if (isset($_GET['id'])) {
-    $class_id = $_GET['id'];
-    $user_id = $_SESSION['user_id'];
+$class_id = isset($_GET['id']) ? (int) $_GET['id'] : 0;
+$user_id = (int) $_SESSION['user_id'];
 
-    // 2. KONTROL: Bu kullanıcı bu dersi daha önce almış mı?
-    $duplicate_check_sql = "SELECT * FROM bookings WHERE user_id = $user_id AND class_id = $class_id";
-    $duplicate_result = mysqli_query($conn, $duplicate_check_sql);
+if ($class_id <= 0) {
+    header('Location: index.php');
+    exit;
+}
 
-    if (mysqli_num_rows($duplicate_result) > 0) {
-        // Kullanıcı zaten bu derse kayıtlı!
-        echo "<script>
-            alert('Warning: You are already registered for this class! You cannot register again.');
-            window.location.href = 'index.php';
-        </script>";
+$duplicate_stmt = mysqli_prepare($conn, 'SELECT id FROM bookings WHERE user_id = ? AND class_id = ? LIMIT 1');
+if ($duplicate_stmt) {
+    mysqli_stmt_bind_param($duplicate_stmt, 'ii', $user_id, $class_id);
+    mysqli_stmt_execute($duplicate_stmt);
+    mysqli_stmt_store_result($duplicate_stmt);
+    if (mysqli_stmt_num_rows($duplicate_stmt) > 0) {
+        mysqli_stmt_close($duplicate_stmt);
+        header('Location: index.php?msg=already_registered');
+        exit;
+    }
+    mysqli_stmt_close($duplicate_stmt);
+}
+
+$class_stmt = mysqli_prepare($conn, 'SELECT capacity FROM classes WHERE id = ? LIMIT 1');
+if ($class_stmt) {
+    mysqli_stmt_bind_param($class_stmt, 'i', $class_id);
+    mysqli_stmt_execute($class_stmt);
+    mysqli_stmt_bind_result($class_stmt, $capacity);
+    $found = mysqli_stmt_fetch($class_stmt);
+    mysqli_stmt_close($class_stmt);
+
+    if (!$found) {
+        header('Location: index.php?msg=class_not_found');
         exit;
     }
 
-    // 3. STOK KONTROLÜ: Kontenjan var mı?
-    $check_sql = "SELECT capacity, title, date_time FROM classes WHERE id = $class_id";
-    $result = mysqli_query($conn, $check_sql);
-    $row = mysqli_fetch_assoc($result);
-
-    if ($row['capacity'] > 0) {
-        // Kontenjan var! Ödeme sayfasına yönlendir
-        header("Location: process_payment.php?class_id=" . $class_id);
+    if ((int) $capacity <= 0) {
+        header('Location: index.php?msg=class_full');
         exit;
-    } else {
-        // Yer kalmamış
-        echo "<script>
-            alert('😔 Sorry, this class is full!');
-            window.location.href = 'index.php';
-        </script>";
     }
 
-} else {
-    header("Location: index.php");
+    header('Location: process_payment.php?class_id=' . $class_id);
+    exit;
 }
+
+header('Location: index.php?msg=error');
 ?>

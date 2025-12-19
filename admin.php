@@ -47,44 +47,43 @@ function adminPanelGetInstructorSpecialties(mysqli $conn, int $userId): array {
     return array_values(array_unique($categories));
 }
 
-$page_title = "Admin Panel | GYM";
+$page_title = 'Admin Panel | GYM';
 
-// 1. GÜVENLİK DUVARI: Admin VEYA Instructor girebilir
-if (!isset($_SESSION['user_id']) || ($_SESSION['role'] != 'admin' && $_SESSION['role'] != 'instructor')) {
-    die("<div style='text-align:center; margin-top:50px; font-family:sans-serif;'><h1>Unauthorized Access!</h1><p>Only administrators and instructors can access this page.</p><a href='index.php'>Back Homepage</a></div>");
+if (!isset($_SESSION['user_id']) || ($_SESSION['role'] !== 'admin' && $_SESSION['role'] !== 'instructor')) {
+    die("<div style='text-align:center; margin-top:50px; font-family:sans-serif;'><h1>Unauthorized Access</h1><p>Only administrators and instructors can access this page.</p><a href='index.php'>Back to homepage</a></div>");
 }
 
-$message = "";
-$message_type = "";
+$message = '';
+$message_type = '';
 $user_search_query = '';
 $user_search_results = [];
 
-if ($_SERVER["REQUEST_METHOD"] === "POST") {
-    if (isset($_POST['update_role']) && $_SESSION['role'] == 'admin') {
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    if (isset($_POST['update_role']) && $_SESSION['role'] === 'admin') {
         $user_id = isset($_POST['user_id']) ? (int) $_POST['user_id'] : 0;
         $new_role = $_POST['new_role'] ?? '';
         $user_search_query = trim($_POST['search_query'] ?? '');
         $allowed_roles = ['user', 'instructor'];
 
         if ($user_id > 0 && in_array($new_role, $allowed_roles, true)) {
-            $stmt = mysqli_prepare($conn, "UPDATE users SET role = ? WHERE id = ?");
+            $stmt = mysqli_prepare($conn, 'UPDATE users SET role = ? WHERE id = ?');
             if ($stmt) {
                 mysqli_stmt_bind_param($stmt, 'si', $new_role, $user_id);
                 if (mysqli_stmt_execute($stmt)) {
-                    $message = "User role updated successfully.";
-                    $message_type = "success";
+                    $message = 'User role updated.';
+                    $message_type = 'success';
                 } else {
-                    $message = "Error: Unable to update user role.";
-                    $message_type = "error";
+                    $message = 'Role update failed.';
+                    $message_type = 'error';
                 }
                 mysqli_stmt_close($stmt);
             } else {
-                $message = "Error: Unable to prepare role update.";
-                $message_type = "error";
+                $message = 'Role update could not be prepared.';
+                $message_type = 'error';
             }
         } else {
-            $message = "Invalid user or role selection.";
-            $message_type = "error";
+            $message = 'Invalid user or role.';
+            $message_type = 'error';
         }
     } elseif (isset($_POST['create_class'])) {
         $title = trim($_POST['title'] ?? '');
@@ -106,53 +105,52 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
         $errors = [];
         if ($trainerId <= 0 || $trainerUsername === '') {
-            $errors[] = "Please select a valid instructor.";
+            $errors[] = 'Select a valid instructor.';
         }
         if ($title === '' || $description === '' || $date === '' || $link === '') {
-            $errors[] = "All course fields are required.";
+            $errors[] = 'All fields are required.';
         }
         if ($capacity <= 0) {
-            $errors[] = "Capacity must be at least 1.";
+            $errors[] = 'Capacity must be at least 1.';
         }
 
         $allowedCategories = $trainerId > 0 ? adminPanelGetInstructorSpecialties($conn, $trainerId) : [];
         if (empty($allowedCategories)) {
-            $errors[] = "This instructor does not have any assigned categories. Update specialties first.";
+            $errors[] = 'This instructor has no specialties. Assign categories first.';
         } elseif (!in_array($type, $allowedCategories, true)) {
-            $errors[] = "Selected category is not allowed for this instructor.";
+            $errors[] = 'Category not allowed for this instructor.';
         }
 
         if ($type === '' || !in_array($type, $category_keys, true)) {
-            $errors[] = "Invalid course category selected.";
+            $errors[] = 'Invalid category.';
         }
 
         if (empty($errors)) {
-            $stmt = mysqli_prepare($conn, "INSERT INTO classes (title, trainer_name, description, class_type, date_time, capacity, video_link) VALUES (?, ?, ?, ?, ?, ?, ?)");
+            $stmt = mysqli_prepare($conn, 'INSERT INTO classes (title, trainer_name, description, class_type, date_time, capacity, video_link) VALUES (?, ?, ?, ?, ?, ?, ?)');
             if ($stmt) {
                 mysqli_stmt_bind_param($stmt, 'sssssis', $title, $trainerUsername, $description, $type, $date, $capacity, $link);
                 if (mysqli_stmt_execute($stmt)) {
                     $class_id = mysqli_insert_id($conn);
                     $notificationHandler->notifyNewClass($class_id, $title, $type, $trainerUsername, $date);
-                    $message = "Course added successfully.";
-                    $message_type = "success";
+                    $message = 'Class created.';
+                    $message_type = 'success';
                 } else {
-                    $message = "Error: Unable to add the course.";
-                    $message_type = "error";
+                    $message = 'Class could not be created.';
+                    $message_type = 'error';
                 }
                 mysqli_stmt_close($stmt);
             } else {
-                $message = "Error: Unable to prepare course creation.";
-                $message_type = "error";
+                $message = 'Insert could not be prepared.';
+                $message_type = 'error';
             }
         } else {
             $message = implode(' ', $errors);
-            $message_type = "error";
+            $message_type = 'error';
         }
     }
 }
 
-// --- KULLANICI ARAMA SONUÇLARI ---
-if ($_SESSION['role'] == 'admin') {
+if ($_SESSION['role'] === 'admin') {
     if ($user_search_query === '' && isset($_GET['user_search'])) {
         $user_search_query = trim($_GET['user_search']);
     }
@@ -169,7 +167,6 @@ if ($_SESSION['role'] == 'admin') {
     }
 }
 
-// Eğitmen listesi ve uzmanlıkları
 $instructors = [];
 $instructors_result = mysqli_query($conn, "SELECT id, username FROM users WHERE role = 'instructor' ORDER BY username ASC");
 if ($instructors_result) {
@@ -180,7 +177,7 @@ if ($instructors_result) {
 }
 
 $specialtiesByInstructor = [];
-$specialty_result = mysqli_query($conn, "SELECT user_id, class_type FROM instructor_specialties ORDER BY class_type ASC");
+$specialty_result = mysqli_query($conn, 'SELECT user_id, class_type FROM instructor_specialties ORDER BY class_type ASC');
 if ($specialty_result) {
     while ($row = mysqli_fetch_assoc($specialty_result)) {
         $userId = (int) $row['user_id'];
@@ -199,11 +196,9 @@ foreach ($specialtiesByInstructor as &$list) {
 unset($list);
 
 $categoriesByUsername = [];
-$categoriesById = [];
 foreach ($instructors as $id => $username) {
     $categories = $specialtiesByInstructor[$id] ?? [];
     $categoriesByUsername[$username] = $categories;
-    $categoriesById[$id] = $categories;
 }
 
 $currentInstructorCategories = [];
@@ -211,11 +206,9 @@ if ($_SESSION['role'] === 'instructor') {
     $currentInstructorCategories = $specialtiesByInstructor[(int) $_SESSION['user_id']] ?? [];
 }
 
-$defaultTrainerIdForForm = null;
 $defaultTrainerUsername = '';
 if ($_SESSION['role'] === 'admin' && !empty($instructors)) {
-    foreach ($instructors as $id => $username) {
-        $defaultTrainerIdForForm = $id;
+    foreach ($instructors as $username) {
         $defaultTrainerUsername = $username;
         break;
     }
@@ -230,337 +223,306 @@ $publishDisabled = false;
 $publishDisabledReason = '';
 if ($_SESSION['role'] === 'instructor' && empty($currentInstructorCategories)) {
     $publishDisabled = true;
-    $publishDisabledReason = 'Please select at least one specialty before publishing a class.';
+    $publishDisabledReason = 'Select at least one specialty before publishing a class.';
 }
 if (!$publishDisabled && $_SESSION['role'] === 'admin' && empty($instructors)) {
     $publishDisabled = true;
-    $publishDisabledReason = 'Add at least one instructor before publishing a class.';
+    $publishDisabledReason = 'Add an instructor before publishing a class.';
 } elseif (!$publishDisabled && $_SESSION['role'] === 'admin' && empty($initialCategoriesForForm)) {
     $publishDisabled = true;
-    $publishDisabledReason = 'Assign specialties to the selected instructor before publishing a class.';
+    $publishDisabledReason = 'Assign specialties to the selected instructor.';
 }
 
-// --- SİLME İŞLEMİ ---
 if (isset($_GET['delete_id'])) {
-    // Sadece ADMIN silebilir
-    if ($_SESSION['role'] == 'admin') {
-        $id = $_GET['delete_id'];
-        
-        // Silinecek dersin bilgisini al
-        $class_info = mysqli_fetch_assoc(mysqli_query($conn, "SELECT title FROM classes WHERE id=$id"));
-        
-        // BİLDİRİM GÖNDER: Ders iptal edildi
-        $notificationHandler->notifyCancelledClass($id, $class_info['title'], 'Canceled by administrator');
-        
+    if ($_SESSION['role'] === 'admin') {
+        $id = (int) $_GET['delete_id'];
+        $class_info_res = mysqli_query($conn, "SELECT title FROM classes WHERE id=$id LIMIT 1");
+        $class_info = $class_info_res ? mysqli_fetch_assoc($class_info_res) : null;
+        if ($class_info_res) {
+            mysqli_free_result($class_info_res);
+        }
+        $notificationHandler->notifyCancelledClass($id, $class_info['title'] ?? '', 'Canceled by administrator');
         mysqli_query($conn, "DELETE FROM classes WHERE id=$id");
-        header("Location: admin.php");
+        header('Location: admin.php');
+        exit;
     } else {
-        $message = "Error: Only administrators can delete a course.";
-        $message_type = "error";
+        $message = 'Only administrators can delete a class.';
+        $message_type = 'error';
     }
 }
 
 include 'header.php';
 ?>
 
-<div class="admin-page">
-    
-    <!-- HERO BÖLÜMÜ -->
-    <div class="admin-hero-simple">
-        <h1><?php echo ($_SESSION['role'] == 'admin') ? "Admin Panel" : "Trainer Panel"; ?></h1>
-    </div>
+<style>
+    .page-shell {max-width: 1100px; margin: 0 auto; padding: 24px; background: #fff;}
+    .page-shell h1 {margin: 0 0 12px 0; font-size: 26px;}
+    .helper {color: #666; margin-bottom: 16px;}
+    .section {border: 1px solid #e0e0e0; background: #fafafa; padding: 16px; border-radius: 6px; margin-bottom: 16px;}
+    .section h2 {margin: 0 0 8px 0; font-size: 20px;}
+    .section p {margin: 0 0 10px 0; color: #555;}
+    .stack {display: flex; flex-direction: column; gap: 10px;}
+    .field {display: flex; flex-direction: column; gap: 6px;}
+    label {font-weight: 600; font-size: 14px;}
+    input[type="text"], input[type="email"], input[type="number"], input[type="url"], input[type="datetime-local"], select, textarea {padding: 8px; border: 1px solid #d0d0d0; border-radius: 4px; font-size: 14px;}
+    textarea {min-height: 80px;}
+    .btn {padding: 10px 14px; background: #222; color: #fff; border: none; border-radius: 4px; cursor: pointer; font-weight: 600;}
+    .btn.secondary {background: #0b6bcb;}
+    .btn.ghost {background: #f0f0f0; color: #222;}
+    .note {padding: 10px; border-radius: 4px; margin-bottom: 12px;}
+    .note.success {background: #e6f7e6; color: #1e6b1e; border: 1px solid #c5e6c5;}
+    .note.error {background: #ffecec; color: #b80000; border: 1px solid #ffb3b3;}
+    .table {width: 100%; border-collapse: collapse; margin-top: 8px; font-size: 14px;}
+    .table th, .table td {border: 1px solid #e0e0e0; padding: 8px; text-align: left;}
+    .table th {background: #f3f3f3;}
+    .empty {padding: 12px; color: #666;}
+    .badge {display: inline-block; padding: 3px 8px; background: #eef3ff; color: #2d4fa3; border-radius: 4px; font-size: 12px; font-weight: 600;}
+    .grid {display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 12px;}
+    .small-text {color: #666; font-size: 12px;}
+</style>
 
-    <div class="admin-container">
+<div class="page-shell">
+    <h1><?php echo $_SESSION['role'] === 'admin' ? 'Admin Panel' : 'Trainer Panel'; ?></h1>
+    <div class="helper">Basitleştirilmiş admin sayfası. Rol atama, ders oluşturma ve listeleme işlemleri aynen devam.</div>
 
-        <!-- MESAJ GÖRÜNTÜLEME -->
-        <?php if($message): ?>
-            <div class="message-box message-<?php echo $message_type; ?>">
-                <div class="message-content">
-                    <?php echo $message; ?>
+    <?php if ($message): ?>
+        <div class="note <?php echo htmlspecialchars($message_type); ?>"><?php echo htmlspecialchars($message); ?></div>
+    <?php endif; ?>
+
+    <?php if ($_SESSION['role'] === 'admin'): ?>
+        <div class="section">
+            <h2>User Management</h2>
+            <p>Kullanıcı rolünü Member veya Instructor olarak güncelle.</p>
+            <form method="GET" class="stack" style="max-width: 360px;">
+                <div class="field">
+                    <label for="user_search">Search username</label>
+                    <input type="text" id="user_search" name="user_search" value="<?php echo htmlspecialchars($user_search_query); ?>" placeholder="username">
                 </div>
-            </div>
-        <?php endif; ?>
-
-        <?php if($_SESSION['role'] == 'admin'): ?>
-            <div class="form-section user-management-section">
-                <div class="section-header">
-                    <h2>User Management</h2>
-                    <p>Search users and update their roles to <strong>Member</strong> or <strong>Instructor</strong>.</p>
-                </div>
-
-                <form method="GET" class="user-search-form">
-                    <input type="text" name="user_search" placeholder="Search by username" value="<?php echo htmlspecialchars($user_search_query); ?>">
-                    <button type="submit" class="btn-action-small btn-edit">Search</button>
-                    <?php if($user_search_query !== ''): ?>
-                        <a href="admin.php" class="btn-action-small btn-delete">Reset</a>
+                <div class="inline" style="display:flex; gap:8px;">
+                    <button class="btn secondary" type="submit">Search</button>
+                    <?php if ($user_search_query !== ''): ?>
+                        <a class="btn ghost" href="admin.php">Reset</a>
                     <?php endif; ?>
-                </form>
-
-                <?php if($user_search_query !== ''): ?>
-                    <?php if(count($user_search_results) > 0): ?>
-                        <div class="table-wrapper">
-                            <table class="admin-table user-table">
-                                <thead>
-                                    <tr>
-                                        <th>ID</th>
-                                        <th>Username</th>
-                                        <th>Email</th>
-                                        <th>Current Role</th>
-                                        <th>Update Role</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <?php foreach($user_search_results as $user): ?>
-                                        <tr>
-                                            <td class="td-id">#<?php echo str_pad($user['id'], 4, '0', STR_PAD_LEFT); ?></td>
-                                            <td><?php echo htmlspecialchars($user['username']); ?></td>
-                                            <td><?php echo htmlspecialchars($user['email']); ?></td>
-                                            <td><?php echo $user['role'] === 'instructor' ? 'Instructor' : 'Member'; ?></td>
-                                            <td>
-                                                <form method="POST" class="user-role-form">
-                                                    <input type="hidden" name="user_id" value="<?php echo intval($user['id']); ?>">
-                                                    <input type="hidden" name="search_query" value="<?php echo htmlspecialchars($user_search_query); ?>">
-                                                    <select name="new_role" class="role-select">
-                                                        <option value="user" <?php echo $user['role'] === 'user' ? 'selected' : ''; ?>>Member</option>
-                                                        <option value="instructor" <?php echo $user['role'] === 'instructor' ? 'selected' : ''; ?>>Instructor</option>
-                                                    </select>
-                                                    <button type="submit" name="update_role" value="1" class="btn-action-small btn-edit">Save</button>
-                                                </form>
-                                            </td>
-                                        </tr>
-                                    <?php endforeach; ?>
-                                </tbody>
-                            </table>
-                        </div>
-                    <?php else: ?>
-                        <div class="empty-state">No results found for "<?php echo htmlspecialchars($user_search_query); ?>".</div>
-                    <?php endif; ?>
-                <?php endif; ?>
-            </div>
-        <?php endif; ?>
-
-        <!-- YENİ DERS FORMU -->
-        <div class="form-section">
-            <div class="section-header">
-                <h2>Create New Lesson</h2>
-                <p>Get students involved by adding a new course to the system</p>
-            </div>
-
-            <form action="" method="POST" class="modern-form">
-                <input type="hidden" name="create_class" value="1">
-                <div class="form-grid">
-                    <div class="form-group">
-                        <label for="title">Course Title</label>
-                        <input type="text" id="title" name="title" placeholder="Ex: Morning Yoga" required>
-                        <small>Example: Introduction to Pilates Basics</small>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="trainer">Instructor Name</label>
-                        <?php if($_SESSION['role'] == 'instructor'): ?>
-                            <input type="hidden" name="trainer" value="<?php echo htmlspecialchars($_SESSION['username']); ?>">
-                            <input type="text" id="trainer_display" value="<?php echo htmlspecialchars($_SESSION['username']); ?>" readonly class="input-readonly">
-                            <small>Your registered name in the system</small>
-                        <?php else: ?>
-                            <?php if(empty($instructors)): ?>
-                                <select id="trainer" name="trainer" disabled>
-                                    <option value="">No instructors available</option>
-                                </select>
-                                <small style="color:#c0392b;">Assign the instructor role and specialties before creating a class.</small>
-                            <?php else: ?>
-                                <select id="trainer" name="trainer" required>
-                                    <?php foreach ($instructors as $instructorId => $instructorUsername): ?>
-                                        <option value="<?php echo htmlspecialchars($instructorUsername); ?>" <?php echo ($defaultTrainerUsername === $instructorUsername) ? 'selected' : ''; ?>><?php echo htmlspecialchars($instructorUsername); ?></option>
-                                    <?php endforeach; ?>
-                                </select>
-                                <small>Select the instructor who will manage the class.</small>
-                            <?php endif; ?>
-                        <?php endif; ?>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="class_type">Category</label>
-                        <?php if($_SESSION['role'] == 'instructor'): ?>
-                            <?php if(empty($currentInstructorCategories)): ?>
-                                <input type="text" value="No categories available" readonly class="input-readonly">
-                                <small style="color:#c0392b;">Select your teaching categories above before publishing a class.</small>
-                            <?php elseif(count($currentInstructorCategories) === 1): ?>
-                                <input type="hidden" name="class_type" value="<?php echo htmlspecialchars($currentInstructorCategories[0]); ?>">
-                                <input type="text" value="<?php echo htmlspecialchars($currentInstructorCategories[0]); ?>" readonly class="input-readonly">
-                                <small>Category automatically assigned based on your specialties.</small>
-                            <?php else: ?>
-                                <select id="class_type" name="class_type" required>
-                                    <?php foreach ($currentInstructorCategories as $categoryOption): ?>
-                                        <option value="<?php echo htmlspecialchars($categoryOption); ?>"><?php echo htmlspecialchars($categoryOption); ?></option>
-                                    <?php endforeach; ?>
-                                </select>
-                                <small>Only categories linked to your profile are available.</small>
-                            <?php endif; ?>
-                        <?php else: ?>
-                            <?php if(empty($instructors)): ?>
-                                <select id="class_type" name="class_type" disabled>
-                                    <option value="">No categories available</option>
-                                </select>
-                                <small id="category-select-message" style="color:#c0392b;">Assign specialties to an instructor before publishing a class.</small>
-                            <?php else: ?>
-                                <select id="class_type" name="class_type" <?php echo empty($initialCategoriesForForm) ? 'disabled' : 'required'; ?>>
-                                    <?php if(empty($initialCategoriesForForm)): ?>
-                                        <option value="">No categories available</option>
-                                    <?php else: ?>
-                                        <?php foreach ($initialCategoriesForForm as $categoryOption): ?>
-                                            <option value="<?php echo htmlspecialchars($categoryOption); ?>"><?php echo htmlspecialchars($categoryOption); ?></option>
-                                        <?php endforeach; ?>
-                                    <?php endif; ?>
-                                </select>
-                                <small id="category-select-message"><?php echo empty($initialCategoriesForForm) ? 'Assign specialties to the selected instructor before publishing a class.' : 'Category is limited to the instructor specialties.'; ?></small>
-                            <?php endif; ?>
-                        <?php endif; ?>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="capacity">Capacity (People)</label>
-                        <input type="number" id="capacity" name="capacity" value="10" min="1" max="50" required>
-                        <small>How many people can attend the class</small>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="date_time">Date & Time</label>
-                        <input type="datetime-local" id="date_time" name="date_time" required>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="video_link">Video Link</label>
-                        <input type="url" id="video_link" name="video_link" placeholder="https://zoom.us/... or https://youtube.com/..." required>
-                        <small>Zoom, Google Meet or YouTube link</small>
-                    </div>
-
-                    <div class="form-group full-width">
-                        <label for="description">Description</label>
-                        <textarea id="description" name="description" placeholder="Provide detailed information about the class..." rows="4" required></textarea>
-                        <small>Class purpose, content, requirements, etc.</small>
-                    </div>
-
-                    <div class="form-group full-width">
-                        <button type="submit" id="publish-class-button" class="btn-submit-large" <?php echo $publishDisabled ? 'disabled' : ''; ?>>Publish Class</button>
-                        <?php if($publishDisabled): ?>
-                            <small style="color:#c0392b; display:block; margin-top:6px;">&bull; <?php echo htmlspecialchars($publishDisabledReason); ?></small>
-                        <?php endif; ?>
-                    </div>
                 </div>
             </form>
+
+            <?php if ($user_search_query !== ''): ?>
+                <?php if (!empty($user_search_results)): ?>
+                    <table class="table" style="margin-top:12px;">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Username</th>
+                                <th>Email</th>
+                                <th>Role</th>
+                                <th>Update</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php foreach ($user_search_results as $user): ?>
+                                <tr>
+                                    <td>#<?php echo str_pad($user['id'], 4, '0', STR_PAD_LEFT); ?></td>
+                                    <td><?php echo htmlspecialchars($user['username']); ?></td>
+                                    <td><?php echo htmlspecialchars($user['email']); ?></td>
+                                    <td><?php echo $user['role'] === 'instructor' ? 'Instructor' : 'Member'; ?></td>
+                                    <td>
+                                        <form method="POST" class="stack" style="gap:6px;">
+                                            <input type="hidden" name="user_id" value="<?php echo (int) $user['id']; ?>">
+                                            <input type="hidden" name="search_query" value="<?php echo htmlspecialchars($user_search_query); ?>">
+                                            <select name="new_role" style="min-width:140px;">
+                                                <option value="user" <?php echo $user['role'] === 'user' ? 'selected' : ''; ?>>Member</option>
+                                                <option value="instructor" <?php echo $user['role'] === 'instructor' ? 'selected' : ''; ?>>Instructor</option>
+                                            </select>
+                                            <button class="btn ghost" type="submit" name="update_role">Save</button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                    </table>
+                <?php else: ?>
+                    <div class="empty">No results for "<?php echo htmlspecialchars($user_search_query); ?>".</div>
+                <?php endif; ?>
+            <?php endif; ?>
         </div>
+    <?php endif; ?>
 
-        <!-- DERS LİSTESİ -->
-        <div class="table-section">
-            <div class="section-header">
-                <h2>Active Class List</h2>
-                <p>Manage and edit all classes in the system</p>
+    <div class="section">
+        <h2>Create New Class</h2>
+        <p>Hızlı ders ekle: eğitmen, kategori, tarih, link.</p>
+        <form method="POST" class="stack">
+            <input type="hidden" name="create_class" value="1">
+            <div class="grid">
+                <div class="field">
+                    <label for="title">Title</label>
+                    <input type="text" id="title" name="title" placeholder="Morning Yoga" required>
+                </div>
+                <div class="field">
+                    <label for="trainer">Instructor</label>
+                    <?php if ($_SESSION['role'] === 'instructor'): ?>
+                        <input type="hidden" name="trainer" value="<?php echo htmlspecialchars($_SESSION['username']); ?>">
+                        <input type="text" id="trainer_display" value="<?php echo htmlspecialchars($_SESSION['username']); ?>" readonly>
+                        <span class="small-text">Your registered name</span>
+                    <?php else: ?>
+                        <?php if (empty($instructors)): ?>
+                            <select id="trainer" name="trainer" disabled>
+                                <option value="">No instructors</option>
+                            </select>
+                            <span class="small-text" style="color:#b80000;">Assign instructor role first.</span>
+                        <?php else: ?>
+                            <select id="trainer" name="trainer" required>
+                                <?php foreach ($instructors as $instructorUsername): ?>
+                                    <option value="<?php echo htmlspecialchars($instructorUsername); ?>" <?php echo $defaultTrainerUsername === $instructorUsername ? 'selected' : ''; ?>><?php echo htmlspecialchars($instructorUsername); ?></option>
+                                <?php endforeach; ?>
+                            </select>
+                        <?php endif; ?>
+                    <?php endif; ?>
+                </div>
+                <div class="field">
+                    <label for="class_type">Category</label>
+                    <?php if ($_SESSION['role'] === 'instructor'): ?>
+                        <?php if (empty($currentInstructorCategories)): ?>
+                            <input type="text" value="No categories" readonly>
+                            <span class="small-text" style="color:#b80000;">Assign specialties in profile first.</span>
+                        <?php elseif (count($currentInstructorCategories) === 1): ?>
+                            <input type="hidden" name="class_type" value="<?php echo htmlspecialchars($currentInstructorCategories[0]); ?>">
+                            <input type="text" value="<?php echo htmlspecialchars($currentInstructorCategories[0]); ?>" readonly>
+                            <span class="small-text">Auto-selected from your specialties.</span>
+                        <?php else: ?>
+                            <select id="class_type" name="class_type" required>
+                                <?php foreach ($currentInstructorCategories as $categoryOption): ?>
+                                    <option value="<?php echo htmlspecialchars($categoryOption); ?>"><?php echo htmlspecialchars($categoryOption); ?></option>
+                                <?php endforeach; ?>
+                            </select>
+                        <?php endif; ?>
+                    <?php else: ?>
+                        <?php if (empty($instructors)): ?>
+                            <select id="class_type" name="class_type" disabled>
+                                <option value="">No categories</option>
+                            </select>
+                            <span id="category-select-message" class="small-text" style="color:#b80000;">Assign specialties first.</span>
+                        <?php else: ?>
+                            <select id="class_type" name="class_type" <?php echo empty($initialCategoriesForForm) ? 'disabled' : 'required'; ?>></select>
+                            <span id="category-select-message" class="small-text"><?php echo empty($initialCategoriesForForm) ? 'Assign specialties to selected instructor.' : 'Instructor specialties only.'; ?></span>
+                        <?php endif; ?>
+                    <?php endif; ?>
+                </div>
+                <div class="field">
+                    <label for="capacity">Capacity</label>
+                    <input type="number" id="capacity" name="capacity" value="10" min="1" max="50" required>
+                </div>
+                <div class="field">
+                    <label for="date_time">Date & Time</label>
+                    <input type="datetime-local" id="date_time" name="date_time" required>
+                </div>
+                <div class="field">
+                    <label for="video_link">Video Link</label>
+                    <input type="url" id="video_link" name="video_link" placeholder="https://zoom.us/..." required>
+                </div>
             </div>
-
-            <div class="table-wrapper">
-                <table class="admin-table">
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>Class Information</th>
-                            <th>Instructor</th>
-                            <th>Date & Time</th>
-                            <th>Capacity</th>
-                            <th>Action</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php
-                        $result = mysqli_query($conn, "SELECT * FROM classes WHERE date_time >= NOW() ORDER BY date_time ASC");
-                        if(mysqli_num_rows($result) > 0) {
-                            while($row = mysqli_fetch_assoc($result)) {
-                                $class_date = new DateTime($row['date_time']);
-                                
-                                echo "<tr>";
-                                echo "<td class='td-id'>#" . str_pad($row['id'], 4, '0', STR_PAD_LEFT) . "</td>";
-                                echo "<td class='td-title'>";
-                                echo "<strong>" . htmlspecialchars($row['title']) . "</strong>";
-                                echo "<br><span class='class-badge'>" . $row['class_type'] . "</span>";
-                                echo "</td>";
-                                echo "<td>" . htmlspecialchars($row['trainer_name']) . "</td>";
-                                echo "<td class='td-date'>" . $class_date->format("d.m.Y H:i") . "</td>";
-                                echo "<td><span class='badge-capacity'>" . $row['capacity'] . "</span></td>";
-                                
-                                echo "<td class='td-actions'>";
-                                echo "<a href='class_edit.php?id=" . $row['id'] . "' class='btn-action-small btn-edit'>Edit</a>";
-                                if ($_SESSION['role'] == 'admin') {
-                                    echo "<a href='admin.php?delete_id=" . $row['id'] . "' class='btn-action-small btn-delete' onclick='return confirm(\"Are you sure you want to delete this class?\")'>Delete</a>";
-                                } else {
-                                    echo "<span class='btn-action-small btn-locked'>Locked</span>";
-                                }
-                                echo "</td>";
-                                echo "</tr>";
-                            }
-                        } else {
-                            echo "<tr><td colspan='6' style='text-align:center; padding:40px; color:#999;'>No upcoming classes</td></tr>";
-                        }
-                        ?>
-                    </tbody>
-                </table>
+            <div class="field">
+                <label for="description">Description</label>
+                <textarea id="description" name="description" placeholder="Short class info" required></textarea>
             </div>
-        </div>
-
-        <!-- GEÇMİŞ DERS LİSTESİ -->
-        <div class="table-section past-section">
-            <div class="section-header">
-                <h2>Past Classes</h2>
-                <p>Previously held and archived classes</p>
-            </div>
-
-            <div class="table-wrapper">
-                <table class="admin-table">
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>Class Information</th>
-                            <th>Instructor</th>
-                            <th>Date & Time</th>
-                            <th>Capacity</th>
-                            <th>Action</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php
-                        $past_result = mysqli_query($conn, "SELECT * FROM classes WHERE date_time < NOW() ORDER BY date_time DESC");
-                        if(mysqli_num_rows($past_result) > 0) {
-                            while($row = mysqli_fetch_assoc($past_result)) {
-                                $class_date = new DateTime($row['date_time']);
-                                
-                                echo "<tr>";
-                                echo "<td class='td-id'>#" . str_pad($row['id'], 4, '0', STR_PAD_LEFT) . "</td>";
-                                echo "<td class='td-title'>";
-                                echo "<strong>" . htmlspecialchars($row['title']) . "</strong>";
-                                echo "<br><span class='class-badge'>" . $row['class_type'] . "</span>";
-                                echo "</td>";
-                                echo "<td>" . htmlspecialchars($row['trainer_name']) . "</td>";
-                                echo "<td class='td-date'>" . $class_date->format("d.m.Y H:i") . "</td>";
-                                echo "<td><span class='badge-capacity'>" . $row['capacity'] . "</span></td>";
-                                
-                                echo "<td class='td-actions'>";
-                                if ($_SESSION['role'] == 'admin') {
-                                    echo "<a href='admin.php?delete_id=" . $row['id'] . "' class='btn-action-small btn-delete' onclick='return confirm(\"Are you sure you want to delete this class?\")'>Delete</a>";
-                                } else {
-                                    echo "<span class='btn-action-small btn-locked'>Locked</span>";
-                                }
-                                echo "</td>";
-                                echo "</tr>";
-                            }
-                        } else {
-                            echo "<tr><td colspan='6' style='text-align:center; padding:40px; color:#999;'>No past classes</td></tr>";
-                        }
-                        ?>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-
+            <button class="btn" id="publish-class-button" type="submit" <?php echo $publishDisabled ? 'disabled' : ''; ?>>Publish</button>
+            <?php if ($publishDisabled): ?>
+                <span class="small-text" style="color:#b80000;"><?php echo htmlspecialchars($publishDisabledReason); ?></span>
+            <?php endif; ?>
+        </form>
     </div>
 
+    <div class="section">
+        <h2>Active Classes</h2>
+        <p>Yaklaşan dersler listesi.</p>
+        <?php
+        $upcoming = mysqli_query($conn, "SELECT * FROM classes WHERE date_time >= NOW() ORDER BY date_time ASC");
+        ?>
+        <?php if ($upcoming && mysqli_num_rows($upcoming) > 0): ?>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Title</th>
+                        <th>Type</th>
+                        <th>Trainer</th>
+                        <th>Date</th>
+                        <th>Capacity</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php while ($row = mysqli_fetch_assoc($upcoming)): ?>
+                        <?php $class_date = new DateTime($row['date_time']); ?>
+                        <tr>
+                            <td>#<?php echo str_pad($row['id'], 4, '0', STR_PAD_LEFT); ?></td>
+                            <td><?php echo htmlspecialchars($row['title']); ?></td>
+                            <td><span class="badge"><?php echo htmlspecialchars($row['class_type']); ?></span></td>
+                            <td><?php echo htmlspecialchars($row['trainer_name']); ?></td>
+                            <td><?php echo $class_date->format('d.m.Y H:i'); ?></td>
+                            <td><?php echo (int) $row['capacity']; ?></td>
+                            <td>
+                                <a class="small-text" href="class_edit.php?id=<?php echo (int) $row['id']; ?>">Edit</a>
+                                <?php if ($_SESSION['role'] === 'admin'): ?>
+                                    | <a class="small-text" href="admin.php?delete_id=<?php echo (int) $row['id']; ?>" onclick="return confirm('Delete this class?');">Delete</a>
+                                <?php else: ?>
+                                    | <span class="small-text">Locked</span>
+                                <?php endif; ?>
+                            </td>
+                        </tr>
+                    <?php endwhile; ?>
+                </tbody>
+            </table>
+            <?php mysqli_free_result($upcoming); ?>
+        <?php else: ?>
+            <div class="empty">No upcoming classes.</div>
+        <?php endif; ?>
+    </div>
+
+    <div class="section">
+        <h2>Past Classes</h2>
+        <p>Tamamlanan dersler.</p>
+        <?php
+        $past = mysqli_query($conn, "SELECT * FROM classes WHERE date_time < NOW() ORDER BY date_time DESC");
+        ?>
+        <?php if ($past && mysqli_num_rows($past) > 0): ?>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Title</th>
+                        <th>Type</th>
+                        <th>Trainer</th>
+                        <th>Date</th>
+                        <th>Capacity</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php while ($row = mysqli_fetch_assoc($past)): ?>
+                        <?php $class_date = new DateTime($row['date_time']); ?>
+                        <tr>
+                            <td>#<?php echo str_pad($row['id'], 4, '0', STR_PAD_LEFT); ?></td>
+                            <td><?php echo htmlspecialchars($row['title']); ?></td>
+                            <td><span class="badge"><?php echo htmlspecialchars($row['class_type']); ?></span></td>
+                            <td><?php echo htmlspecialchars($row['trainer_name']); ?></td>
+                            <td><?php echo $class_date->format('d.m.Y H:i'); ?></td>
+                            <td><?php echo (int) $row['capacity']; ?></td>
+                            <td>
+                                <?php if ($_SESSION['role'] === 'admin'): ?>
+                                    <a class="small-text" href="admin.php?delete_id=<?php echo (int) $row['id']; ?>" onclick="return confirm('Delete this class?');">Delete</a>
+                                <?php else: ?>
+                                    <span class="small-text">Locked</span>
+                                <?php endif; ?>
+                            </td>
+                        </tr>
+                    <?php endwhile; ?>
+                </tbody>
+            </table>
+            <?php mysqli_free_result($past); ?>
+        <?php else: ?>
+            <div class="empty">No past classes.</div>
+        <?php endif; ?>
+    </div>
 </div>
 
 <script>
@@ -575,11 +537,9 @@ document.addEventListener('DOMContentLoaded', function () {
         if (!categorySelect) {
             return;
         }
-
         while (categorySelect.firstChild) {
             categorySelect.removeChild(categorySelect.firstChild);
         }
-
         if (!categories || categories.length === 0) {
             categorySelect.disabled = true;
             var option = document.createElement('option');
@@ -587,27 +547,24 @@ document.addEventListener('DOMContentLoaded', function () {
             option.textContent = 'No categories available';
             categorySelect.appendChild(option);
             if (categoryMessage) {
-                categoryMessage.textContent = 'Assign specialties to the selected instructor before publishing a class.';
-                categoryMessage.style.color = '#c0392b';
+                categoryMessage.textContent = 'Assign specialties to the selected instructor before publishing.';
+                categoryMessage.style.color = '#b80000';
             }
             if (publishButton) {
                 publishButton.disabled = true;
             }
             return;
         }
-
         categories.forEach(function (category) {
             var option = document.createElement('option');
             option.value = category;
             option.textContent = category;
             categorySelect.appendChild(option);
         });
-
         categorySelect.disabled = false;
         categorySelect.value = categories[0];
-
         if (categoryMessage) {
-            categoryMessage.textContent = 'Category is limited to the instructor specialties.';
+            categoryMessage.textContent = 'Instructor specialties only.';
             categoryMessage.style.color = '#555';
         }
         if (publishButton) {
@@ -618,7 +575,6 @@ document.addEventListener('DOMContentLoaded', function () {
     if (trainerSelect && categorySelect) {
         var initialCategories = categoriesByUsername[trainerSelect.value] || [];
         syncCategoryOptions(initialCategories);
-
         trainerSelect.addEventListener('change', function () {
             var selectedCategories = categoriesByUsername[this.value] || [];
             syncCategoryOptions(selectedCategories);

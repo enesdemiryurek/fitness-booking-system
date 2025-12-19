@@ -2,42 +2,49 @@
 session_start();
 include 'db.php';
 
-// Güvenlik: Giriş yapmamışsa işlem yapamaz
 if (!isset($_SESSION['user_id'])) {
-    header("Location: index.php");
+    header('Location: login.php');
     exit;
 }
 
-if (isset($_GET['id'])) {
-    $booking_id = $_GET['id'];
-    $user_id = $_SESSION['user_id'];
+$booking_id = isset($_GET['id']) ? (int) $_GET['id'] : 0;
+$user_id = (int) $_SESSION['user_id'];
 
-    // 1. Önce bu rezervasyonun HANGİ DERSE ait olduğunu bulalım (Stoku artırmak için lazım)
-    // Ayrıca güvenlik için bu rezervasyonun gerçekten bu kullanıcıya mı ait olduğuna bakıyoruz.
-    $find_sql = "SELECT class_id FROM bookings WHERE id = $booking_id AND user_id = $user_id";
-    $result = mysqli_query($conn, $find_sql);
-
-    if (mysqli_num_rows($result) > 0) {
-        $row = mysqli_fetch_assoc($result);
-        $class_id = $row['class_id'];
-
-        // 2. Rezervasyonu Sil (bookings tablosundan)
-        $delete_sql = "DELETE FROM bookings WHERE id = $booking_id";
-        mysqli_query($conn, $delete_sql);
-
-        // 3. KRİTİK NOKTA: Stok Sayısını 1 Artır (+1)
-        $update_sql = "UPDATE classes SET capacity = capacity + 1 WHERE id = $class_id";
-        mysqli_query($conn, $update_sql);
-
-        // Başarılı, profile geri dön
-        echo "<script>
-            alert('✅ Your reservation has been cancelled successfully.');
-            window.location.href = 'profile.php';
-        </script>";
-    } else {
-        echo "Error: Reservation not found or does not belong to you.";
-    }
-} else {
-    header("Location: profile.php");
+if ($booking_id <= 0) {
+    header('Location: profile.php');
+    exit;
 }
+
+$find_stmt = mysqli_prepare($conn, 'SELECT class_id FROM bookings WHERE id = ? AND user_id = ? LIMIT 1');
+if ($find_stmt) {
+    mysqli_stmt_bind_param($find_stmt, 'ii', $booking_id, $user_id);
+    mysqli_stmt_execute($find_stmt);
+    mysqli_stmt_bind_result($find_stmt, $class_id);
+    $found = mysqli_stmt_fetch($find_stmt);
+    mysqli_stmt_close($find_stmt);
+
+    if (!$found) {
+        header('Location: profile.php?msg=booking_not_found');
+        exit;
+    }
+
+    $delete_stmt = mysqli_prepare($conn, 'DELETE FROM bookings WHERE id = ? AND user_id = ?');
+    if ($delete_stmt) {
+        mysqli_stmt_bind_param($delete_stmt, 'ii', $booking_id, $user_id);
+        mysqli_stmt_execute($delete_stmt);
+        mysqli_stmt_close($delete_stmt);
+    }
+
+    $update_stmt = mysqli_prepare($conn, 'UPDATE classes SET capacity = capacity + 1 WHERE id = ?');
+    if ($update_stmt) {
+        mysqli_stmt_bind_param($update_stmt, 'i', $class_id);
+        mysqli_stmt_execute($update_stmt);
+        mysqli_stmt_close($update_stmt);
+    }
+
+    header('Location: profile.php?msg=booking_cancelled');
+    exit;
+}
+
+header('Location: profile.php?msg=error');
 ?>
