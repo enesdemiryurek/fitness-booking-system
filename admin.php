@@ -283,7 +283,7 @@ include 'header.php';
 
 <div class="page-shell">
     <h1><?php echo $_SESSION['role'] === 'admin' ? 'Admin Panel' : 'Trainer Panel'; ?></h1>
-    <div class="helper">Basitleştirilmiş admin sayfası. Rol atama, ders oluşturma ve listeleme işlemleri aynen devam.</div>
+    <div class="helper">Simplified admin page. Role assignment, class creation, and listings work as before.</div>
 
     <?php if ($message): ?>
         <div class="note <?php echo htmlspecialchars($message_type); ?>"><?php echo htmlspecialchars($message); ?></div>
@@ -292,7 +292,7 @@ include 'header.php';
     <?php if ($_SESSION['role'] === 'admin'): ?>
         <div class="section">
             <h2>User Management</h2>
-            <p>Kullanıcı rolünü Member veya Instructor olarak güncelle.</p>
+            <p>Update any user role to Member or Instructor.</p>
             <form method="GET" class="stack" style="max-width: 360px;">
                 <div class="field">
                     <label for="user_search">Search username</label>
@@ -349,7 +349,7 @@ include 'header.php';
 
     <div class="section">
         <h2>Create New Class</h2>
-        <p>Hızlı ders ekle: eğitmen, kategori, tarih, link.</p>
+        <p>Quickly add a class: instructor, category, date, link.</p>
         <form method="POST" class="stack">
             <input type="hidden" name="create_class" value="1">
             <div class="grid">
@@ -433,7 +433,7 @@ include 'header.php';
 
     <div class="section">
         <h2>Active Classes</h2>
-        <p>Yaklaşan dersler listesi.</p>
+        <p>List of upcoming classes.</p>
         <?php
         $upcoming = mysqli_query($conn, "SELECT * FROM classes WHERE date_time >= NOW() ORDER BY date_time ASC");
         ?>
@@ -480,7 +480,7 @@ include 'header.php';
 
     <div class="section">
         <h2>Past Classes</h2>
-        <p>Tamamlanan dersler.</p>
+        <p>Completed classes.</p>
         <?php
         $past = mysqli_query($conn, "SELECT * FROM classes WHERE date_time < NOW() ORDER BY date_time DESC");
         ?>

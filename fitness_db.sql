@@ -23,8 +23,7 @@ SET time_zone = "+00:00";
 
 -- --------------------------------------------------------
 
---
--- Tablo için tablo yapısı `bookings`
+-- `bookings`
 --
 
 CREATE TABLE `bookings` (
@@ -34,8 +33,7 @@ CREATE TABLE `bookings` (
   `booking_date` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
---
--- Tablo döküm verisi `bookings`
+-- `bookings` datas
 --
 
 INSERT INTO `bookings` (`id`, `user_id`, `class_id`, `booking_date`) VALUES
@@ -44,14 +42,12 @@ INSERT INTO `bookings` (`id`, `user_id`, `class_id`, `booking_date`) VALUES
 (7, 4, 5, '2025-11-20 13:45:55'),
 (8, 4, 6, '2025-11-20 13:49:00');
 
--- --------------------------------------------------------
 
---
--- Tablo için tablo yapısı `classes`
+--`classes`
 --
 
 CREATE TABLE `classes` (
-  `id` int(11) NOT NULL,
+  `id` int(11) NOT NULL PRIMARY KEY,
   `title` varchar(100) NOT NULL,
   `description` text DEFAULT NULL,
   `trainer_name` varchar(50) NOT NULL,
@@ -62,23 +58,15 @@ CREATE TABLE `classes` (
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
---
--- Tablo döküm verisi `classes`
---
+-- `classes` datas--
 
 INSERT INTO `classes` (`id`, `title`, `description`, `trainer_name`, `class_type`, `date_time`, `capacity`, `video_link`, `created_at`) VALUES
-(1, 'Sabah Yogası', 'Güne zinde başlamak için harika bir ders.', 'Ayşe Hoca', 'Yoga', '2025-11-25 09:00:00', 9, 'https://zoom.us/j/123456', '2025-11-19 16:31:04'),
-(2, 'Push Pull Legs', 'Push Pull legs dersi', 'Enes Hoca', 'Fitness', '2025-11-23 13:50:00', 10, 'https://support.zoom.com/hc/tr', '2025-11-20 09:49:55'),
-(3, 'Pilates ', 'Pilatesin babası', 'Bilmem ne HOCA', 'Pilates', '2025-11-23 13:03:00', 15, 'https://support.zoom.com/hc/tr', '2025-11-20 10:04:07'),
-(4, 'Zumba', 'zumbacı baba', 'Zumbacı', 'Zumba', '2025-11-03 13:09:00', 5, 'https://support.zoom.com/hc/tr', '2025-11-20 10:04:32'),
-(5, 'kardiyonun babası', 'Yağları yakıyoz', 'zattırızot', 'HIIT', '2025-11-30 13:10:00', 98, 'https://support.zoom.com/hc/tr', '2025-11-20 10:05:07'),
-(6, 'deneme', 'deneme', 'deneme', 'Yoga', '2025-11-20 16:50:00', 1, 'https://support.zoom.com/hc/tr', '2025-11-20 13:48:47');
 
--- --------------------------------------------------------
 
---
--- Tablo için tablo yapısı `reviews`
---
+
+
+--`reviews`--
+
 
 CREATE TABLE `reviews` (
   `id` int(11) NOT NULL,
@@ -89,24 +77,21 @@ CREATE TABLE `reviews` (
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
---
--- Tablo döküm verisi `reviews`
---
+
 
 INSERT INTO `reviews` (`id`, `user_id`, `class_id`, `rating`, `comment`, `created_at`) VALUES
-(1, 4, 6, 5, 'kötü', '2025-11-20 13:56:50');
+
 
 -- --------------------------------------------------------
 
---
--- Tablo için tablo yapısı `users`
+-- `users`
 --
 
 CREATE TABLE `users` (
   `id` int(11) NOT NULL,
   `username` varchar(50) NOT NULL,
-  `email` varchar(100) NOT NULL,
-  `phone` varchar(20) DEFAULT NULL,
+  `email` varchar(100) NOT NULL UNIQUE,
+  `phone` varchar(20) DEFAULT NULL UNIQUE,
   `age` int(11) DEFAULT NULL,
   `gender` varchar(20) DEFAULT NULL,
   `password` varchar(255) NOT NULL,
@@ -115,8 +100,7 @@ CREATE TABLE `users` (
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
---
--- Tablo döküm verisi `users`
+-- `users` datas
 --
 
 INSERT INTO `users` (`id`, `username`, `email`, `phone`, `age`, `gender`, `password`, `role`, `profile_pic`, `created_at`) VALUES
@@ -124,12 +108,11 @@ INSERT INTO `users` (`id`, `username`, `email`, `phone`, `age`, `gender`, `passw
 (2, 'ogrenci1', 'ogrenci1@gmail.com', NULL, NULL, NULL, '123', 'user', 'default.png', '2025-11-19 16:31:03'),
 (3, 'enesdemiryürek', 'instructor@gmail.com', NULL, NULL, NULL, '123', 'instructor', 'default.png', '2025-11-19 17:09:40'),
 (4, 'elif çalışkaner', 'elifbaba@gmail.com', '03483653535', 31, 'Female', '123', 'user', 'default.png', '2025-11-20 13:45:36'),
-(5, 'Enes Demiryürek', 'enesdmryurek@gmail.com', '05433057026', 22, 'Male', 'Enesbaba', 'user', 'default.png', '2025-11-23 11:36:37');
+;
 
 -- --------------------------------------------------------
 
---
--- Tablo için tablo yapısı `password_resets`
+--`password_resets`
 --
 
 CREATE TABLE `password_resets` (
@@ -140,10 +123,9 @@ CREATE TABLE `password_resets` (
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
--- --------------------------------------------------------
 
---
--- Tablo için tablo yapısı `user_progress`
+
+--`user_progress`
 --
 
 CREATE TABLE `user_progress` (
@@ -155,134 +137,86 @@ CREATE TABLE `user_progress` (
   `record_date` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
---
--- Tablo döküm verisi `user_progress`
+-- `user_progress` datas
 --
 
 INSERT INTO `user_progress` (`id`, `user_id`, `weight`, `height`, `bmi`, `record_date`) VALUES
-(1, 1, 80.00, 185, 23.37, '2025-11-20 11:38:27'),
-(2, 1, 80.00, 185, 23.37, '2025-11-20 11:41:43'),
-(3, 1, 80.00, 185, 23.37, '2025-11-20 11:41:45'),
-(4, 1, 80.00, 185, 23.37, '2025-11-20 11:41:50'),
-(5, 1, 80.00, 185, 23.37, '2025-11-20 11:41:51'),
-(6, 1, 80.00, 185, 23.37, '2025-11-20 11:41:52'),
-(7, 2, 80.00, 185, 23.37, '2025-11-20 11:43:40'),
-(8, 4, 57.00, 173, 19.05, '2025-11-20 13:46:21');
 
---
--- Dökümü yapılmış tablolar için indeksler
---
 
---
--- Tablo için indeksler `bookings`
+
+-- `bookings`
 --
 ALTER TABLE `bookings`
   ADD PRIMARY KEY (`id`),
   ADD KEY `user_id` (`user_id`),
   ADD KEY `class_id` (`class_id`);
 
---
--- Tablo için indeksler `classes`
---
+
 ALTER TABLE `classes`
   ADD PRIMARY KEY (`id`);
 
---
--- Tablo için indeksler `reviews`
---
 ALTER TABLE `reviews`
   ADD PRIMARY KEY (`id`),
   ADD KEY `user_id` (`user_id`),
   ADD KEY `class_id` (`class_id`);
 
---
--- Tablo için indeksler `users`
---
+
 ALTER TABLE `users`
   ADD PRIMARY KEY (`id`),
   ADD UNIQUE KEY `email` (`email`);
 
---
--- Tablo için indeksler `password_resets`
---
+
 ALTER TABLE `password_resets`
   ADD PRIMARY KEY (`id`),
   ADD KEY `user_id` (`user_id`);
 
---
--- Tablo için indeksler `user_progress`
---
 ALTER TABLE `user_progress`
   ADD PRIMARY KEY (`id`),
   ADD KEY `user_id` (`user_id`);
 
---
--- Dökümü yapılmış tablolar için AUTO_INCREMENT değeri
---
+
 
 --
--- Tablo için AUTO_INCREMENT değeri `bookings`
+-- Tablo için AUTO_INCREMENT Ender Hoca sorar `bookings`
 --
 ALTER TABLE `bookings`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
-
---
--- Tablo için AUTO_INCREMENT değeri `classes`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1;
 --
 ALTER TABLE `classes`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
-
---
--- Tablo için AUTO_INCREMENT değeri `reviews`
---
-ALTER TABLE `reviews`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
-
---
--- Tablo için AUTO_INCREMENT değeri `users`
---
-ALTER TABLE `users`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
-
---
--- Tablo için AUTO_INCREMENT değeri `password_resets`
---
-ALTER TABLE `password_resets`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1;
 
---
--- Tablo için AUTO_INCREMENT değeri `user_progress`
---
+-- --
+ALTER TABLE `reviews`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1;
+--    --  
+
+ALTER TABLE `users`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+--    --  
+
+ALTER TABLE `password_resets`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1;
+--    --  
+
 ALTER TABLE `user_progress`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1;
+--    --  
 
---
--- Dökümü yapılmış tablolar için kısıtlamalar
---
-
---
--- Tablo kısıtlamaları `bookings`
---
+--------------------- ---------------------------
 ALTER TABLE `bookings`
   ADD CONSTRAINT `bookings_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE,
   ADD CONSTRAINT `bookings_ibfk_2` FOREIGN KEY (`class_id`) REFERENCES `classes` (`id`) ON DELETE CASCADE;
 
---
--- Tablo kısıtlamaları `reviews`
---
+
 ALTER TABLE `reviews`
   ADD CONSTRAINT `reviews_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE,
   ADD CONSTRAINT `reviews_ibfk_2` FOREIGN KEY (`class_id`) REFERENCES `classes` (`id`) ON DELETE CASCADE;
 
---
--- Tablo kısıtlamaları `password_resets`
---
+
 ALTER TABLE `password_resets`
   ADD CONSTRAINT `password_resets_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE;
 
---
--- Tablo kısıtlamaları `user_progress`
---
+
 ALTER TABLE `user_progress`
   ADD CONSTRAINT `user_progress_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE;
 COMMIT;
