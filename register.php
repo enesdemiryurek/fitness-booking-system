@@ -203,7 +203,7 @@ include 'header.php';
             <div class="image-overlay">
                 <div class="testimonial-stars">5 Star Rating</div>
                 <p class="testimonial-text">"Since I started using this app, I never miss my workouts. The instructors are very attentive and the system works great!"</p>
-                <p class="testimonial-author">Mert Yılmaz<br><small>Fitness Member</small></p>
+                <p class="testimonial-author">Elif Çalışkaner<br><small>Fitness Member</small></p>
             </div>
         </div>
     </div>

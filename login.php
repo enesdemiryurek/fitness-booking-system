@@ -109,7 +109,15 @@ include 'header.php';
 
                 <div class="input-group">
                     <label>Password</label>
-                    <input type="password" name="password" class="blue-input" placeholder="******" required>
+                    <input type="password" id="login-password" name="password" class="blue-input" placeholder="******" required>
+                    <button 
+                        type="button" 
+                        id="toggle-login-password"
+                        style="margin-top: 6px; background: none; border: none; color: #1976d2; cursor: pointer; font-size: 13px;"
+                    >
+                             Show 
+</button>
+
                 </div>
 
                 <button type="submit" class="btn-blue">Login</button>
@@ -130,11 +138,23 @@ include 'header.php';
         <div class="image-side" style="background-image: url('https://images.unsplash.com/photo-1599058945522-28d584b6f0ff?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80');">
             <div class="image-overlay">
                 <div class="testimonial-stars">5 Star Rating</div>
-                <p class="testimonial-text">"Consistency is the key to success. We're here to be 1% better every day."</p>
-                <p class="testimonial-author">BABA PRO GYM TEAM</p>
+                <p class="testimonial-text">"Consistency is the key to success. We're here to be better every day."</p>
+                <p class="testimonial-author">GYMGYME</p>
             </div>
         </div>
 
     </div>
+<script>
+const pwd = document.getElementById('login-password');
+const btn = document.getElementById('toggle-login-password');
+
+if (pwd && btn) {
+    btn.addEventListener('click', () => {
+        const hidden = pwd.type === 'password';
+        pwd.type = hidden ? 'text' : 'password';
+        btn.textContent = hidden ? 'Hide password' : 'Show password';
+    });
+}
+</script>
 
     <?php include 'footer.php'; ?>

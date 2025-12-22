@@ -8,7 +8,7 @@ $message_type = "";
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $email = trim($_POST['email']);
 
-    // Email'in veritabanında olup olmadığını kontrol et
+    // Email'in veritabanında olup olmadığını kontrol ettim
     $sql = "SELECT id FROM users WHERE email = '$email'";
     $result = mysqli_query($conn, $sql);
 
@@ -19,7 +19,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         // Benzersiz token oluştur
         $token = bin2hex(random_bytes(32));
         
-        // Token'ı 1 saat geçerli olacak şekilde ayarla
+        // Token'ı 1 saat geçerli olacak şekilde ayarladım
         $expires_at = date('Y-m-d H:i:s', strtotime('+1 hour'));
 
         // Token'ı veritabanına kaydet
@@ -32,33 +32,33 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             // Email gönder
             $subject = "GYM - Şifre Sıfırlama Talebi";
             $message_body = "
-Merhaba,
+Hello,
 
-Şifrenizi sıfırlamak için aşağıdaki linke tıklayın:
+To reset yout password, please click the link below:
 
 $reset_link
 
-Bu link 1 saat içinde geçerlidir.
+this link is valid for 1 hourr.
 
-Eğer siz bu talebide bulunmadıysanız bu e-postayı görmezden gelebilirsiniz.
+If you did not request a password reset, you can safely ignore this email.
 
-Saygılarımızla,
-GYM Ekibi
+Best regards,
+GYMGYME Team
             ";
 
-            // Test Modu: Linki ekrana yazdır ve logla
-            $message = "✓ Şifre sıfırlama linki oluşturuldu! Linki aşağıda görebilirsiniz.<br><br><strong>Şifre Sıfırlama Linki:</strong><br><a href='" . $reset_link . "' style='color:#4CAF50; font-weight:bold; word-break: break-all;'>" . $reset_link . "</a><br><br><small style='color:#999;'>Linki yeni sekmede açabilir veya kopyalayıp tarayıcı adres çubuğuna yapıştırabilirsiniz.</small>";
+            // Test Modu: Linki ekrana yazdı ve logladı
+            $message = "Password reset link has been created.<br><br><strong>Şifre Sıfırlama Linki:</strong><br><a href='" . $reset_link . "' style='color:#4CAF50; font-weight:bold; word-break: break-all;'>" . $reset_link . "</a><br><br><small style='color:#999;'>Linki yeni sekmede açabilir veya kopyalayıp tarayıcı adres çubuğuna yapıştırabilirsiniz.</small>";
             $message_type = "success";
             
-            // Veritabanına loglayalım
+            // Veritabanına logladım
             $log_message = "Password reset requested for user $user_id (email: $email) on " . date('Y-m-d H:i:s') . "\nReset Link: $reset_link\nToken: $token\nExpires At: $expires_at\n" . str_repeat("-", 80) . "\n";
             file_put_contents('password_reset_log.txt', $log_message, FILE_APPEND);
         } else {
-            $message = "Veritabanı hatası. Lütfen daha sonra tekrar deneyin.";
+            $message = "A database error occurred. Please try again later.";
             $message_type = "error";
         }
     } else {
-        $message = "Bu e-posta adresine kayıtlı bir hesap bulunamadı.";
+        $message = "No account found with this email address.";
         $message_type = "error";
     }
 }
@@ -69,7 +69,7 @@ GYM Ekibi
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Şifremi Unuttum | GYM</title>
+    <title>Forgot Password | GYM</title>
     <link rel="stylesheet" href="style.css">
     <style>
         .forgot-password-container {
@@ -164,8 +164,8 @@ GYM Ekibi
 <body style="background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); min-height: 100vh;">
 
     <div class="forgot-password-container">
-        <h2>Şifremi Unuttum</h2>
-        <p>E-posta adresinizi girin. Size şifre sıfırlama linki göndereceğiz.</p>
+        <h2>Forgot Password</h2>
+        <p>Enter your email address. We will send you a password reset link..</p>
 
         <?php if($message): ?>
             <div class="message <?php echo $message_type; ?>">
@@ -177,14 +177,14 @@ GYM Ekibi
             <input 
                 type="email" 
                 name="email" 
-                placeholder="E-posta adresini gir" 
+                placeholder="Enter your email address" 
                 required
             >
-            <button type="submit">Şifre Sıfırlama Linki Gönder</button>
+            <button type="submit">Send password reset link</button>
         </form>
 
         <div class="back-link">
-            <a href="login.php">← Giriş sayfasına geri dön</a>
+            <a href="login.php">Back to login page</a>
         </div>
     </div>
 
