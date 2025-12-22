@@ -174,10 +174,8 @@ include 'header.php';
 
                 <div class="input-group">
                     <label>Password</label>
-                    <div style="position: relative;">
-                        <input type="password" id="password" name="password" class="blue-input" required>
-                        <button type="button" id="toggle-password" style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); cursor: pointer; font-size: 13px; border: none; background: transparent; color: #1976d2;">Show</button>
-                    </div>
+                    <input type="password" id="password" name="password" class="blue-input" required>
+                    <button type="button" id="toggle-password" style="margin-top: 6px; background: none; border: none; color: #1976d2; cursor: pointer; font-size: 13px;">Show</button>
                     <small style="color: #666; display: block; margin-top: 8px;">
                         <strong>Password Requirements:</strong>
                         <div style="margin-top: 5px;">

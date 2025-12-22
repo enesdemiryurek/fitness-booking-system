@@ -152,7 +152,7 @@ if (pwd && btn) {
     btn.addEventListener('click', () => {
         const hidden = pwd.type === 'password';
         pwd.type = hidden ? 'text' : 'password';
-        btn.textContent = hidden ? 'Hide password' : 'Show password';
+        btn.textContent = hidden ? 'Hide' : 'Show';
     });
 }
 </script>
