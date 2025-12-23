@@ -1,7 +1,7 @@
     <footer class="footer">
         <div class="footer-container">
             <div class="footer-section">
-                <h3>BABA PRO GYM</h3>
+                <h3>GYMGYME</h3>
                 <p>We're waiting for you for the best fitness experience. Push your limits, reach your goals!</p>
             </div>
 

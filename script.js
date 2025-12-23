@@ -1,4 +1,4 @@
-// ========== KAROUSEL İŞLEVLERİ - GELIŞTIRILMIŞ ==========
+
 let currentSlide = 0;
 let autoScrollInterval;
 let cardWidth = 0;

@@ -450,34 +450,6 @@ body {
     border-radius: 4px;
 }
 
-/* Responsive Karousel */
-@media (max-width: 1024px) {
-    .carousel-card {
-        flex: 0 0 calc(100% / 1.15);
-    }
-}
-
-@media (max-width: 768px) {
-    .class-types-carousel {
-        padding: 25px 10px;
-    }
-
-    .carousel-card {
-        flex: 0 0 calc(100% - 40px);
-        min-width: 250px;
-    }
-
-    .carousel-nav {
-        width: 35px;
-        height: 35px;
-        font-size: 1rem;
-    }
-
-    .carousel-content {
-        padding: 15px;
-    }
-
-}
 
 /* --- 3. DERS KARTLARI --- */
 .container {
@@ -558,33 +530,6 @@ body {
     margin-left: auto;
 }
 
-/* Responsive - Profile Hero Photo */
-@media (max-width: 768px) {
-    .profile-hero-content-with-photo {
-        flex-direction: column;
-        text-align: center;
-        gap: 15px;
-    }
-
-    .profile-hero-photo,
-    .profile-hero-photo-placeholder {
-        width: 60px;
-        height: 60px;
-        font-size: 1.5rem;
-    }
-
-    
-
-    .trainer-info-card {
-        flex-wrap: wrap;
-    }
-
-    .trainer-time-card {
-        width: 100%;
-        margin-left: 0;
-        margin-top: 5px;
-    }
-}
 
 .class-list {
     display: grid;
@@ -592,21 +537,6 @@ body {
     gap: 30px;
 }
 
-/* Responsive - Tablet */
-@media (max-width: 1024px) {
-    .class-list {
-        grid-template-columns: repeat(2, 1fr);
-        gap: 20px;
-    }
-}
-
-/* Responsive - Mobile */
-@media (max-width: 768px) {
-    .class-list {
-        grid-template-columns: 1fr;
-        gap: 20px;
-    }
-}
 
 .class-card {
     background: white;
@@ -860,12 +790,6 @@ body {
 .testimonial-text { font-size: 1.1rem; font-style: italic; margin-bottom: 15px; line-height: 1.5; }
 .testimonial-author { font-size: 0.9rem; font-weight: bold; opacity: 0.9; }
 
-/* MOBİL UYUMU */
-@media (max-width: 768px) {
-    .split-card { flex-direction: column; height: auto; }
-    .image-side { display: none; /* Mobilde resmi gizle, sadece form kalsın */ }
-    .form-side { padding: 30px; }
-}
 
 /* Anasayfa Kart Puanı */
 .my-rating-badge {
@@ -957,13 +881,6 @@ body {
     background: #111111;
 }
 
-/* MOBİL UYUMU */
-@media (max-width: 768px) {
-    .footer-container {
-        grid-template-columns: 1fr;
-        gap: 30px;
-    }
-}
 
 /* ========== ADMIN PANELİ STİLLERİ ========== */
 
@@ -1882,70 +1799,6 @@ body {
     border-left: none;
 }
 
-@media (max-width: 1100px) {
-    .profile-container {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-
-    .profile-right {
-        grid-column: 1 / -1;
-    }
-}
-
-@media (max-width: 900px) {
-    .profile-container {
-        grid-template-columns: 1fr;
-    }
-
-    .profile-stat-bar {
-        margin-top: -60px;
-    }
-
-    .profile-hero-wrapper {
-        flex-direction: column;
-        text-align: center;
-    }
-
-    .profile-hero-info h1 {
-        font-size: 2rem;
-    }
-
-    .profile-hero-meta {
-        justify-content: center;
-    }
-
-    .profile-form .form-row {
-        grid-template-columns: 1fr;
-    }
-
-    .lesson-header {
-        flex-direction: column;
-        align-items: flex-start;
-    }
-
-    .lesson-actions {
-        justify-content: flex-start;
-    }
-}
-
-@media (max-width: 600px) {
-    .profile-hero-v2 {
-        padding: 60px 16px 110px;
-    }
-
-    .profile-stat-bar {
-        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-        padding: 0 16px;
-    }
-
-    .profile-container {
-        padding: 0 16px;
-    }
-
-    .profile-card {
-        padding: 22px;
-    }
-}
 
 /* ========== BİLDİRİM SİSTEMİ STİLLERİ ========== */
 
@@ -2688,21 +2541,6 @@ body {
     background: #d1d5db;
 }
 
-/* Responsive */
-@media (max-width: 768px) {
-    .notification-panel {
-        width: 320px;
-        right: -10px;
-    }
-    
-    .notification-item {
-        padding: 12px;
-    }
-    
-    .form-inline {
-        flex-direction: column;
-    }
-}
 /* --- GRUP DERSLERİ (STICKY SCROLL BÖLÜMÜ) --- */
 .group-classes-section {
     background-color: rgb(37, 39, 44); /* Koyu arka plan */
@@ -2762,15 +2600,15 @@ body {
 
 
 
-/* SAĞ: SABİT MENÜ */
+/* SAĞ SABİT MENÜMü> */
 .group-sidebar {
-    flex: 0 0 300px; /* Genişlik sabit */
+    flex: 0 0 300px; 
     position: sticky;
-    top: 120px; /* Ekranın tepesinden ne kadar aşağıda dursun */
+    top: 120px; 
     height: fit-content;
-    border-left: 1px solid white;
+    border-left: 2px solid white;
     padding-left: 30px;
-    font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
+    font-family: Cambria;
 }
 
 .zigzag {
@@ -2834,11 +2672,6 @@ body {
 /* Sayfa Kaydırma Efekti */
 html { scroll-behavior: smooth; }
 
-/* Mobilde Yan Yana Değil Alt Alta Olsun */
-@media (max-width: 900px) {
-    .group-wrapper { flex-direction: column-reverse; } /* Menü üste gelsin */
-    .group-sidebar { position: relative; top: 0; width: 100%; border-left: none; border-bottom: 1px solid #333; padding-bottom: 30px; padding-left: 0; }
-}
 
 /* ========== ÖDEME BİLGİLERİ BÖLÜMÜ STİLLERİ ========== */
 .payments-list {
@@ -3075,15 +2908,6 @@ html { scroll-behavior: smooth; }
     color: #111827;
 }
 
-@media (max-width: 900px) {
-    .payment-content {
-        grid-template-columns: 1fr;
-    }
-
-    .payment-form {
-        grid-column: span 1;
-    }
-}
 
 /* Saved Payment Methods */
 .saved-payment-method {
@@ -3131,19 +2955,6 @@ html { scroll-behavior: smooth; }
     box-shadow: 0 0 0 2px rgba(255, 0, 0, 0.1);
 }
 
-@media (max-width: 768px) {
-    .payment-header-item {
-        flex-direction: column;
-        align-items: flex-start;
-    }
-    
-    .payment-detail-row {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 5px;
-    }
-    
-}
 
 /* PROFIL FOTOĞRAFı STİLLERİ */
 .profile-photo-display {
@@ -3281,8 +3092,6 @@ html { scroll-behavior: smooth; }
         .flash-error {
              color: #b71c1c; background: #ffebee; padding: 10px; border-radius: 5px; margin-bottom: 15px; text-align: center;
              }
-        @media (max-width: 1024px) { .dash-grid { grid-template-columns: 1fr; } }
-
         .class-details-container {
     max-width: 1200px;
     margin: 0 auto;
@@ -3852,10 +3661,4 @@ html { scroll-behavior: smooth; }
 .admin-badge:hover {
     background: #1245c2;
     transform: translateY(-1px);
-}
-
-@media (max-width: 1024px) {
-    .class-details-grid {
-        grid-template-columns: 1fr;
-    }
 }

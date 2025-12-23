@@ -4,12 +4,12 @@ include 'db.php';
 include 'notification_handler.php';
 $page_title = "Fitness Booking | GYM";
 
-// HER SAYFAYA GİREŞTE BİLDİRİMLERİ KONTROL ET VE GÖNDER
-if(rand(1, 10) == 1) { // %10 oranında çalış (spam önleme)
+// sayfaya girişlerde bildirimleri arada göndericek
+if(rand(1, 10) == 1) { 
     $notificationHandler->sendClassReminders();
 }
 
-// Reviews are displayed on class_details_reviews.php; no review aggregation needed here.
+
 
 include 'header.php';
 ?>
@@ -20,11 +20,11 @@ include 'header.php';
     </div>
 
    
-    <!-- GRUP DERSLERİ (STICKY BÖLÜM) BAŞLANGIÇ -->
+    <!-- GRUP DERSlerimiz-->
     <div class="group-classes-section">
         <div class="group-wrapper">
             
-            <!-- SOL TARAF: İÇERİK -->
+            <!-- SOL TARAF DERSLERİN FOTO VE AÇIKLAMASININ OLDUĞU YERLER -->
             <div class="group-content">
                 
                 <!-- YOGA -->
@@ -91,7 +91,7 @@ include 'header.php';
         <h2 class="section-title">Upcoming Lessons</h2>
         <div style="margin-bottom:12px; display:flex; align-items:center; gap:8px;">
             <label for="upcoming-filter" style="font-weight:600;">Filter:</label>
-            <select id="upcoming-filter" style="padding:6px 8px; border:1px solid #ddd; border-radius:4px;">
+            <select id="upcoming-filter" style="padding:6px 8px; border:3px dashed #030303ff; ">
                 <option value="all">All</option>
                 <option value="Yoga">Yoga</option>
                 <option value="Pilates">Pilates</option>

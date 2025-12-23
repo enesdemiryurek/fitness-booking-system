@@ -15,7 +15,7 @@ include 'notification_handler.php';
 
     <nav class="navbar">
         <a href="index.php" class="logo">
-            GYMCİME
+            GYMGYME
         </a>
 
         <div class="nav-center">
