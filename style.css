@@ -82,7 +82,7 @@ body {
     background: #1e3c72;
 }
 
-/* --- 2. HERO BÖLÜMÜ (DEV FOTOĞRAF) --- */
+
 .hero {
     height: 500px;
     background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('https://images.unsplash.com/photo-1534438327276-14e5300c3a48?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80');
@@ -454,8 +454,11 @@ body {
 /* --- 3. DERS KARTLARI --- */
 .container {
     max-width: 1200px;
-    margin: 0 auto;
+    margin: 10px auto;
     padding: 0 20px 50px 20px;
+    border: #00B7EB 7px groove;
+    border-radius: 10px;
+   
 }
 
 .section-title {
@@ -2541,9 +2544,9 @@ body {
     background: #d1d5db;
 }
 
-/* --- GRUP DERSLERİ (STICKY SCROLL BÖLÜMÜ) --- */
+
 .group-classes-section {
-    background-color: rgb(37, 39, 44); /* Koyu arka plan */
+    background-color: rgb(37, 39, 44); 
     color: white;
     padding: 80px 20px;
     position: relative;
@@ -2555,20 +2558,22 @@ body {
     margin: 0  auto;
     display: flex;
     justify-content: space-between;
-    align-items: flex-start; /* Önemli: Sticky'nin çalışması için */
+    align-items: flex-start; 
     gap: 50px;
 }
 
-/* SOL: AKAN İÇERİK */
+
 .group-content {
-    flex: 1; /* Geniş alan */
+    flex: 1; 
     display: flex;
     flex-direction: column;
-    gap: 80px; /* Dersler arası boşluk */
+    gap: 80px; 
 }
 
 .group-item {
-    scroll-margin-top: 120px; /* Tıklayınca başlık navbar'ın altında kalmasın diye */
+    scroll-margin-top: 120px; 
+    text-shadow: 3px 3px 3px #0369a1;
+    
 }
 
 .group-img {
@@ -2577,7 +2582,7 @@ body {
     object-fit: cover;
     border-radius: 5px;
     margin-bottom: 20px;
-    filter: brightness(0.8); /* Resmi hafif karart, yazı okunsun */
+    
     transition: 0.3s;
 }
 
@@ -2589,6 +2594,7 @@ body {
     font-size: 2.5rem;
     margin-bottom: 10px;
     color: white;
+    text-align: center;
 }
 
 .group-item p {
@@ -2601,8 +2607,7 @@ body {
 
 
 /* SAĞ SABİT MENÜMü> */
-.group-sidebar {
-    flex: 0 0 300px; 
+.group-sidebar { 
     position: sticky;
     top: 120px; 
     height: fit-content;
@@ -2655,25 +2660,26 @@ body {
     display: inline-block;
     width: 15px;
     height: 2px;
-    background-color: #0A66C2; /* Kırmızı çizgi */
+    background-color: #0A66C2; 
     transition: 0.3s;
-    opacity: 0; /* Başta gizli */
+    opacity: 0;
 }
 
 .sidebar-menu a:hover {
     color: #0A66C2;
+    opacity: 1;
 }
 
 .sidebar-menu a:hover::before {
-    opacity: 1; /* Üzerine gelince çizgi çıksın */
+  opacity: 1;
     width: 25px;
 }
+/*---*/
 
-/* Sayfa Kaydırma Efekti */
-html { scroll-behavior: smooth; }
+html { scroll-behavior:auto }
 
 
-/* ========== ÖDEME BİLGİLERİ BÖLÜMÜ STİLLERİ ========== */
+
 .payments-list {
     display: flex;
     flex-direction: column;

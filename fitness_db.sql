@@ -143,6 +143,20 @@ CREATE TABLE `user_progress` (
 INSERT INTO `user_progress` (`id`, `user_id`, `weight`, `height`, `bmi`, `record_date`) VALUES
 
 
+-- `notifications`
+--
+
+CREATE TABLE `notifications` (
+  `id` int(11) NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `class_id` int(11) DEFAULT NULL,
+  `type` enum('new_class','class_reminder_1h','class_reminder_30m','class_reminder_10m','class_cancelled') NOT NULL,
+  `title` varchar(255) NOT NULL,
+  `message` text NOT NULL,
+  `is_read` tinyint(1) DEFAULT 0,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
 
 -- `bookings`
 --
@@ -174,6 +188,11 @@ ALTER TABLE `user_progress`
   ADD PRIMARY KEY (`id`),
   ADD KEY `user_id` (`user_id`);
 
+ALTER TABLE `notifications`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `idx_user_notifications` (`user_id`,`is_read`,`created_at`),
+  ADD KEY `idx_class_notifications` (`class_id`);
+
 
 
 --
@@ -202,6 +221,10 @@ ALTER TABLE `user_progress`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1;
 --    --  
 
+ALTER TABLE `notifications`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1;
+--    --  
+
 --------------------- ---------------------------
 ALTER TABLE `bookings`
   ADD CONSTRAINT `bookings_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE,
@@ -219,8 +242,8 @@ ALTER TABLE `password_resets`
 
 ALTER TABLE `user_progress`
   ADD CONSTRAINT `user_progress_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE;
-COMMIT;
 
-/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
-/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
-/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
+ALTER TABLE `notifications`
+  ADD CONSTRAINT `notifications_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `notifications_ibfk_2` FOREIGN KEY (`class_id`) REFERENCES `classes` (`id`) ON DELETE CASCADE;
+COMMIT;

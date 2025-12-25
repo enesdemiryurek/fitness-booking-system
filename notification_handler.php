@@ -33,10 +33,10 @@ class NotificationHandler {
     }
     
     /**
-     * Yeni ders eklendi - tüm kullanıcılara bildir
+     * Yeni ders eklendi Bildirimi
      */
     public function notifyNewClass($class_id, $class_title, $class_type, $trainer_name, $date_time) {
-        $title = "🎉 New Class: $class_title";
+        $title = " New Class: $class_title";
         $message = "$class_type class with trainer $trainer_name on " . date("d.m.Y H:i", strtotime($date_time));
         
         // Tüm aktif kullanıcılara gönder
@@ -49,13 +49,13 @@ class NotificationHandler {
     }
     
     /**
-     * Ders iptal edildi - rezerve etmiş kullanıcılara bildir
+     * Ders iptal edildi 
      */
     public function notifyCancelledClass($class_id, $class_title, $reason = '') {
         $title = "Course canceled: $class_title";
         $message = "Unfortunately, this course has been cancelled." . ($reason ? " Reason: $reason" : "");
         
-        // Bu dersi rezerve etmiş kullanıcıları bul
+        // Bu dersi book etmiş kullanıcıları bul
         $sql = "SELECT DISTINCT user_id FROM bookings WHERE class_id = $class_id";
         $result = mysqli_query($this->conn, $sql);
         
@@ -65,7 +65,7 @@ class NotificationHandler {
     }
     
     /**
-     * Ders saati güncellendi - rezerve etmiş kullanıcılara bildir
+     * Ders saati güncellendi 
      */
     public function notifyClassTimeUpdate($class_id, $class_title, $old_time, $new_time) {
         $old_datetime = date("d.m.Y H:i", strtotime($old_time));
@@ -74,7 +74,7 @@ class NotificationHandler {
         $title = "Updated Class Time: $class_title";
         $message = "The class time has changed.\n\nPrevious time: $old_datetime\nNew time: $new_datetime";
         
-        // Bu dersi rezerve etmiş kullanıcıları bul
+        // Bu dersi book etmiş kullanıcıları bul
         $sql = "SELECT DISTINCT user_id FROM bookings WHERE class_id = $class_id";
         $result = mysqli_query($this->conn, $sql);
         
@@ -91,18 +91,18 @@ class NotificationHandler {
         
         // 1 saat öncesi (3600 saniye)
         $time_1h = date('Y-m-d H:i:s', $now + 3600);
-        $time_1h_range_start = date('Y-m-d H:i:s', $now + 3540); // 59 dakika
-        $time_1h_range_end = date('Y-m-d H:i:s', $now + 3660);   // 61 dakika
+        $time_1h_range_start = date('Y-m-d H:i:s', $now + 3540); 
+        $time_1h_range_end = date('Y-m-d H:i:s', $now + 3660);   
         
         // 30 dakika öncesi (1800 saniye)
         $time_30m = date('Y-m-d H:i:s', $now + 1800);
-        $time_30m_range_start = date('Y-m-d H:i:s', $now + 1740); // 29 dakika
-        $time_30m_range_end = date('Y-m-d H:i:s', $now + 1860);   // 31 dakika
+        $time_30m_range_start = date('Y-m-d H:i:s', $now + 1740); 
+        $time_30m_range_end = date('Y-m-d H:i:s', $now + 1860);   
         
         // 10 dakika öncesi (600 saniye)
         $time_10m = date('Y-m-d H:i:s', $now + 600);
-        $time_10m_range_start = date('Y-m-d H:i:s', $now + 540);  // 9 dakika
-        $time_10m_range_end = date('Y-m-d H:i:s', $now + 660);    // 11 dakika
+        $time_10m_range_start = date('Y-m-d H:i:s', $now + 540);  
+        $time_10m_range_end = date('Y-m-d H:i:s', $now + 660);    
         
         // 1 SAAT ÖNCESİ
         $sql_1h = "SELECT DISTINCT b.user_id, c.title, c.date_time, c.id as class_id
@@ -170,7 +170,7 @@ class NotificationHandler {
     }
     
     /**
-     * Tüm bildirimleri getir (sayfalama ile)
+     * sayfalama
      */
     public function getAllNotifications($user_id, $limit = 20, $offset = 0) {
         $user_id = (int)$user_id;
@@ -212,7 +212,7 @@ class NotificationHandler {
         $result = mysqli_query($this->conn, $sql);
         
         if(!$result) {
-            return 0; // Hata durumunda 0 döndür
+            return 0; 
         }
         
         $row = mysqli_fetch_assoc($result);

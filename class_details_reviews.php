@@ -74,7 +74,7 @@ include 'header.php';
     .trainer {display: flex; align-items: center; gap: 12px;}
     .avatar {width: 56px; height: 56px; border-radius: 50%; object-fit: cover; border: 1px solid #ddd;}
     .avatar-placeholder {width: 56px; height: 56px; border-radius: 50%; border: 1px solid #ddd; display: flex; align-items: center; justify-content: center; background: #f5f5f5; font-weight: 600;}
-    .rating {display: flex; align-items: center; gap: 10px;}
+    .rating {display: flex; align-items: center; gap: 10px; }
     .rating-score {font-size: 28px; font-weight: 700;}
     .pill {padding: 3px 8px; background: #f5f5f5; border-radius: 12px; font-size: 12px; color: #555;}
     .note {padding: 10px; border-radius: 4px; margin-bottom: 12px;}

@@ -443,11 +443,18 @@ include 'header.php';
 ?>
 
 <style>
-    .page-shell {max-width: 1200px; margin: 0 auto; padding: 24px; background: #fff;}
+    .page-shell {max-width: 1200px; margin: 15px auto; padding: 24px; border-top: 5px solid #2d4fa3; background: #fff;}
     .page-shell h1 {margin: 0 0 12px 0; font-size: 26px;}
     .helper {color: #666; margin-bottom: 20px;}
-    .grid {display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 16px;}
-    .section {border: 1px solid #e0e0e0; background: #fafafa; padding: 16px; border-radius: 6px;}
+   
+    .grid { display: flex; flex-direction: column; gap: 16px; }
+    .progress-section { order: 0; }
+    .section { 
+        border: 1px solid #e0e0e0; background: #fafafa; padding: 16px; border-radius: 6px;
+        width: 100%;
+        max-width: 900px;
+        margin: 0 auto 16px auto;
+    }
     .section h2 {margin: 0 0 10px 0; font-size: 20px;}
     .section p {margin: 0 0 12px 0; color: #555;}
     .stack {display: flex; flex-direction: column; gap: 10px;}
@@ -469,7 +476,7 @@ include 'header.php';
     .empty {padding: 12px; color: #666;}
     .badge {display: inline-block; padding: 3px 8px; background: #eef3ff; color: #2d4fa3; border-radius: 4px; font-size: 12px; font-weight: 600;}
     .small-text {color: #666; font-size: 12px;}
-    .row {display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px;}
+    .row {display: flex; flex-wrap: wrap; gap: 12px;}
 </style>
 
 <div class="page-shell">
@@ -571,7 +578,7 @@ include 'header.php';
             </form>
         </div>
 
-        <div class="section">
+        <div class="section progress-section">
             <h2>Progress (BMI)</h2>
             <p>Log your height and weight. BMI is calculated automatically.</p>
             <form method="POST" class="stack">
