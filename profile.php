@@ -447,7 +447,7 @@ include 'header.php';
     .page-shell h1 {margin: 0 0 12px 0; font-size: 26px;}
     .helper {color: #666; margin-bottom: 20px;}
    
-    .grid { display: flex; flex-direction: column; gap: 16px; }
+    .grid { display: flex; flex-direction: row; gap: 16px; justify-content: center; }
     .progress-section { order: 0; }
     .section { 
         border: 1px outset blue; background: #fafafa; padding: 16px; border-radius: 6px;
@@ -521,7 +521,7 @@ include 'header.php';
                 </div>
             </div>
 
-            <form method="POST" class="stack" style="margin-top: 12px;">
+            <form method="POST" class="stack" style=" margin-top: 12px;">
                 <div class="field">
                     <label for="username">Full Name</label>
                     <input type="text" id="username" name="username" value="<?php echo htmlspecialchars($user_row['username']); ?>" required>
@@ -578,7 +578,7 @@ include 'header.php';
             </form>
         </div>
 
-        <div class="section progress-section">
+        <div class="section progress-section" style="order:1;">
             <h2>Progress (BMI)</h2>
             <p>Log your height and weight. BMI is calculated automatically.</p>
             <form method="POST" class="stack">
