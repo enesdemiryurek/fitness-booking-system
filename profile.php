@@ -450,7 +450,7 @@ include 'header.php';
     .grid { display: flex; flex-direction: column; gap: 16px; }
     .progress-section { order: 0; }
     .section { 
-        border: 1px solid #e0e0e0; background: #fafafa; padding: 16px; border-radius: 6px;
+        border: 1px outset blue; background: #fafafa; padding: 16px; border-radius: 6px;
         width: 100%;
         max-width: 900px;
         margin: 0 auto 16px auto;

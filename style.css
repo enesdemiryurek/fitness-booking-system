@@ -160,7 +160,7 @@ body {
     height: 40px;
     border-radius: 50%;
     object-fit: cover;
-    border: 2px solid #ff0000;
+    border: 2px solid red;
     flex-shrink: 0;
 }
 

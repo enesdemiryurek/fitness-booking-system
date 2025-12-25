@@ -4,10 +4,6 @@ include 'db.php';
 include 'notification_handler.php';
 $page_title = "Fitness Booking | GYM";
 
-// sayfaya girişlerde bildirimleri arada göndericek
-if(rand(1, 10) == 1) { 
-    $notificationHandler->sendClassReminders();
-}
 
 
 

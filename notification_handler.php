@@ -89,20 +89,20 @@ class NotificationHandler {
     public function sendClassReminders() {
         $now = time();
         
-        // 1 saat öncesi (3600 saniye)
+        // 1 saat öncesi (3600 saniye) 
         $time_1h = date('Y-m-d H:i:s', $now + 3600);
-        $time_1h_range_start = date('Y-m-d H:i:s', $now + 3540); 
-        $time_1h_range_end = date('Y-m-d H:i:s', $now + 3660);   
+        $time_1h_range_start = date('Y-m-d H:i:s', $now + 3300); 
+        $time_1h_range_end = date('Y-m-d H:i:s', $now + 3900);   
         
-        // 30 dakika öncesi (1800 saniye)
+        // 30 dakika öncesi (1800 saniye) 
         $time_30m = date('Y-m-d H:i:s', $now + 1800);
-        $time_30m_range_start = date('Y-m-d H:i:s', $now + 1740); 
-        $time_30m_range_end = date('Y-m-d H:i:s', $now + 1860);   
+        $time_30m_range_start = date('Y-m-d H:i:s', $now + 1500); 
+        $time_30m_range_end = date('Y-m-d H:i:s', $now + 2100);   
         
-        // 10 dakika öncesi (600 saniye)
+        // 10 dakika öncesi (600 saniye) 
         $time_10m = date('Y-m-d H:i:s', $now + 600);
-        $time_10m_range_start = date('Y-m-d H:i:s', $now + 540);  
-        $time_10m_range_end = date('Y-m-d H:i:s', $now + 660);    
+        $time_10m_range_start = date('Y-m-d H:i:s', $now + 300);  
+        $time_10m_range_end = date('Y-m-d H:i:s', $now + 900);    
         
         // 1 SAAT ÖNCESİ
         $sql_1h = "SELECT DISTINCT b.user_id, c.title, c.date_time, c.id as class_id
