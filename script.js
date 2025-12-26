@@ -25,15 +25,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
-// Yorum formu açıp kapatma
-function toggleReviewForm(classId) {
-    const form = document.getElementById('review-form-' + classId);
-    if (form.style.display === 'none') {
-        form.style.display = 'block';
-    } else {
-        form.style.display = 'none';
-    }
-}
+
 
 // Yıldız seçim fonksiyonu
 function setRating(element, rating, classId) {

@@ -104,11 +104,6 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`id`, `username`, `email`, `phone`, `age`, `gender`, `password`, `role`, `profile_pic`, `created_at`) VALUES
-(1, 'admin', 'admin@gmail.com', NULL, NULL, NULL, '123', 'admin', 'default.png', '2025-11-19 16:31:03'),
-(2, 'ogrenci1', 'ogrenci1@gmail.com', NULL, NULL, NULL, '123', 'user', 'default.png', '2025-11-19 16:31:03'),
-(3, 'enesdemiryürek', 'instructor@gmail.com', NULL, NULL, NULL, '123', 'instructor', 'default.png', '2025-11-19 17:09:40'),
-(4, 'elif çalışkaner', 'elifbaba@gmail.com', '03483653535', 31, 'Female', '123', 'user', 'default.png', '2025-11-20 13:45:36'),
-;
 
 -- --------------------------------------------------------
 

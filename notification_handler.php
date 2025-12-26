@@ -39,7 +39,7 @@ class NotificationHandler {
         $title = " New Class: $class_title";
         $message = "$class_type class with trainer $trainer_name on " . date("d.m.Y H:i", strtotime($date_time));
         
-        // Tüm aktif kullanıcılara gönder
+      
         $sql = "SELECT id FROM users WHERE role = 'user'";
         $result = mysqli_query($this->conn, $sql);
         
@@ -231,6 +231,14 @@ class NotificationHandler {
 
 // Global bildirim yöneticisini oluştur
 $notificationHandler = new NotificationHandler($conn);
+
+// CLI entry point: allow running reminders via `php notification_handler.php`
+if (php_sapi_name() === 'cli' && realpath($_SERVER['SCRIPT_FILENAME']) === __FILE__) {
+    ob_start();
+    $notificationHandler->sendClassReminders();
+    ob_end_clean();
+    echo "Reminders processed at " . date('Y-m-d H:i:s') . "\n";
+}
 
 } // NOTIFICATION_HANDLER_LOADED if sonu
 ?>

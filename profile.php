@@ -578,7 +578,7 @@ include 'header.php';
             </form>
         </div>
 
-        <div class="section progress-section" style="order:1;">
+        <div class="section progress-section" style="order:0;">
             <h2>Progress (BMI)</h2>
             <p>Log your height and weight. BMI is calculated automatically.</p>
             <form method="POST" class="stack">
