@@ -1,7 +1,5 @@
 <?php
-/**
- * Tüm bildirimleri oku olarak işaretle
- */
+
 
 session_start();
 include 'db.php';

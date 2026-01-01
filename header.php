@@ -1,5 +1,5 @@
 <?php
-// Session başlatılması gereken yerde bunu çağırmadan önce session_start() yapılmalı
+
 include 'notification_handler.php';
 ?>
 
@@ -24,7 +24,7 @@ include 'notification_handler.php';
 
         <div class="nav-right">
             <?php if(isset($_SESSION['user_id'])): ?>
-                <!-- BİLDİRİM BUTONU -->
+             
                 <div class="notification-container">
                     <button class="notification-btn" id="notificationBtn">
                         🔔
@@ -40,14 +40,14 @@ include 'notification_handler.php';
                         ?>
                     </button>
                     
-                    <!-- BİLDİRİM DROPDOWN -->
+             
                     <div class="notification-panel" id="notificationPanel">
                         <div class="notification-header">
                             <h3></h3>
                             <small class="notif-auto-read">marked as read</small>
                         </div>
                         <div class="notification-list" id="notificationList">
-                            <!-- Bildirimler JS ile yüklenecek -->
+                           
                         </div>
                     </div>
                 </div>
@@ -65,22 +65,22 @@ include 'notification_handler.php';
         </div>
     </nav>
 
-    <!-- BİLDİRİM AYARLARI -->
+    
     <script>
-        // Bildirim butonunu aç/kapat
+    
         document.getElementById('notificationBtn').addEventListener('click', function() {
             const panel = document.getElementById('notificationPanel');
             if(panel.style.display === 'none' || panel.style.display === '') {
                 panel.style.display = 'block';
                 loadNotifications();
-                // Kutu açıldığında tüm bildirimleri okundu işaretle
+              
                 markAllNotificationsAsRead();
             } else {
                 panel.style.display = 'none';
             }
         });
         
-        // Panel dışına tıklanınca kapat
+      
         document.addEventListener('click', function(e) {
             const container = document.querySelector('.notification-container');
             if(!container.contains(e.target)) {
@@ -88,7 +88,7 @@ include 'notification_handler.php';
             }
         });
         
-        // Bildirimleri yükle
+      
         function loadNotifications() {
             fetch('get_notifications.php')
                 .then(response => response.json())
@@ -113,17 +113,17 @@ include 'notification_handler.php';
                 });
         }
         
-        // Bildirimi sil
+ 
         function deleteNotification(id) {
             fetch('delete_notification.php?id=' + id)
                 .then(() => loadNotifications());
         }
         
-        // Tüm bildirimleri oku olarak işaretle
+       
         function markAllNotificationsAsRead() {
             fetch('mark_all_read.php')
                 .then(() => {
-                    // Sayfayı yenileme, sadece bildirim badge'ini kaldır
+                    
                     const badge = document.querySelector('.notification-badge');
                     if(badge) {
                         badge.remove();

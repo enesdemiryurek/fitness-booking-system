@@ -1,6 +1,6 @@
 <?php
 session_start();
-//bildirim sistemi kurulduu
+
 
 
 echo "Notifications table is managed via fitness_db.sql.<br>";

@@ -29,8 +29,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             // Şifre sıfırlama linki oluştur
             $reset_link = "http://" . $_SERVER['HTTP_HOST'] . "/fitness-booking-system/reset_password.php?token=" . $token;
 
-            // Email gönder
-            $subject = "GYM - Şifre Sıfırlama Talebi";
+          
+            $subject = "reset password link";
             $message_body = "
 Hello,
 

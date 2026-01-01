@@ -156,9 +156,7 @@ class NotificationHandler {
         }
     }
     
-    /**
-     * Kullanıcının okunmamış bildirimlerini getir
-     */
+    
     public function getUnreadNotifications($user_id) {
         $user_id = (int)$user_id;
         $sql = "SELECT * FROM notifications 
@@ -170,7 +168,7 @@ class NotificationHandler {
     }
     
     /**
-     * sayfalama
+     * sayfalama yapıyom
      */
     public function getAllNotifications($user_id, $limit = 20, $offset = 0) {
         $user_id = (int)$user_id;
@@ -182,15 +180,6 @@ class NotificationHandler {
                 ORDER BY created_at DESC 
                 LIMIT $limit OFFSET $offset";
         
-        return mysqli_query($this->conn, $sql);
-    }
-    
-    /**
-     * Bildirimi oku olarak işaretle
-     */
-    public function markAsRead($notification_id) {
-        $notification_id = (int)$notification_id;
-        $sql = "UPDATE notifications SET is_read = TRUE WHERE id = $notification_id";
         return mysqli_query($this->conn, $sql);
     }
     
@@ -229,10 +218,10 @@ class NotificationHandler {
     }
 }
 
-// Global bildirim yöneticisini oluştur
+// NotificationHandler objesi oluşturdum
 $notificationHandler = new NotificationHandler($conn);
 
-// CLI entry point: allow running reminders via `php notification_handler.php`
+
 if (php_sapi_name() === 'cli' && realpath($_SERVER['SCRIPT_FILENAME']) === __FILE__) {
     ob_start();
     $notificationHandler->sendClassReminders();

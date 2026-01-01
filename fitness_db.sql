@@ -12,11 +12,6 @@ START TRANSACTION;
 SET time_zone = "+00:00";
 
 
-/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
-/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
-/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
-/*!40101 SET NAMES utf8mb4 */;
-
 --
 -- Veritabanı: `fitness_db`
 --
@@ -31,7 +26,7 @@ CREATE TABLE `bookings` (
   `user_id` int(11) NOT NULL,
   `class_id` int(11) NOT NULL,
   `booking_date` timestamp NOT NULL DEFAULT current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) 
 
 -- `bookings` datas
 --
@@ -56,7 +51,7 @@ CREATE TABLE `classes` (
   `capacity` int(11) NOT NULL,
   `video_link` varchar(255) DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) 
 
 -- `classes` datas--
 
@@ -75,7 +70,7 @@ CREATE TABLE `reviews` (
   `rating` int(11) DEFAULT NULL CHECK (`rating` >= 1 and `rating` <= 5),
   `comment` text DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) 
 
 
 
@@ -97,8 +92,9 @@ CREATE TABLE `users` (
   `password` varchar(255) NOT NULL,
   `role` enum('user','instructor','admin') DEFAULT 'user',
   `profile_pic` varchar(255) DEFAULT 'default.png',
+  `profile_photo` longblob DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+)
 
 -- `users` datas
 --
@@ -116,7 +112,7 @@ CREATE TABLE `password_resets` (
   `token` varchar(255) NOT NULL,
   `expires_at` datetime NOT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) 
 
 
 
@@ -130,12 +126,53 @@ CREATE TABLE `user_progress` (
   `height` int(11) NOT NULL,
   `bmi` decimal(5,2) DEFAULT NULL,
   `record_date` timestamp NOT NULL DEFAULT current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
+) 
 -- `user_progress` datas
 --
 
 INSERT INTO `user_progress` (`id`, `user_id`, `weight`, `height`, `bmi`, `record_date`) VALUES
+
+
+-- `instructor_specialties`
+--
+
+CREATE TABLE `instructor_specialties` (
+  `id` int(11) NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `class_type` varchar(50) NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+) 
+
+
+-- `payments`
+--
+
+CREATE TABLE `payments` (
+  `id` int(11) NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `class_id` int(11) NOT NULL,
+  `booking_id` int(11) DEFAULT NULL,
+  `amount` decimal(10,2) NOT NULL,
+  `payment_status` enum('pending','completed','failed') DEFAULT 'pending',
+  `payment_method` varchar(50) DEFAULT 'simulated',
+  `transaction_id` varchar(255) DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+)
+
+
+-- `user_payment_methods`
+--
+
+CREATE TABLE `user_payment_methods` (
+  `id` int(11) NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `payment_type` enum('Credit Card','Debit Card','PayPal','Bank Transfer') NOT NULL,
+  `card_number` varchar(50) DEFAULT NULL,
+  `cardholder_name` varchar(100) DEFAULT NULL,
+  `expiry_date` varchar(10) DEFAULT NULL,
+  `is_default` tinyint(1) DEFAULT 0,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+) 
 
 
 -- `notifications`
@@ -145,12 +182,12 @@ CREATE TABLE `notifications` (
   `id` int(11) NOT NULL,
   `user_id` int(11) NOT NULL,
   `class_id` int(11) DEFAULT NULL,
-  `type` enum('new_class','class_reminder_1h','class_reminder_30m','class_reminder_10m','class_cancelled') NOT NULL,
+  `type` enum('new_class','class_reminder_1h','class_reminder_30m','class_reminder_10m','class_cancelled','class_time_updated') NOT NULL,
   `title` varchar(255) NOT NULL,
   `message` text NOT NULL,
   `is_read` tinyint(1) DEFAULT 0,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+)
 
 
 -- `bookings`
@@ -188,11 +225,21 @@ ALTER TABLE `notifications`
   ADD KEY `idx_user_notifications` (`user_id`,`is_read`,`created_at`),
   ADD KEY `idx_class_notifications` (`class_id`);
 
+ALTER TABLE `instructor_specialties`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `uniq_instructor_specialty` (`user_id`,`class_type`),
+  ADD KEY `idx_instructor_specialties_user` (`user_id`);
+
+ALTER TABLE `payments`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `idx_user_payments` (`user_id`),
+  ADD KEY `idx_class_payments` (`class_id`);
+
+ALTER TABLE `user_payment_methods`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `idx_user_payment_methods` (`user_id`);
 
 
---
--- Tablo için AUTO_INCREMENT Ender Hoca sorar `bookings`
---
 ALTER TABLE `bookings`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1;
 --
@@ -205,7 +252,7 @@ ALTER TABLE `reviews`
 --    --  
 
 ALTER TABLE `users`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1;
 --    --  
 
 ALTER TABLE `password_resets`
@@ -217,6 +264,18 @@ ALTER TABLE `user_progress`
 --    --  
 
 ALTER TABLE `notifications`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1;
+--    --  
+
+ALTER TABLE `instructor_specialties`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1;
+--    --  
+
+ALTER TABLE `payments`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1;
+--    --  
+
+ALTER TABLE `user_payment_methods`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1;
 --    --  
 
@@ -241,4 +300,14 @@ ALTER TABLE `user_progress`
 ALTER TABLE `notifications`
   ADD CONSTRAINT `notifications_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE,
   ADD CONSTRAINT `notifications_ibfk_2` FOREIGN KEY (`class_id`) REFERENCES `classes` (`id`) ON DELETE CASCADE;
+
+ALTER TABLE `instructor_specialties`
+  ADD CONSTRAINT `instructor_specialties_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE;
+
+ALTER TABLE `payments`
+  ADD CONSTRAINT `payments_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `payments_ibfk_2` FOREIGN KEY (`class_id`) REFERENCES `classes` (`id`) ON DELETE CASCADE;
+
+ALTER TABLE `user_payment_methods`
+  ADD CONSTRAINT `user_payment_methods_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE;
 COMMIT;

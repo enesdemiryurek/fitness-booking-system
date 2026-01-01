@@ -5,7 +5,19 @@ include 'notification_handler.php';
 $page_title = "Fitness Booking | GYM";
 
 
+$userBookedClasses = [];
+if (isset($_SESSION['user_id'])) {
+    $uid = (int) $_SESSION['user_id'];
+    $booked_sql = "SELECT class_id FROM bookings WHERE user_id = $uid";
+    if ($booked_result = mysqli_query($conn, $booked_sql)) {
+        while ($b = mysqli_fetch_assoc($booked_result)) {
+            $userBookedClasses[(int) $b['class_id']] = true;
+        }
+        mysqli_free_result($booked_result);
+    }
+}
 
+/*---------------*/ 
 
 include 'header.php';
 ?>
@@ -132,17 +144,19 @@ include 'header.php';
                                 <span class="trainer-time-card">Time: <?php echo date("d.m.Y H:i", strtotime($row['date_time'])); ?></span>
                             </div>
                             <div class="card-actions" style="margin-top:10px; display:flex; gap:8px; flex-wrap:wrap;">
-                                <?php if(isset($_SESSION['user_id'])): ?>
-                                    <?php if ($row['capacity'] > 0): ?>
-                                        <a href="book_class.php?id=<?php echo (int) $row['id']; ?>" class="btn-card">Book</a>
+                                    <?php if(isset($_SESSION['user_id'])): ?>
+                                        <?php if (!empty($userBookedClasses[(int) $row['id']])): ?>
+                                            <a href="#" class="btn-card" onclick="alert('You have already booked this class.'); return false;">Book</a>
+                                        <?php elseif ($row['capacity'] <= 0): ?>
+                                            <a href="#" class="btn-card" onclick="alert('This class is full. Please Choose Another Course.'); return false;">Book</a>
+                                        <?php else: ?>
+                                            <a href="book_class.php?id=<?php echo (int) $row['id']; ?>" class="btn-card">Book</a>
+                                        <?php endif; ?>
+                                        <a href="class_details_reviews.php?id=<?php echo (int) $row['id']; ?>" class="btn-card" style="background:#ffffff; color:#0A66C2; border:1px solid #0A66C2;">Details</a>
                                     <?php else: ?>
-                                        <button class="btn-card btn-disabled" disabled>Full</button>
+                                        <a href="login.php" class="btn-card" style="background:#0A66C2;">Login & Book</a>
+                                        <a href="class_details_reviews.php?id=<?php echo (int) $row['id']; ?>" class="btn-card" style="background:#ffffff; color:#0A66C2; border:1px solid #0A66C2;">Details</a>
                                     <?php endif; ?>
-                                    <a href="class_details_reviews.php?id=<?php echo (int) $row['id']; ?>" class="btn-card" style="background:#ffffff; color:#0A66C2; border:1px solid #0A66C2;">Details</a>
-                                <?php else: ?>
-                                    <a href="login.php" class="btn-card" style="background:#0A66C2;">Login & Book</a>
-                                    <a href="class_details_reviews.php?id=<?php echo (int) $row['id']; ?>" class="btn-card" style="background:#ffffff; color:#0A66C2; border:1px solid #0A66C2;">Details</a>
-                                <?php endif; ?>
                             </div>
                         </div>
                     </div>

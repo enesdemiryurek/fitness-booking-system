@@ -12,10 +12,10 @@ body {
     color: #333;
 }
 
-/* --- 1. NAVBAR (ÜST MENÜ) --- */
+/* header */
 .navbar {
     display: flex;
-    justify-content: space-between; /* Sol-Orta-Sağ dağılımı */
+    justify-content: space-between; 
     align-items: center;
     padding: 20px 50px;
     background-color: white;
@@ -212,7 +212,7 @@ body {
 }
 
 .class-card:hover {
-    transform: translateY(-10px);
+    transform: translateY(20px);
 }
 
 .card-image {
